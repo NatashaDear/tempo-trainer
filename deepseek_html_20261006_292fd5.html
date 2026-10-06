@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Музыкальный Тренажер: Темпы</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f0f3f8; color: #333; margin: 0; padding: 10px; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        .header { background: linear-gradient(135deg, #4b6cb7, #182848); color: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px; text-align: center; }
+        .header h1 { margin: 0; font-size: 18px; }
+        .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
+        .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+        .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-nav.active { background: #fff; color: #182848; }
+        .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
+        .timer-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; font-size: 12px; }
+        .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .subsections { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; justify-content: center; }
+        .btn-subsection { background: #fff; color: #4b6cb7; border: 2px solid #4b6cb7; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; flex: 1 1 auto; min-width: 100px; }
+        .btn-subsection.active { background: #4b6cb7; color: #fff; }
+        .btn-subsection.check { border-color: #9b59b6; color: #9b59b6; background: linear-gradient(135deg, #fff, #f8f0ff); }
+        .btn-subsection.check.active { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; border-color: #8e44ad; }
+
+        .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .rule-block { background: #f8fafd; border-left: 4px solid #4b6cb7; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; font-size: 14px; }
+        .theory-term .term-text { flex: 1; font-weight: 500; }
+        .btn-play-tempo { background: #4b6cb7; width: 38px; height: 38px; border-radius: 50%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .btn-compare { background: linear-gradient(135deg, #9b59b6, #8e44ad); margin-top: 15px; }
+        .subsection-header { color: #4b6cb7; font-size: 15px; font-weight: bold; margin: 15px 0 8px; padding: 8px 12px; background: #eef5fc; border-radius: 8px; border-left: 4px solid #4b6cb7; }
+
+        button { background: #4b6cb7; color: white; border: none; padding: 12px 18px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: block; margin-top: 10px; }
+        button:active { opacity: 0.8; }
+        .btn-hint { background: #f39c12; }
+        .btn-check { background: #2ecc71; }
+        .btn-melody { background: #8e44ad; }
+        .btn-stop { background: #e74c3c; }
+        .pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; justify-content: center; }
+        .chunk-card { background: #fff; border: 2px solid #ccc; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .chunk-card.active-card { border-color: #4b6cb7; background: #eef5fc; color: #4b6cb7; }
+        .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
+        .variant-option.active-card { border-color: #4b6cb7; background: #eef5fc; color: #4b6cb7; }
+        .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 200px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
+        .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .inventory-item { border: 2px solid #e1e8ed; border-radius: 12px; padding: 12px; text-align: center; background: #fff; opacity: 0.3; }
+        .inventory-item.unlocked { opacity: 1; border-color: #2ecc71; background: #fafffa; box-shadow: 0 4px 8px rgba(46,204,113,0.15); }
+        .item-icon { font-size: 36px; margin-bottom: 4px; }
+        .item-title { font-weight: bold; font-size: 13px; color: #182848; }
+        .item-status { font-size: 11px; margin-top: 4px; font-weight: bold; color: #7f8c8d; }
+        .inventory-item.unlocked .item-status { color: #2ecc71; }
+        .hint-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; width: 90%; max-width: 450px; box-sizing: border-box; }
+        .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        .feedback { font-size: 15px; font-weight: bold; margin-top: 12px; text-align: center; line-height: 1.4; }
+        .success-text { color: #2ecc71; }
+        .error-text { color: #e74c3c; }
+
+        .tempo-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 1001; width: 90%; max-width: 440px; box-sizing: border-box; text-align: center; }
+        .tempo-modal h3 { margin: 0 0 4px 0; color: #182848; font-size: 20px; }
+        .tempo-modal .tempo-translation { color: #666; font-size: 13px; font-style: italic; margin-bottom: 12px; }
+        .viz-stage { position: relative; height: 220px; background: linear-gradient(to bottom, #e0e8f5, #b8c7e0); border-radius: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.1); }
+        .viz-floor { position: absolute; bottom: 0; left: 0; right: 0; height: 14px; background: linear-gradient(to bottom, #182848, #0e1a33); }
+        .viz-floor::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.2); }
+        .viz-footprint { position: absolute; bottom: 14px; width: 26px; height: 8px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(231,76,60,0.85), rgba(231,76,60,0.3)); transform: translateX(-50%); animation: footprintFade 2.5s ease-out forwards; pointer-events: none; z-index: 2; }
+        @keyframes footprintFade { 0% { opacity: 1; transform: translateX(-50%) scale(1); } 30% { opacity: 0.9; transform: translateX(-50%) scale(1.1); } 70% { opacity: 0.55; transform: translateX(-50%) scale(0.95); } 100% { opacity: 0; transform: translateX(-50%) scale(0.6); } }
+        .viz-aura { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(231,76,60,0.5) 0%, rgba(231,76,60,0) 70%); opacity: 0; pointer-events: none; }
+        .viz-aura.breathing { animation: auraPulse 1s ease-out; }
+        @keyframes auraPulse { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; } }
+        .viz-ball { position: absolute; top: 0; height: 60px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff8c42, #e74c3c); box-shadow: 0 4px 10px rgba(0,0,0,0.3); will-change: top, left, width; z-index: 3; }
+        .viz-info-row { display: flex; justify-content: space-around; align-items: center; background: #f8fafd; border-radius: 10px; padding: 8px; margin-bottom: 10px; }
+        .viz-info-cell { text-align: center; flex: 1; }
+        .viz-info-cell .label { font-size: 11px; color: #7f8c8d; text-transform: uppercase; font-weight: bold; }
+        .viz-info-cell .value { font-size: 22px; font-weight: bold; color: #182848; }
+        .viz-info-cell .value.changing { color: #e74c3c; }
+        .breadth-scale { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 0 5px; }
+        .breadth-scale .scale-label { font-size: 11px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
+        .scale-track { flex: 1; height: 10px; background: linear-gradient(to right, #f39c12, #3498db, #9b59b6); border-radius: 5px; position: relative; }
+        .scale-marker { position: absolute; top: -4px; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid #182848; transform: translateX(-50%); transition: left 0.4s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .breadth-label { font-size: 13px; font-weight: bold; color: #182848; background: #eef5fc; padding: 6px; border-radius: 6px; margin-bottom: 10px; }
+        .tempo-buttons { display: flex; gap: 6px; }
+        .tempo-buttons button { margin-top: 0; font-size: 12px; padding: 10px 8px; }
+
+        .compare-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 16px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 1001; width: 95%; max-width: 560px; max-height: 92vh; box-sizing: border-box; }
+        .compare-modal h3 { margin: 0 0 4px 0; color: #182848; font-size: 18px; text-align: center; }
+        .compare-subtitle { font-size: 12px; color: #7f8c8d; text-align: center; margin-bottom: 12px; font-style: italic; line-height: 1.4; }
+        .compare-lanes { max-height: 58vh; overflow-y: auto; padding: 4px 2px; }
+        .compare-lane { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .lane-label { width: 130px; flex-shrink: 0; text-align: right; }
+        .lane-name { font-weight: bold; font-size: 13px; color: #182848; line-height: 1.2; }
+        .lane-translation { font-size: 10px; color: #7f8c8d; line-height: 1.2; font-style: italic; }
+        .lane-bpm { font-size: 10px; color: #4b6cb7; font-weight: bold; }
+        .lane-track { flex: 1; height: 42px; background: linear-gradient(to bottom, #eef2f7, #d8e0eb); border-radius: 8px; position: relative; overflow: hidden; border-bottom: 4px solid #182848; }
+        .lane-ball { position: absolute; bottom: 4px; left: 0; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff8c42, #e74c3c); transform: translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 2; }
+        .lane-ball.bounce { animation: laneBounce 0.35s ease-out; }
+        @keyframes laneBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-12px); } }
+        .lane-ball.heavy { background: radial-gradient(circle at 30% 30%, #6d4c41, #3e2723); box-shadow: 0 3px 6px rgba(0,0,0,0.5); }
+        .lane-footprint { position: absolute; bottom: 4px; width: 12px; height: 5px; border-radius: 50%; background: rgba(231,76,60,0.75); transform: translateX(-50%); animation: footprintFadeCompare 2.2s ease-out forwards; }
+        @keyframes footprintFadeCompare { 0% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(0.6); } }
+        .lane-finish { position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: #2ecc71; opacity: 0.6; }
+        .compare-controls { display: flex; gap: 8px; margin-top: 12px; }
+        .compare-controls button { margin-top: 0; }
+
+        /* ============ ЭКРАН БЛОКИРОВКИ ============ */
+        .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .lock-overlay.active { display: flex; }
+        .lock-box { background: white; padding: 25px 22px; border-radius: 16px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .lock-box .lock-icon { font-size: 48px; margin-bottom: 8px; }
+        .lock-box h2 { color: #182848; margin: 0 0 8px; font-size: 22px; }
+        .lock-box p { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
+        .lock-input { font-size: 20px; padding: 12px; width: 100%; border: 2px solid #ccc; border-radius: 10px; text-align: center; letter-spacing: 2px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
+        .lock-input:focus { outline: none; border-color: #4b6cb7; box-shadow: 0 0 0 3px rgba(75,108,183,0.2); }
+        .lock-error { color: #e74c3c; font-size: 13px; margin-bottom: 8px; min-height: 18px; font-weight: bold; }
+        .lock-box button { background: #4b6cb7; }
+        .lock-hint { font-size: 11px; color: #aaa; margin-top: 14px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🎵 Тренажер: Музыкальные темпы</h1>
+        <div class="sub-header">
+            <div class="balance-box">Очки: <span id="balance-val">0</span> ⭐</div>
+            <div>Трофеи: <span id="inv-count">0</span>/4 🎒</div>
+            <div class="timer-box" id="timer-box">⏱ <span id="timer-val">10:00</span></div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn-nav active" id="nav-learn" onclick="switchTab('learn')">Учеба ✍️</button>
+            <button class="btn-nav" id="nav-shop" onclick="switchTab('shop')">Рюкзак 🎒</button>
+        </div>
+    </div>
+
+    <div id="tab-learn-content">
+        <div class="card-box" id="screen-theory">
+            <h2 style="margin-top:0;">📚 Раздел «Темпы»</h2>
+            <div class="subsections" id="subsection-buttons"></div>
+            <div id="theory-list"></div>
+            <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
+        </div>
+
+        <div class="card-box" id="screen-game" style="display: none;">
+            <h2 id="game-task-title">Задание</h2>
+            <div id="game-instruction" style="font-style: italic; color: #666; margin-bottom: 10px; font-size: 13px;"></div>
+            <div id="game-workspace"></div>
+            <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 5px;">
+                <div id="action-buttons" style="display:none; gap:10px; width:100%;"></div>
+                <button class="btn-hint" id="hint-main-btn" onclick="showHint()">💡 Подглядеть таблицу (Без трофея)</button>
+            </div>
+            <div class="feedback" id="game-feedback"></div>
+        </div>
+    </div>
+
+    <div id="tab-shop-content" style="display: none;">
+        <div class="card-box">
+            <h2>🎒 Твоя корзина музыкальных трофеев</h2>
+            <div class="inventory-grid" id="inventory-container"></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+    <div class="hint-modal" id="hint-modal">
+        <h3>📖 Таблица терминов</h3>
+        <div id="hint-content" class="rule-block" style="white-space: pre-wrap;"></div>
+        <button onclick="closeAllModals()">Закрыть</button>
+    </div>
+
+    <div class="tempo-modal" id="tempo-modal">
+        <h3 id="tempo-title">Largo</h3>
+        <div class="tempo-translation" id="tempo-translation">очень медленно, широко</div>
+        <div class="viz-stage" id="viz-stage">
+            <div class="viz-aura" id="viz-aura"></div>
+            <div class="viz-ball" id="viz-ball"></div>
+            <div class="viz-floor"></div>
+        </div>
+        <div class="viz-info-row">
+            <div class="viz-info-cell"><div class="label">BPM</div><div class="value" id="viz-bpm">50</div></div>
+            <div class="viz-info-cell"><div class="label">Удар</div><div class="value" id="viz-beat">0</div></div>
+            <div class="viz-info-cell"><div class="label">Характер</div><div class="value" id="viz-step" style="font-size:15px;">средний</div></div>
+        </div>
+        <div class="breadth-scale">
+            <span class="scale-label">Узко</span>
+            <div class="scale-track"><div class="scale-marker" id="breadth-marker" style="left: 50%;"></div></div>
+            <span class="scale-label">Широко</span>
+        </div>
+        <div class="breadth-label" id="breadth-label">🥁 Ширина: средняя</div>
+        <div class="tempo-buttons">
+            <button class="btn-check" id="viz-play-btn" onclick="toggleTempoPlay()">▶️ Ритм</button>
+            <button class="btn-melody" id="viz-melody-btn" onclick="toggleMelody()">🎵 Мелодия</button>
+            <button onclick="closeAllModals()" style="background:#95a5a6;">Закрыть</button>
+        </div>
+    </div>
+
+    <div class="compare-modal" id="compare-modal">
+        <h3>🎼 Сравнение темпов</h3>
+        <div class="compare-subtitle">Все темпы шагают одновременно. Кто быстрее по BPM — тот уйдёт дальше</div>
+        <div class="compare-lanes" id="compare-lanes"></div>
+        <div class="compare-controls">
+            <button class="btn-check" id="compare-play-btn" onclick="toggleComparePlay()">▶️ Запустить</button>
+            <button onclick="closeAllModals()" style="background:#95a5a6;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- ============ ЭКРАН БЛОКИРОВКИ ============ -->
+    <div class="lock-overlay" id="lock-overlay">
+        <div class="lock-box">
+            <div class="lock-icon">🔒</div>
+            <h2>Время истекло</h2>
+            <p>Позанимались 10 минут — пора отдохнуть!<br>Введи пароль, чтобы продолжить.</p>
+            <input type="password" class="lock-input" id="lock-password" placeholder="Введите пароль" maxlength="8" inputmode="numeric" autocomplete="off">
+            <div class="lock-error" id="lock-error"></div>
+            <button onclick="unlockApp()">🔓 Разблокировать</button>
+            <div class="lock-hint">Пароль у родителя</div>
+        </div>
+    </div>
+
+<script>
+        // ==================== НАСТРОЙКИ БЛОКИРОВКИ ====================
+        const LOCK_CONFIG = {
+            enabled: true,
+            timeoutMs: 10 * 60 * 1000,
+            password: "13"
+        };
+        let lockTimerId = null;
+        let lockDeadline = 0;
+        let lockCountdownId = null;
+
+        function startLockTimer() {
+            if (!LOCK_CONFIG.enabled) return;
+            if (lockTimerId) clearTimeout(lockTimerId);
+            if (lockCountdownId) clearInterval(lockCountdownId);
+            lockDeadline = Date.now() + LOCK_CONFIG.timeoutMs;
+            updateTimerDisplay();
+            lockTimerId = setTimeout(showLockScreen, LOCK_CONFIG.timeoutMs);
+            lockCountdownId = setInterval(updateTimerDisplay, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const left = Math.max(0, lockDeadline - Date.now());
+            const totalSec = Math.floor(left / 1000);
+            const min = Math.floor(totalSec / 60);
+            const sec = totalSec % 60;
+            const el = document.getElementById('timer-val');
+            const box = document.getElementById('timer-box');
+            if (!el || !box) return;
+            el.innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+            if (totalSec <= 60) box.classList.add('warning');
+            else box.classList.remove('warning');
+        }
+
+        function showLockScreen() {
+            if (lockCountdownId) { clearInterval(lockCountdownId); lockCountdownId = null; }
+            if (lockTimerId) { clearTimeout(lockTimerId); lockTimerId = null; }
+            document.getElementById('lock-overlay').classList.add('active');
+            document.getElementById('lock-password').value = '';
+            document.getElementById('lock-error').innerText = '';
+            document.getElementById('timer-val').innerText = '0:00';
+            document.getElementById('timer-box').classList.add('warning');
+            setTimeout(() => document.getElementById('lock-password').focus(), 150);
+            try { stopMelody(); } catch(e) {}
+            try { stopTempoVisualizer(); } catch(e) {}
+            try { stopCompare(); } catch(e) {}
+        }
+
+        function unlockApp() {
+            const entered = document.getElementById('lock-password').value.trim();
+            if (entered === LOCK_CONFIG.password) {
+                document.getElementById('lock-overlay').classList.remove('active');
+                document.getElementById('lock-error').innerText = '';
+                document.getElementById('timer-box').classList.remove('warning');
+                startLockTimer();
+            } else {
+                document.getElementById('lock-error').innerText = '❌ Неверный пароль';
+                document.getElementById('lock-password').value = '';
+                document.getElementById('lock-password').focus();
+            }
+        }
+
+        // ==================== БАЗА ТЕМПОВ ====================
+        const DATABASE = {
+            slow: {
+                title: "Медленные темпы",
+                hintText: "Adagio — медленно\nGrave — важно, тяжеловесно\nLento — протяжно\nLargo — очень медленно, широко\nLarghetto — довольно широко",
+                terms: [
+                    { it: "Adagio", ru: "медленно", fakeWord: "быстро" },
+                    { it: "Grave", ru: "важно, тяжеловесно", fakeWord: "легко, воздушно" },
+                    { it: "Lento", ru: "протяжно", fakeWord: "отрывисто" },
+                    { it: "Largo", ru: "очень медленно, широко", fakeWord: "очень быстро, узко" },
+                    { it: "Larghetto", ru: "довольно широко", fakeWord: "довольно узко" }
+                ]
+            },
+            medium: {
+                title: "Средние темпы",
+                hintText: "Andante — спокойно, не спеша\nAndantino — немного скорее, чем andante\nModerato — умеренно, сдержанно\nSostenuto — сдержанно",
+                terms: [
+                    { it: "Andante", ru: "спокойно, не спеша", fakeWord: "беспокойно, очень спеша" },
+                    { it: "Andantino", ru: "немного скорее, чем andante", fakeWord: "намного медленнее, чем andante" },
+                    { it: "Moderato", ru: "умеренно, сдержанно", fakeWord: "громко, неумеренно" },
+                    { it: "Sostenuto", ru: "сдержанно", fakeWord: "взволнованно" }
+                ]
+            },
+            fast: {
+                title: "Быстрые темпы",
+                hintText: "Allegro — скоро\nAllegretto — медленнее, чем allegro\nPresto — быстро\nPrestissimo — очень быстро\nVivo — живо\nVivace — оживлённо",
+                terms: [
+                    { it: "Allegro", ru: "скоро", fakeWord: "протяжно" },
+                    { it: "Allegretto", ru: "медленнее, чем allegro", fakeWord: "быстрее, чем allegro" },
+                    { it: "Presto", ru: "быстро", fakeWord: "медленно" },
+                    { it: "Prestissimo", ru: "очень быстро", fakeWord: "очень медленно" },
+                    { it: "Vivo", ru: "живо", fakeWord: "важно" },
+                    { it: "Vivace", ru: "оживлённо", fakeWord: "уныло" }
+                ]
+            },
+            change: {
+                title: "Изменения темпов",
+                hintText: "ritenuto — замедляя\nritardando — замедляя, расширяя\nrallentando — расширяя\nmeno mosso — менее подвижно\npiu mosso — более подвижно\npoco — немного, мало\npoco a poco — постепенно\naccelerando — постепенно ускоряя\nstringendo — ускоряя, напористее\ntempo primo — первый темп",
+                terms: [
+                    { it: "ritenuto", ru: "замедляя", fakeWord: "ускоряя" },
+                    { it: "ritardando", ru: "замедляя, расширяя", fakeWord: "ускоряя, сужая" },
+                    { it: "rallentando", ru: "расширяя", fakeWord: "сужая" },
+                    { it: "meno mosso", ru: "менее подвижно", fakeWord: "более подвижно" },
+                    { it: "piu mosso", ru: "более подвижно", fakeWord: "менее подвижно" },
+                    { it: "poco", ru: "немного, мало", fakeWord: "много, достаточно" },
+                    { it: "poco a poco", ru: "постепенно", fakeWord: "внезапно" },
+                    { it: "accelerando", ru: "постепенно ускоряя", fakeWord: "постепенно замедляя" },
+                    { it: "stringendo", ru: "ускоряя, напористее", fakeWord: "замедляя, мягче" },
+                    { it: "tempo primo", ru: "первый темп", fakeWord: "последний темп" }
+                ]
+            }
+        };
+
+        DATABASE.all = {
+            title: "Проверка по всей теме Темпы",
+            skipPairs: true,
+            hintText: "Все термины из 4 подразделов:\n\n" +
+                "МЕДЛЕННЫЕ:\n" + DATABASE.slow.hintText + "\n\n" +
+                "СРЕДНИЕ:\n" + DATABASE.medium.hintText + "\n\n" +
+                "БЫСТРЫЕ:\n" + DATABASE.fast.hintText + "\n\n" +
+                "ИЗМЕНЕНИЯ:\n" + DATABASE.change.hintText,
+            terms: [
+                ...DATABASE.slow.terms,
+                ...DATABASE.medium.terms,
+                ...DATABASE.fast.terms,
+                ...DATABASE.change.terms
+            ]
+        };
+
+        const TEMPO_BPM = {
+            "Adagio":      { start: 72,  end: 72,  width: 2, weight: 2 },
+            "Grave":       { start: 45,  end: 45,  width: 3, weight: 3 },
+            "Lento":       { start: 58,  end: 58,  width: 3, weight: 2 },
+            "Largo":       { start: 52,  end: 52,  width: 3, weight: 2 },
+            "Larghetto":   { start: 65,  end: 65,  width: 3, weight: 2 },
+            "Andante":     { start: 92,  end: 92,  width: 2, weight: 2 },
+            "Andantino":   { start: 88,  end: 88,  width: 2, weight: 1 },
+            "Moderato":    { start: 114, end: 114, width: 2, weight: 2 },
+            "Sostenuto":   { start: 100, end: 100, width: 2, weight: 2 },
+            "Allegro":     { start: 140, end: 140, width: 2, weight: 1 },
+            "Allegretto":  { start: 116, end: 116, width: 2, weight: 1 },
+            "Presto":      { start: 184, end: 184, width: 1, weight: 1 },
+            "Prestissimo": { start: 210, end: 210, width: 1, weight: 1 },
+            "Vivo":        { start: 160, end: 160, width: 1, weight: 1 },
+            "Vivace":      { start: 166, end: 166, width: 1, weight: 1 },
+            "ritenuto":    { start: 160, end: 80,  width: 2, weight: 2, gradual: true },
+            "ritardando":  { start: 160, end: 70,  width: 3, weight: 2, gradual: true },
+            "rallentando": { start: 150, end: 70,  width: 3, weight: 2, gradual: true },
+            "meno mosso":  { start: 130, end: 90,  width: 2, weight: 2, gradual: true },
+            "piu mosso":   { start: 90,  end: 130, width: 2, weight: 2, gradual: true },
+            "poco":        { start: 100, end: 100, width: 2, weight: 2 },
+            "poco a poco": { start: 90,  end: 140, width: 2, weight: 2, gradual: true },
+            "accelerando": { start: 80,  end: 170, width: 2, weight: 1, gradual: true },
+            "stringendo":  { start: 100, end: 180, width: 1, weight: 1, gradual: true },
+            "tempo primo": { start: 120, end: 120, width: 2, weight: 2 }
+        };
+
+        const MELODY_NOTES = [
+            { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
+            { f: 329.63, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 1 },
+            { f: 261.63, d: 2 },
+            { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
+            { f: 440.00, d: 1 }, { f: 392.00, d: 1 }, { f: 329.63, d: 1 },
+            { f: 261.63, d: 2 }
+        ];
+
+        const SUBSECTIONS = [
+            { id: 'slow', title: '🐌 Медленные' },
+            { id: 'medium', title: '🚶 Средние' },
+            { id: 'fast', title: '⚡ Быстрые' },
+            { id: 'change', title: '🔄 Изменения' },
+            { id: 'all', title: '🎯 Проверка', special: true }
+        ];
+
+        const INVENTORY = {
+            item_violin: { title: "Золотой Смычок", icon: "🎻", unlocked: false, text: "За точные пары!" },
+            item_fork: { title: "Магический Камертон", icon: "🔱", unlocked: false, text: "За верный выбор!" },
+            item_harp: { title: "Легендарная Арфа", icon: "🪕", unlocked: false, text: "За диктант руками!" },
+            item_cup: { title: "Кубок Филармонии", icon: "🏆", unlocked: false, text: "За победу в зачете!" }
+        };
+
+        let scoreBalance = 0;
+        let currentStep = 1;
+        let currentTheme = "slow";
+        let activeTermIndex = 0;
+        let selectedITCard = null;
+        let selectedRUCard = null;
+        let selectedVariant = null;
+        let pairedCount = 0;
+        let eligibleForLoot = true;
+
+        let vizState = {
+            termIt: "", currentBpm: 100, startBpm: 100, endBpm: 100,
+            width: 2, weight: 2, gradual: false, beat: 0, totalBeats: 8,
+            timer: null, audioCtx: null, running: false, ballX: 50, direction: 1,
+            melodyRunning: false
+        };
+
+        let melodySession = 0;
+        let melodyMasterGain = null;
+        let melodyTimeouts = [];
+
+        let compareState = { running: false, lanes: [], startTime: 0, duration: 9000 };
+
+        function initApp() {
+            renderSubsections();
+            renderTheoryList();
+            renderInventory();
+            updateHeader();
+            startLockTimer();
+            document.getElementById('lock-password').addEventListener('keydown', e => {
+                if (e.key === 'Enter') unlockApp();
+            });
+        }
+
+        function renderSubsections() {
+            const container = document.getElementById('subsection-buttons');
+            container.innerHTML = SUBSECTIONS.map(s => `
+                <button class="btn-subsection ${s.special ? 'check' : ''} ${currentTheme === s.id ? 'active' : ''}"
+                        onclick="switchSubsection('${s.id}')">${s.title}</button>
+            `).join('');
+        }
+
+        function switchSubsection(id) {
+            currentTheme = id;
+            renderSubsections();
+            renderTheoryList();
+        }
+
+        function renderTheoryList() {
+            const mod = DATABASE[currentTheme];
+            const list = document.getElementById('theory-list');
+
+            if (currentTheme === 'all') {
+                let html = `<div class="rule-block" style="background:#fdf5ff; border-left-color:#9b59b6; color:#4a235a;">
+                    🎯 <b>Проверка по всей теме «Темпы»</b> — здесь собраны все 26 терминов из 4 подразделов.
+                    Пройди испытание и получи трофеи!
+                </div>`;
+                ['slow', 'medium', 'fast', 'change'].forEach(key => {
+                    const subMod = DATABASE[key];
+                    html += `<div class="subsection-header">${subMod.title}</div>`;
+                    subMod.terms.forEach(term => {
+                        const bpmInfo = TEMPO_BPM[term.it];
+                        const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '';
+                        const widthIcon = bpmInfo ? (bpmInfo.width === 3 ? '↔️↔️' : bpmInfo.width === 2 ? '↔️' : '↕️') : '';
+                        const weightIcon = bpmInfo && bpmInfo.weight === 3 ? '⚖️' : (bpmInfo && bpmInfo.weight === 1 ? '🪶' : '');
+                        html += `
+                            <div class="theory-term">
+                                <div class="term-text">
+                                    <b>${term.it}</b> — ${term.ru}
+                                    <span style="color:#7f8c8d; font-size:12px; margin-left:6px;">🎼 ${bpmLabel} BPM ${widthIcon} ${weightIcon}</span>
+                                </div>
+                                <button class="btn-play-tempo" onclick="openTempoVisualizer('${term.it.replace(/'/g, "\\'")}')">🎵</button>
+                            </div>
+                        `;
+                    });
+                });
+                list.innerHTML = html;
+                return;
+            }
+
+            let html = '';
+            mod.terms.forEach(term => {
+                const bpmInfo = TEMPO_BPM[term.it];
+                const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '—';
+                const widthIcon = bpmInfo ? (bpmInfo.width === 3 ? '↔️↔️' : bpmInfo.width === 2 ? '↔️' : '↕️') : '';
+                const weightIcon = bpmInfo && bpmInfo.weight === 3 ? '⚖️' : (bpmInfo && bpmInfo.weight === 1 ? '🪶' : '');
+                html += `
+                    <div class="theory-term">
+                        <div class="term-text">
+                            <b>${term.it}</b> — ${term.ru}
+                            <span style="color:#7f8c8d; font-size:12px; margin-left:6px;">🎼 ${bpmLabel} BPM ${widthIcon} ${weightIcon}</span>
+                        </div>
+                        <button class="btn-play-tempo" onclick="openTempoVisualizer('${term.it.replace(/'/g, "\\'")}')">🎵</button>
+                    </div>
+                `;
+            });
+            html += `<button class="btn-compare" onclick="openCompareView()">🔀 Сравнить все темпы этого раздела</button>`;
+            list.innerHTML = html;
+        }
+
+        function openTempoVisualizer(termIt) {
+            let term = DATABASE[currentTheme].terms.find(t => t.it === termIt);
+            if (!term) {
+                for (let key of ['slow', 'medium', 'fast', 'change']) {
+                    const found = DATABASE[key].terms.find(t => t.it === termIt);
+                    if (found) { term = found; break; }
+                }
+            }
+            if (!term) return;
+            const bpmInfo = TEMPO_BPM[termIt];
+            if (!bpmInfo) return;
+
+            stopMelody();
+            stopTempoVisualizer();
+
+            vizState.termIt = termIt;
+            vizState.startBpm = bpmInfo.start;
+            vizState.endBpm = bpmInfo.end;
+            vizState.currentBpm = bpmInfo.start;
+            vizState.gradual = !!bpmInfo.gradual;
+            vizState.width = bpmInfo.width || 2;
+            vizState.weight = bpmInfo.weight || 2;
+            vizState.beat = 0;
+            vizState.running = false;
+            vizState.ballX = 50;
+            vizState.direction = 1;
+
+            document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
+
+            document.getElementById('tempo-title').innerText = term.it;
+            document.getElementById('tempo-translation').innerText = term.ru;
+            document.getElementById('viz-bpm').innerText = bpmInfo.start;
+            document.getElementById('viz-beat').innerText = '0';
+            document.getElementById('viz-ball').style.top = '0px';
+            document.getElementById('viz-ball').style.left = '50%';
+            document.getElementById('viz-play-btn').innerText = '▶️ Ритм';
+            document.getElementById('viz-play-btn').className = 'btn-check';
+            document.getElementById('viz-melody-btn').innerText = '🎵 Мелодия';
+            document.getElementById('viz-melody-btn').className = 'btn-melody';
+
+            applyBreadthVisuals();
+
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('tempo-modal').style.display = 'block';
+
+            if (!vizState.audioCtx) {
+                try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+            }
+        }
+
+        function applyBreadthVisuals() {
+            const ball = document.getElementById('viz-ball');
+            const aura = document.getElementById('viz-aura');
+            const marker = document.getElementById('breadth-marker');
+            const label = document.getElementById('breadth-label');
+            const stepLabel = document.getElementById('viz-step');
+            const w = vizState.width;
+            const wgt = vizState.weight;
+
+            const ballWidth = w === 1 ? 50 : (w === 2 ? 75 : 110);
+            ball.style.width = ballWidth + 'px';
+
+            if (wgt === 3) ball.style.background = 'radial-gradient(circle at 30% 30%, #6d4c41, #3e2723)';
+            else ball.style.background = 'radial-gradient(circle at 30% 30%, #ff8c42, #e74c3c)';
+
+            aura.style.width = (ballWidth * 2.2) + 'px';
+            aura.style.height = '80px';
+            marker.style.left = (w === 1 ? 15 : (w === 2 ? 50 : 88)) + '%';
+
+            let labelText = '', stepText = '';
+            if (w === 1) { labelText = '🎯 Ширина: УЗКАЯ (звуки плотно, тесно)'; stepText = 'мелкий'; }
+            else if (w === 2) { labelText = '🎯 Ширина: СРЕДНЯЯ'; stepText = 'средний'; }
+            else { labelText = '🎯 Ширина: ШИРОКАЯ (звуки просторно, раздольно)'; stepText = 'большой'; }
+
+            if (wgt === 3) stepText = 'тяжёлый, ' + stepText;
+            else if (wgt === 1) stepText = 'лёгкий, ' + stepText;
+
+            label.innerText = labelText;
+            stepLabel.innerText = stepText;
+        }
+
+        function playClick(isStrong) {
+            if (!vizState.audioCtx) return;
+            const ctx = vizState.audioCtx;
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = isStrong ? 1000 : 700;
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.07);
+        }
+
+        function playMelodyNote(freq, duration, when, masterGain) {
+            const ctx = vizState.audioCtx;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+
+            osc.type = 'triangle'; osc.frequency.value = freq;
+            osc2.type = 'sine'; osc2.frequency.value = freq * 2;
+
+            gain.gain.setValueAtTime(0.0001, when);
+            gain.gain.exponentialRampToValueAtTime(0.22, when + 0.04);
+            gain.gain.setValueAtTime(0.22, when + duration * 0.55);
+            gain.gain.exponentialRampToValueAtTime(0.001, when + duration);
+
+            gain2.gain.setValueAtTime(0.0001, when);
+            gain2.gain.exponentialRampToValueAtTime(0.06, when + 0.04);
+            gain2.gain.exponentialRampToValueAtTime(0.001, when + duration);
+
+            osc.connect(gain); gain.connect(masterGain);
+            osc2.connect(gain2); gain2.connect(masterGain);
+
+            osc.start(when); osc2.start(when);
+            osc.stop(when + duration + 0.05); osc2.stop(when + duration + 0.05);
+        }
+
+        function animateBall(startX, endX, stageHeight, duration, width, weight, mode, callback) {
+            const ball = document.getElementById('viz-ball');
+            const floorY = stageHeight - 60 - 14;
+            const startTime = performance.now();
+            const isWide = width === 3;
+            const isHeavy = weight === 3;
+
+            function frame(now) {
+                if (mode === 'rhythm' && !vizState.running) return;
+                if (mode === 'melody' && !vizState.melodyRunning) return;
+                const t = Math.min(1, (now - startTime) / duration);
+                let x = isWide ? startX + (endX - startX) * Math.sin(t * Math.PI / 2) : startX + (endX - startX) * t;
+                let y;
+                if (isHeavy) y = floorY * Math.pow(t, 1.6);
+                else if (isWide) y = floorY * Math.pow(t, 2.2) - 20 * Math.sin(Math.PI * t);
+                else y = floorY * t;
+                ball.style.left = x + '%';
+                ball.style.top = Math.max(0, y) + 'px';
+                if (t < 1) requestAnimationFrame(frame);
+                else {
+                    ball.style.left = endX + '%';
+                    ball.style.top = floorY + 'px';
+                    if (callback) callback();
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+
+        function addFootprint(x, weight) {
+            const stage = document.getElementById('viz-stage');
+            const fp = document.createElement('div');
+            fp.className = 'viz-footprint';
+            fp.style.left = x + '%';
+            if (weight === 3) {
+                fp.style.width = '36px'; fp.style.height = '11px';
+                fp.style.background = 'radial-gradient(ellipse at center, rgba(62,39,35,0.9), rgba(62,39,35,0.3))';
+            }
+            stage.appendChild(fp);
+            setTimeout(() => fp.remove(), 2600);
+        }
+
+        function triggerBallDrop(customDuration, mode) {
+            const aura = document.getElementById('viz-aura');
+            const stage = document.getElementById('viz-stage');
+            const stageHeight = stage.clientHeight;
+            const totalDuration = customDuration || Math.max(120, (60000 / vizState.currentBpm) * 0.85);
+            const fallDuration = totalDuration * 0.7;
+            const returnDuration = totalDuration * 0.3;
+
+            const stepPercent = vizState.width === 3 ? 20 : (vizState.width === 2 ? 10 : 4);
+            let newX = vizState.ballX + vizState.direction * stepPercent;
+            if (newX > 82) { newX = 82; vizState.direction = -1; }
+            if (newX < 18) { newX = 18; vizState.direction = 1; }
+
+            aura.classList.remove('breathing');
+            void aura.offsetWidth;
+            aura.classList.add('breathing');
+
+            animateBall(vizState.ballX, newX, stageHeight, fallDuration, vizState.width, vizState.weight, mode, () => {
+                addFootprint(newX, vizState.weight);
+            });
+
+            setTimeout(() => {
+                if (mode === 'rhythm' && !vizState.running) return;
+                if (mode === 'melody' && !vizState.melodyRunning) return;
+                const ball = document.getElementById('viz-ball');
+                ball.style.transition = `top ${returnDuration}ms ease-out`;
+                ball.style.top = '0px';
+            }, fallDuration + 40);
+
+            vizState.ballX = newX;
+        }
+
+        function toggleTempoPlay() {
+            if (vizState.running) stopTempoVisualizer();
+            else { stopMelody(); startTempoVisualizer(); }
+        }
+
+        function startTempoVisualizer() {
+            if (!vizState.audioCtx) {
+                try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+            }
+            if (vizState.audioCtx && vizState.audioCtx.state === 'suspended') vizState.audioCtx.resume();
+
+            document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
+            vizState.ballX = 50;
+            vizState.direction = 1;
+            document.getElementById('viz-ball').style.transition = 'none';
+            document.getElementById('viz-ball').style.left = '50%';
+            document.getElementById('viz-ball').style.top = '0px';
+
+            vizState.running = true;
+            vizState.beat = 0;
+            vizState.currentBpm = vizState.startBpm;
+            document.getElementById('viz-play-btn').innerText = '⏸️ Стоп';
+            document.getElementById('viz-play-btn').className = 'btn-stop';
+
+            playClick(true);
+            triggerBallDrop(null, 'rhythm');
+            vizState.beat = 1;
+            document.getElementById('viz-beat').innerText = '1';
+            document.getElementById('viz-bpm').innerText = Math.round(vizState.currentBpm);
+            scheduleNextBeat();
+        }
+
+        function scheduleNextBeat() {
+            if (!vizState.running) return;
+            if (vizState.beat >= vizState.totalBeats) {
+                setTimeout(() => stopTempoVisualizer(), 400);
+                return;
+            }
+            const beatDuration = 60000 / vizState.currentBpm;
+            vizState.timer = setTimeout(() => {
+                if (!vizState.running) return;
+                vizState.beat++;
+                playClick(vizState.beat % 4 === 1);
+                triggerBallDrop(null, 'rhythm');
+                document.getElementById('viz-beat').innerText = vizState.beat;
+                if (vizState.gradual) {
+                    const progress = vizState.beat / vizState.totalBeats;
+                    vizState.currentBpm = vizState.startBpm + (vizState.endBpm - vizState.startBpm) * progress;
+                    const bpmEl = document.getElementById('viz-bpm');
+                    bpmEl.innerText = Math.round(vizState.currentBpm);
+                    bpmEl.classList.add('changing');
+                }
+                scheduleNextBeat();
+            }, beatDuration);
+        }
+
+        function stopTempoVisualizer() {
+            vizState.running = false;
+            if (vizState.timer) clearTimeout(vizState.timer);
+            vizState.timer = null;
+            const btn = document.getElementById('viz-play-btn');
+            if (btn) { btn.innerText = '▶️ Ритм'; btn.className = 'btn-check'; }
+            const bpmEl = document.getElementById('viz-bpm');
+            if (bpmEl) bpmEl.classList.remove('changing');
+        }
+
+        function toggleMelody() {
+            if (vizState.melodyRunning) stopMelody();
+            else { stopTempoVisualizer(); startMelody(); }
+        }
+
+        function startMelody() {
+            if (!vizState.audioCtx) {
+                try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+            }
+            if (vizState.audioCtx.state === 'suspended') vizState.audioCtx.resume();
+
+            melodySession++;
+            const mySession = melodySession;
+
+            melodyMasterGain = vizState.audioCtx.createGain();
+            melodyMasterGain.gain.setValueAtTime(1, vizState.audioCtx.currentTime);
+            melodyMasterGain.connect(vizState.audioCtx.destination);
+
+            document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
+            vizState.ballX = 50;
+            vizState.direction = 1;
+            document.getElementById('viz-ball').style.transition = 'none';
+            document.getElementById('viz-ball').style.left = '50%';
+            document.getElementById('viz-ball').style.top = '0px';
+
+            vizState.melodyRunning = true;
+            document.getElementById('viz-melody-btn').innerText = '⏸️ Стоп';
+            document.getElementById('viz-melody-btn').className = 'btn-stop';
+
+            const ctx = vizState.audioCtx;
+            const startAudioTime = ctx.currentTime + 0.15;
+            const startWallTime = performance.now() + 150;
+
+            const totalBeats = MELODY_NOTES.reduce((s, n) => s + n.d, 0);
+            let audioTime = startAudioTime;
+            let wallTime = startWallTime;
+            let beatCount = 0;
+
+            MELODY_NOTES.forEach((note) => {
+                let currentBpm;
+                if (vizState.gradual) {
+                    const progress = beatCount / totalBeats;
+                    currentBpm = vizState.startBpm + (vizState.endBpm - vizState.startBpm) * progress;
+                } else currentBpm = vizState.startBpm;
+
+                const beatSec = 60 / currentBpm;
+                const noteDuration = note.d * beatSec;
+
+                playMelodyNote(note.f, noteDuration * 0.9, audioTime, melodyMasterGain);
+
+                const delayMs = wallTime - performance.now();
+                const dropDur = noteDuration * 1000 * 0.85;
+                const beatNum = beatCount + 1;
+                const bpmCapture = currentBpm;
+
+                const tid = setTimeout(() => {
+                    if (mySession !== melodySession) return;
+                    if (!vizState.melodyRunning) return;
+                    triggerBallDrop(dropDur, 'melody');
+                    const bpmEl = document.getElementById('viz-bpm');
+                    bpmEl.innerText = Math.round(bpmCapture);
+                    document.getElementById('viz-beat').innerText = beatNum;
+                    if (vizState.gradual) bpmEl.classList.add('changing');
+                }, Math.max(0, delayMs));
+                melodyTimeouts.push(tid);
+
+                audioTime += noteDuration;
+                wallTime += noteDuration * 1000;
+                beatCount += note.d;
+            });
+
+            const endDelay = wallTime - performance.now() + 800;
+            const tid = setTimeout(() => {
+                if (mySession !== melodySession) return;
+                stopMelody();
+            }, endDelay);
+            melodyTimeouts.push(tid);
+        }
+
+        function stopMelody() {
+            melodySession++;
+            vizState.melodyRunning = false;
+
+            if (melodyMasterGain && vizState.audioCtx) {
+                const now = vizState.audioCtx.currentTime;
+                try {
+                    melodyMasterGain.gain.cancelScheduledValues(now);
+                    melodyMasterGain.gain.setValueAtTime(melodyMasterGain.gain.value, now);
+                    melodyMasterGain.gain.linearRampToValueAtTime(0, now + 0.05);
+                } catch(e) {}
+                const mg = melodyMasterGain;
+                melodyMasterGain = null;
+                setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 150);
+            }
+
+            melodyTimeouts.forEach(t => clearTimeout(t));
+            melodyTimeouts = [];
+
+            const ball = document.getElementById('viz-ball');
+            if (ball) { ball.style.transition = 'top 0.2s ease-out'; ball.style.top = '0px'; }
+
+            const btn = document.getElementById('viz-melody-btn');
+            if (btn) { btn.innerText = '🎵 Мелодия'; btn.className = 'btn-melody'; }
+            const bpmEl = document.getElementById('viz-bpm');
+            if (bpmEl) bpmEl.classList.remove('changing');
+        }
+
+        function openCompareView() {
+            const mod = DATABASE[currentTheme];
+            const lanes = document.getElementById('compare-lanes');
+            lanes.innerHTML = '';
+            compareState.lanes = [];
+            compareState.running = false;
+
+            mod.terms.forEach(term => {
+                const info = TEMPO_BPM[term.it];
+                if (!info) return;
+
+                const laneEl = document.createElement('div');
+                laneEl.className = 'compare-lane';
+                const bpmText = info.gradual ? `${info.start}→${info.end}` : `${info.start}`;
+                const ballClass = info.weight === 3 ? 'lane-ball heavy' : 'lane-ball';
+
+                laneEl.innerHTML = `
+                    <div class="lane-label">
+                        <div class="lane-name">${term.it}</div>
+                        <div class="lane-translation">${term.ru}</div>
+                        <div class="lane-bpm">${bpmText} BPM</div>
+                    </div>
+                    <div class="lane-track">
+                        <div class="lane-finish"></div>
+                        <div class="${ballClass}"></div>
+                    </div>
+                `;
+                lanes.appendChild(laneEl);
+
+                compareState.lanes.push({
+                    term: term.it, ru: term.ru,
+                    startBpm: info.start, endBpm: info.end,
+                    gradual: !!info.gradual,
+                    width: info.width, weight: info.weight,
+                    ballEl: laneEl.querySelector('.lane-ball'),
+                    trackEl: laneEl.querySelector('.lane-track'),
+                    position: 0, beat: 0, timer: null
+                });
+            });
+
+            document.getElementById('compare-play-btn').innerText = '▶️ Запустить';
+            document.getElementById('compare-play-btn').className = 'btn-check';
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('compare-modal').style.display = 'block';
+        }
+
+        function toggleComparePlay() {
+            if (compareState.running) stopCompare();
+            else startCompare();
+        }
+
+        function startCompare() {
+            compareState.lanes.forEach(lane => {
+                lane.position = 0;
+                lane.beat = 0;
+                lane.ballEl.style.left = '0%';
+                lane.trackEl.querySelectorAll('.lane-footprint').forEach(el => el.remove());
+                if (lane.timer) clearTimeout(lane.timer);
+                lane.timer = null;
+            });
+            compareState.running = true;
+            compareState.startTime = Date.now();
+            document.getElementById('compare-play-btn').innerText = '⏸️ Стоп';
+            document.getElementById('compare-play-btn').className = 'btn-stop';
+            compareState.lanes.forEach(lane => scheduleLaneBeat(lane));
+        }
+
+        function scheduleLaneBeat(lane) {
+            if (!compareState.running) return;
+            const elapsed = Date.now() - compareState.startTime;
+            if (elapsed >= compareState.duration) return;
+
+            let currentBpm = lane.startBpm;
+            if (lane.gradual) {
+                const progress = Math.min(1, elapsed / compareState.duration);
+                currentBpm = lane.startBpm + (lane.endBpm - lane.startBpm) * progress;
+            }
+
+            const stepPct = 2.5 + (lane.width - 1) * 0.3;
+            lane.position = Math.min(100, lane.position + stepPct);
+
+            if (lane.width === 3 || lane.weight === 1) {
+                lane.ballEl.classList.remove('bounce');
+                void lane.ballEl.offsetWidth;
+                lane.ballEl.classList.add('bounce');
+            }
+
+            lane.ballEl.style.transition = 'left 0.15s ease-out';
+            lane.ballEl.style.left = lane.position + '%';
+
+            const posAtBeat = lane.position;
+            const w = lane.width;
+            const wgt = lane.weight;
+            setTimeout(() => {
+                const fp = document.createElement('div');
+                fp.className = 'lane-footprint';
+                fp.style.left = posAtBeat + '%';
+                const size = w === 3 ? 16 : (w === 2 ? 12 : 9);
+                fp.style.width = size + 'px';
+                if (wgt === 3) fp.style.background = 'rgba(62,39,35,0.85)';
+                lane.trackEl.appendChild(fp);
+                setTimeout(() => fp.remove(), 2200);
+            }, 100);
+
+            lane.beat++;
+            const beatDuration = 60000 / currentBpm;
+            lane.timer = setTimeout(() => scheduleLaneBeat(lane), beatDuration);
+        }
+
+        function stopCompare() {
+            compareState.running = false;
+            compareState.lanes.forEach(lane => {
+                if (lane.timer) clearTimeout(lane.timer);
+                lane.timer = null;
+            });
+            const btn = document.getElementById('compare-play-btn');
+            if (btn) { btn.innerText = '🔄 Запустить снова'; btn.className = 'btn-check'; }
+        }
+
+        function switchTab(tab) {
+            document.getElementById('nav-learn').classList.remove('active');
+            document.getElementById('nav-shop').classList.remove('active');
+            document.getElementById('tab-learn-content').style.display = 'none';
+            document.getElementById('tab-shop-content').style.display = 'none';
+            if (tab === 'learn') {
+                document.getElementById('nav-learn').classList.add('active');
+                document.getElementById('tab-learn-content').style.display = 'block';
+            } else {
+                document.getElementById('nav-shop').classList.add('active');
+                document.getElementById('tab-shop-content').style.display = 'block';
+                renderInventory();
+            }
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventory-container');
+            container.innerHTML = '';
+            for (let key in INVENTORY) {
+                const item = INVENTORY[key];
+                container.innerHTML += `
+                    <div class="inventory-item ${item.unlocked ? 'unlocked' : ''}">
+                        <div class="item-icon">${item.unlocked ? item.icon : "🔒"}</div>
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-status">${item.unlocked ? item.text : 'Закрыто'}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function updateHeader() {
+            document.getElementById('balance-val').innerText = scoreBalance;
+            let count = 0;
+            for (let key in INVENTORY) { if (INVENTORY[key].unlocked) count++; }
+            document.getElementById('inv-count').innerText = count;
+        }
+
+        function startTraining() {
+            document.getElementById('screen-theory').style.display = 'none';
+            document.getElementById('screen-game').style.display = 'block';
+            activeTermIndex = 0;
+            currentStep = DATABASE[currentTheme].skipPairs ? 2 : 1;
+            loadStage();
+        }
+
+        function returnToTheory() {
+            document.getElementById('screen-game').style.display = 'none';
+            document.getElementById('screen-theory').style.display = 'block';
+            document.getElementById('hint-main-btn').style.display = 'block';
+            currentStep = 1;
+            activeTermIndex = 0;
+            eligibleForLoot = true;
+            document.getElementById('game-workspace').innerHTML = '';
+            document.getElementById('game-feedback').innerText = '';
+            document.getElementById('action-buttons').style.display = 'none';
+        }
+
+        function loadStage() {
+            const mod = DATABASE[currentTheme];
+            const workspace = document.getElementById('game-workspace');
+            const actionBtns = document.getElementById('action-buttons');
+            document.getElementById('game-feedback').innerText = '';
+            actionBtns.style.display = 'none';
+            eligibleForLoot = true;
+
+            if (currentStep === 1) {
+                document.getElementById('game-task-title').innerText = `Этап 1: Соедини Пары 🧩`;
+                document.getElementById('game-instruction').innerText = "Найди правильные пары терминов и переводов:";
+                pairedCount = 0;
+                selectedITCard = null;
+                selectedRUCard = null;
+                workspace.innerHTML = `
+                    <div class="pool" id="pool-it" style="margin-bottom:5px;"></div>
+                    <div class="pool" id="pool-ru"></div>
+                `;
+                let itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+                let ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+                const pIT = document.getElementById('pool-it');
+                itList.forEach((text, i) => {
+                    let card = document.createElement('div');
+                    card.className = 'chunk-card';
+                    card.id = 'it-card-' + i;
+                    card.innerText = text;
+                    card.onclick = () => selectCard(card, 'it', text);
+                    pIT.appendChild(card);
+                });
+                const pRU = document.getElementById('pool-ru');
+                ruList.forEach((text, i) => {
+                    let card = document.createElement('div');
+                    card.className = 'chunk-card';
+                    card.id = 'ru-card-' + i;
+                    card.innerText = text;
+                    card.onclick = () => selectCard(card, 'ru', text);
+                    pRU.appendChild(card);
+                });
+            }
+            else if (currentStep === 2) {
+                document.getElementById('game-task-title').innerText = `Этап 2: Выбери Верный Перевод 🧠`;
+                document.getElementById('game-instruction').innerText = "Выбери правильный перевод термина из двух вариантов:";
+                let term = mod.terms[activeTermIndex];
+                let options = [
+                    { text: term.ru, correct: true },
+                    { text: term.fakeWord, correct: false }
+                ].sort(() => Math.random() - 0.5);
+                let html = `
+                    <div class="rule-block" style="background:#fff; text-align:center; font-size:20px; padding: 20px; color: #182848;">
+                        <b>${term.it}</b>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                `;
+                options.forEach((opt, index) => {
+                    html += `<div class="variant-option" id="variant-${index}" onclick="selectVariant(this, ${opt.correct})">${opt.text}</div>`;
+                });
+                html += `</div>`;
+                workspace.innerHTML = html;
+                selectedVariant = null;
+                actionBtns.style.display = 'flex';
+                actionBtns.innerHTML = `<button class="btn-check" onclick="checkVariant()">Проверить ответ ✅</button>`;
+            }
+            else if (currentStep === 3) {
+                document.getElementById('game-task-title').innerText = `Этап 3: Финальный Диктант ✍️`;
+                document.getElementById('game-instruction').innerText = "Введи точный перевод термина руками с клавиатуры:";
+                let term = mod.terms[activeTermIndex];
+                workspace.innerHTML = `
+                    <div class="rule-block" style="background:#fff; text-align:center;">
+                        <span style="font-size:20px; font-weight:bold; color:#182848;">${term.it}</span>
+                        <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
+                    </div>
+                `;
+                actionBtns.style.display = 'flex';
+                actionBtns.innerHTML = `<button class="btn-check" onclick="checkDictation()">Сдать зачетную строчку 🏆</button>`;
+            }
+            else if (currentStep === 4) {
+                document.getElementById('game-task-title').innerText = `Этап 4: Финальный Экзамен 🎓`;
+                document.getElementById('game-instruction').innerText = "Соедини ВСЕ термины темы с их переводами (для закрепления):";
+                pairedCount = 0;
+                selectedITCard = null;
+                selectedRUCard = null;
+                workspace.innerHTML = `
+                    <div class="pool" id="pool-it" style="margin-bottom:5px;"></div>
+                    <div class="pool" id="pool-ru"></div>
+                `;
+                let itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+                let ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+                const pIT = document.getElementById('pool-it');
+                itList.forEach((text, i) => {
+                    let card = document.createElement('div');
+                    card.className = 'chunk-card';
+                    card.id = 'it-card-' + i;
+                    card.innerText = text;
+                    card.onclick = () => selectCard(card, 'it', text);
+                    pIT.appendChild(card);
+                });
+                const pRU = document.getElementById('pool-ru');
+                ruList.forEach((text, i) => {
+                    let card = document.createElement('div');
+                    card.className = 'chunk-card';
+                    card.id = 'ru-card-' + i;
+                    card.innerText = text;
+                    card.onclick = () => selectCard(card, 'ru', text);
+                    pRU.appendChild(card);
+                });
+            }
+        }
+
+        function selectCard(card, type, text) {
+            if (type === 'it') {
+                if(selectedITCard) selectedITCard.classList.remove('active-card');
+                selectedITCard = card;
+                selectedITCard.activeText = text;
+                selectedITCard.classList.add('active-card');
+            } else {
+                if(selectedRUCard) selectedRUCard.classList.remove('active-card');
+                selectedRUCard = card;
+                selectedRUCard.activeText = text;
+                selectedRUCard.classList.add('active-card');
+            }
+            if (selectedITCard && selectedRUCard) {
+                const terms = DATABASE[currentTheme].terms;
+                let match = terms.find(t => t.it === selectedITCard.activeText && t.ru === selectedRUCard.activeText);
+                const fb = document.getElementById('game-feedback');
+                if (match) {
+                    selectedITCard.style.visibility = 'hidden';
+                    selectedRUCard.style.visibility = 'hidden';
+                    selectedITCard = null;
+                    selectedRUCard = null;
+                    pairedCount++;
+                    scoreBalance += 5;
+                    updateHeader();
+                    if (pairedCount === terms.length) {
+                        if (currentStep === 4) {
+                            fb.className = "feedback success-text";
+                            fb.innerHTML = `🎉 ПОЗДРАВЛЯЮ! Ты прошел всю тему! 🎉`;
+                            document.getElementById('hint-main-btn').style.display = 'none';
+                            setTimeout(() => {
+                                document.getElementById('game-workspace').innerHTML = `
+                                    <h2 style='text-align:center; color:#2ecc71;'>🎓 Модуль успешно завершен! 🎓</h2>
+                                    <p style='text-align:center;'>Ты закрепил все термины. Отличная работа!</p>
+                                    <button onclick="returnToTheory()">Вернуться к выбору подразделов 🔄</button>
+                                `;
+                                document.getElementById('action-buttons').style.display = 'none';
+                            }, 2500);
+                        } else {
+                            let lootText = "";
+                            if(eligibleForLoot && !INVENTORY.item_violin.unlocked) {
+                                INVENTORY.item_violin.unlocked = true;
+                                lootText = "<br>🎁 ТРОФЕЙ: Золотой Смычок добавлен в рюкзак!";
+                            }
+                            fb.className = "feedback success-text";
+                            fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
+                            currentStep = 2;
+                            activeTermIndex = 0;
+                            setTimeout(loadStage, 2500);
+                        }
+                    }
+                } else {
+                    fb.className = "feedback error-text";
+                    fb.innerText = "❌ Неправильная пара! Попробуй соединить другие карточки.";
+                    selectedITCard.classList.remove('active-card');
+                    selectedRUCard.classList.remove('active-card');
+                    selectedITCard = null;
+                    selectedRUCard = null;
+                }
+            }
+        }
+
+        function selectVariant(element, isCorrect) {
+            document.querySelectorAll('.variant-option').forEach(el => el.classList.remove('active-card'));
+            element.classList.add('active-card');
+            selectedVariant = element;
+            element.dataset.correct = isCorrect;
+        }
+
+        function checkVariant() {
+            const fb = document.getElementById('game-feedback');
+            const mod = DATABASE[currentTheme];
+            if (!selectedVariant) {
+                fb.className = "feedback error-text";
+                fb.innerText = "❌ Ты не выбрал вариант!";
+                return;
+            }
+            const isCorrect = selectedVariant.dataset.correct === 'true';
+            if (isCorrect) {
+                scoreBalance += 15;
+                let lootText = "";
+                if(eligibleForLoot && !INVENTORY.item_fork.unlocked) {
+                    INVENTORY.item_fork.unlocked = true;
+                    lootText = "<br>🎁 ТРОФЕЙ: Магический Камертон у тебя в рюкзаке!";
+                }
+                updateHeader();
+                fb.className = "feedback success-text";
+                fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+                currentStep = 3;
+                setTimeout(loadStage, 2500);
+            } else {
+                fb.className = "feedback error-text";
+                fb.innerText = "❌ Неправильно! Вспомни точный перевод и попробуй снова.";
+                selectedVariant.classList.remove('active-card');
+                selectedVariant = null;
+            }
+        }
+
+        function normalizeForCheck(text) {
+            return text.toLowerCase().replace(/ё/g, 'е')
+                .replace(/[.,!?;:—–\-()"'«»]/g, '')
+                .replace(/\s+/g, ' ').trim();
+        }
+
+        function latinToCyrillic(text) {
+            const map = {
+                'a': 'а', 'b': 'б', 'c': 'к', 'd': 'д', 'e': 'е', 'f': 'ф',
+                'g': 'г', 'h': 'х', 'i': 'и', 'j': 'й', 'k': 'к', 'l': 'л',
+                'm': 'м', 'n': 'н', 'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р',
+                's': 'с', 't': 'т', 'u': 'у', 'v': 'в', 'w': 'в', 'x': 'кс',
+                'y': 'и', 'z': 'з'
+            };
+            return text.split('').map(ch => map[ch] || ch).join('');
+        }
+
+        function isAnswerCorrect(userRaw, realRaw) {
+            const u = normalizeForCheck(userRaw);
+            const r = normalizeForCheck(realRaw);
+            if (u === r) return true;
+            if (latinToCyrillic(u) === latinToCyrillic(r)) return true;
+            return false;
+        }
+
+        function checkDictation() {
+            const userRaw = document.getElementById('dictation-input').value;
+            const realRaw = DATABASE[currentTheme].terms[activeTermIndex].ru;
+            const fb = document.getElementById('game-feedback');
+
+            if (isAnswerCorrect(userRaw, realRaw)) {
+                scoreBalance += 20;
+                let lootText = "";
+                if (eligibleForLoot && !INVENTORY.item_harp.unlocked) {
+                    INVENTORY.item_harp.unlocked = true;
+                    lootText = "<br>🎁 ЛЕГЕНДА: Легендарная Арфа добавлена в твою коллекцию!";
+                }
+                updateHeader();
+                fb.className = "feedback success-text";
+                fb.innerHTML = `🏆 Блестяще! Зачетное слово введено абсолютно дословно! +20 ⭐ ${lootText}`;
+
+                activeTermIndex++;
+                if (activeTermIndex < DATABASE[currentTheme].terms.length) {
+                    currentStep = 2;
+                    setTimeout(loadStage, 2500);
+                } else {
+                    INVENTORY.item_cup.unlocked = true;
+                    updateHeader();
+                    fb.className = "feedback success-text";
+                    fb.innerHTML = `🎉 Блок терминов сдан! Переходим к Финальному Экзамену! 🎓`;
+                    currentStep = 4;
+                    setTimeout(loadStage, 2500);
+                }
+            } else {
+                fb.className = "feedback error-text";
+                fb.innerText = "❌ Не до конца точно! Вспомни формулировку из таблицы и исправь буквы.";
+                document.getElementById('dictation-input').style.borderColor = '#e74c3c';
+            }
+        }
+
+        function showHint() {
+            document.getElementById('hint-content').innerText = DATABASE[currentTheme].hintText;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('hint-modal').style.display = 'block';
+            eligibleForLoot = false;
+        }
+
+        function closeAllModals() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('hint-modal').style.display = 'none';
+            document.getElementById('tempo-modal').style.display = 'none';
+            document.getElementById('compare-modal').style.display = 'none';
+            stopTempoVisualizer();
+            stopCompare();
+            stopMelody();
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
