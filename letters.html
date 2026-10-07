@@ -15,7 +15,7 @@
     .header h1 { margin: 0; font-size: 18px; }
     .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
     .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
-    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; }
+    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; text-decoration: none; display: inline-block; }
     .btn-nav.active { background: #fff; color: #2d4a1d; }
     .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
     .timer-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; font-size: 12px; }
@@ -187,6 +187,7 @@
         <div class="timer-box" id="timer-box">⏱ <span id="timer-val">10:00</span></div>
     </div>
     <div class="nav-buttons">
+        <a href="index.html" class="btn-nav">🏠 Меню</a>
         <button class="btn-nav active" id="nav-learn" onclick="switchTab('learn')">Учеба ✍️</button>
         <button class="btn-nav" id="nav-shop" onclick="switchTab('shop')">Рюкзак 🎒</button>
         <button class="btn-nav" onclick="openHowto()">❓ Как играть</button>
@@ -407,6 +408,9 @@ function maybeShowHowto() {
 
 // ==================== СТАТИСТИКА ====================
 let sessionStats = { correct: 0, withoutHint: 0, pointsAtStart: 0, expectedTotal: 0 };
+// Флаг, блокирующий повторное начисление в рамках одного этапа
+let stageHandled = false;
+
 function resetSessionStats() {
     const N = DATABASE[currentTheme].terms.length;
     const skipPairs = !!DATABASE[currentTheme].skipPairs;
@@ -669,11 +673,8 @@ function initApp() {
     renderTheoryList();
     renderInventory();
     updateHeader();
-    if (!window.APP_SETTINGS.lockEnabled) {
-        document.getElementById('timer-box').style.display = 'none';
-    } else {
-        startLockTimer();
-    }
+    if (!window.APP_SETTINGS.lockEnabled) document.getElementById('timer-box').style.display = 'none';
+    else startLockTimer();
     document.getElementById('lock-password').addEventListener('keydown', e => { if (e.key === 'Enter') unlockApp(); });
     maybeShowHowto();
     const sticky = document.getElementById('keyboard-sticky');
@@ -943,6 +944,26 @@ function returnToTheory() {
 function termCategory(term) {
     return /^[A-H]$/.test(term.it) ? 'letters' : 'signs';
 }
+
+// Строит 4 варианта ответа с правилом B ↔ H:
+// если правильный ответ — B (си-бемоль), среди неверных обязательно есть H (си) и наоборот.
+function buildOptions(correctTerm, category, mod) {
+    let sameCategory = mod.terms.filter(t => termCategory(t) === category && t.it !== correctTerm.it);
+    sameCategory = sameCategory.sort(() => Math.random() - 0.5);
+
+    if (correctTerm.it === 'B' || correctTerm.it === 'H') {
+        const pairIt = correctTerm.it === 'B' ? 'H' : 'B';
+        const pairTerm = mod.terms.find(t => t.it === pairIt);
+        if (pairTerm) {
+            sameCategory = sameCategory.filter(t => t.it !== pairIt);
+            sameCategory.unshift(pairTerm);
+        }
+    }
+
+    let options = [correctTerm, ...sameCategory.slice(0, 3)];
+    return options.sort(() => Math.random() - 0.5);
+}
+
 function loadStage() {
     const mod = DATABASE[currentTheme];
     const workspace = document.getElementById('game-workspace');
@@ -950,6 +971,8 @@ function loadStage() {
     document.getElementById('game-feedback').innerText = '';
     actionBtns.style.display = 'none';
     eligibleForLoot = true;
+    stageHandled = false;
+
     if (currentStep === 1) {
         document.getElementById('game-task-title').innerText = `Этап 1: Соедини Пары 🧩`;
         document.getElementById('game-instruction').innerText = "Найди правильные пары: обозначение — русский перевод:";
@@ -976,10 +999,7 @@ function loadStage() {
         document.getElementById('game-instruction').innerText = `Вопрос ${activeTermIndex + 1} из ${mod.terms.length}. Выбери букву или знак, который обозначает:`;
         const correctTerm = mod.terms[activeTermIndex];
         const category = termCategory(correctTerm);
-        let sameCategory = mod.terms.filter(t => termCategory(t) === category && t.it !== correctTerm.it);
-        sameCategory = sameCategory.sort(() => Math.random() - 0.5);
-        let options = [correctTerm, ...sameCategory.slice(0, 3)];
-        options = options.sort(() => Math.random() - 0.5);
+        let options = buildOptions(correctTerm, category, mod);
         let html = `
             <div class="question-block">
                 <div class="question-label">Найди обозначение для</div>
@@ -1001,10 +1021,7 @@ function loadStage() {
         document.getElementById('game-instruction').innerText = `Вопрос ${activeTermIndex + 1} из ${mod.terms.length}. Что означает это обозначение?`;
         const correctTerm = mod.terms[activeTermIndex];
         const category = termCategory(correctTerm);
-        let sameCategory = mod.terms.filter(t => termCategory(t) === category && t.it !== correctTerm.it);
-        sameCategory = sameCategory.sort(() => Math.random() - 0.5);
-        let options = [correctTerm, ...sameCategory.slice(0, 3)];
-        options = options.sort(() => Math.random() - 0.5);
+        let options = buildOptions(correctTerm, category, mod);
         let html = `
             <div class="question-block">
                 <div class="question-label">Что означает обозначение</div>
@@ -1114,19 +1131,21 @@ function selectCard(card, type, text) {
     }
 }
 function selectVariant(element, isCorrect) {
+    if (stageHandled) return;
     document.querySelectorAll('.variant-option').forEach(el => el.classList.remove('active-card'));
     element.classList.add('active-card');
     selectedVariant = element; element.dataset.correct = isCorrect;
 }
 function checkVariant() {
+    if (stageHandled) return;
     const fb = document.getElementById('game-feedback');
     const mod = DATABASE[currentTheme];
     if (!selectedVariant) { fb.className = "feedback error-text"; fb.innerText = "❌ Ты не выбрал вариант!"; return; }
     const isCorrect = selectedVariant.dataset.correct === 'true';
     if (isCorrect) {
+        stageHandled = true;
         scoreBalance += 15;
         let lootText = "";
-
         if (currentStep === 2) {
             if (eligibleForLoot && !INVENTORY.item_fork.unlocked) {
                 INVENTORY.item_fork.unlocked = true;
@@ -1138,11 +1157,9 @@ function checkVariant() {
                 lootText = "<br>🎁 ТРОФЕЙ: Хрустальный Ключ у тебя в рюкзаке!";
             }
         }
-
         updateHeader(); addStat();
         fb.className = "feedback success-text";
         fb.innerHTML = `🎉 Верно! <b>${mod.terms[activeTermIndex].it}</b> — это «${mod.terms[activeTermIndex].ru}». +15 ⭐ ${lootText}`;
-
         if (currentStep === 2) currentStep = 3;
         else currentStep = 4;
         setTimeout(loadStage, 2500);
@@ -1153,7 +1170,7 @@ function checkVariant() {
     }
 }
 function normalizeForCheck(text) {
-    return text.toLowerCase()
+    return String(text || '').toLowerCase()
         .replace(/ё/g, 'е')
         .replace(/[—–\-]/g, ' ')
         .replace(/[.,!?;:()"'«»]/g, '')
@@ -1171,10 +1188,12 @@ function isAnswerCorrect(userRaw, realRaw) {
     return false;
 }
 function checkDictation() {
+    if (stageHandled) return;
     const userRaw = document.getElementById('dictation-input').value;
     const realRaw = DATABASE[currentTheme].terms[activeTermIndex].ru;
     const fb = document.getElementById('game-feedback');
     if (isAnswerCorrect(userRaw, realRaw)) {
+        stageHandled = true;
         scoreBalance += 20;
         let lootText = "";
         if (eligibleForLoot && !INVENTORY.item_harp.unlocked) {
