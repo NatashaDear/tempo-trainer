@@ -21,7 +21,7 @@
         justify-content: center;
         padding: 24px 16px;
         background:
-            radial-gradient(circle at 15% 10%, rgba(75,108,183,0.35) 0%, transparent 45%),
+            radial-gradient(circle at 15% 10%, rgba(58,163,116,0.30) 0%, transparent 45%),
             radial-gradient(circle at 85% 85%, rgba(183,108,75,0.30) 0%, transparent 45%),
             linear-gradient(160deg, #0e1425 0%, #182848 100%);
         background-attachment: fixed;
@@ -139,16 +139,6 @@
         color: #b8c7e0;
     }
 
-    /* Темперамент / Темпы — синий акцент */
-    .tile.tempo {
-        --accent: linear-gradient(90deg, #4b6cb7, #182848);
-        --glow: rgba(75,108,183,0.35);
-    }
-    .tile.tempo:hover {
-        border-color: rgba(75,108,183,0.6);
-        box-shadow: 0 10px 30px rgba(75,108,183,0.25);
-    }
-
     /* Буквы — изумрудный акцент */
     .tile.letters {
         --accent: linear-gradient(90deg, #3aa374, #14402e);
@@ -157,6 +147,16 @@
     .tile.letters:hover {
         border-color: rgba(58,163,116,0.6);
         box-shadow: 0 10px 30px rgba(58,163,116,0.25);
+    }
+
+    /* Темпы — синий акцент */
+    .tile.tempo {
+        --accent: linear-gradient(90deg, #4b6cb7, #182848);
+        --glow: rgba(75,108,183,0.35);
+    }
+    .tile.tempo:hover {
+        border-color: rgba(75,108,183,0.6);
+        box-shadow: 0 10px 30px rgba(75,108,183,0.25);
     }
 
     /* Характер — терракотовый акцент */
@@ -198,23 +198,23 @@
 
     <div class="tiles">
 
-        <a class="tile tempo" href="tempo.html">
-            <div class="tile-inner">
-                <div class="tile-icon">🥁</div>
-                <div class="tile-text">
-                    <div class="tile-title">Темпы</div>
-                    <div class="tile-subtitle">Медленные, средние, быстрые, изменения — с живым ритмом и мелодией</div>
-                </div>
-                <div class="tile-arrow">›</div>
-            </div>
-        </a>
-
         <a class="tile letters" href="letters.html">
             <div class="tile-inner">
                 <div class="tile-icon">🔤</div>
                 <div class="tile-text">
                     <div class="tile-title">Буквы</div>
                     <div class="tile-subtitle">Нотная грамота и буквенные обозначения звуков</div>
+                </div>
+                <div class="tile-arrow">›</div>
+            </div>
+        </a>
+
+        <a class="tile tempo" href="tempo.html">
+            <div class="tile-inner">
+                <div class="tile-icon">🥁</div>
+                <div class="tile-text">
+                    <div class="tile-title">Темпы</div>
+                    <div class="tile-subtitle">Медленные, средние, быстрые, изменения — с живым ритмом и мелодией</div>
                 </div>
                 <div class="tile-arrow">›</div>
             </div>
