@@ -298,12 +298,13 @@
         <div class="howto-block intro">
             <h3>👋 Привет!</h3>
             <p>Это тренажёр буквенных обозначений нот.</p>
-            <p>Ты выучишь, какие латинские буквы соответствуют нотам, и как звучат ноты с разными знаками — диезами и бемолями.</p>
+            <p>Ты выучишь, какие латинские буквы соответствуют нотам, и как звучат ноты с разными знаками — диезами, бемолями и бекаром.</p>
         </div>
         <div class="howto-block listen">
             <h3>🎧 Сначала — послушай</h3>
             <p>Сверху всегда видно <b>клавиатуру пианино</b> от ля малой до ре второй октавы. Когда нажимаешь кнопку со знаком — <b>базовая клавиша подсвечивается зелёным контуром</b>, а звучащая — <b>жёлтым</b>. Так ты видишь, куда сдвинулся звук.</p>
             <p>Например, нажми <b>Cis</b> — увидишь зелёный контур на «до» и жёлтую заливку на «до-диез». Значит, диез поднял ноту на полтона вверх.</p>
+            <p>У знака <b>бекар</b> (♮) особое действие: он <b>отменяет</b> ранее поставленный диез или бемоль и возвращает ноту к её исходной высоте.</p>
         </div>
         <div class="howto-block test">
             <h3>🎯 Потом — проверь себя</h3>
@@ -408,7 +409,6 @@ function maybeShowHowto() {
 
 // ==================== СТАТИСТИКА ====================
 let sessionStats = { correct: 0, withoutHint: 0, pointsAtStart: 0, expectedTotal: 0 };
-// Флаг, блокирующий повторное начисление в рамках одного этапа
 let stageHandled = false;
 
 function resetSessionStats() {
@@ -493,10 +493,11 @@ const LETTERS = [
     { letter: 'H', ru: 'си',   baseFreq: 493.88, alwaysFlat: false }
 ];
 const SIGNS = [
-    { id: 'is', it: 'is', ru: 'диез', sign: '♯', desc: 'Повышает ноту на полтона.' },
-    { id: 'es', it: 'es', ru: 'бемоль', sign: '♭', desc: 'Понижает ноту на полтона.' },
-    { id: 'isis', it: 'isis', ru: 'дубль диез', sign: '𝄪', desc: 'Повышает ноту на целый тон.' },
-    { id: 'eses', it: 'eses', ru: 'дубль бемоль', sign: '𝄫', desc: 'Понижает ноту на целый тон.' }
+    { id: 'is',    it: 'is',    ru: 'диез',         sign: '♯',  desc: 'Повышает ноту на полтона.' },
+    { id: 'es',    it: 'es',    ru: 'бемоль',       sign: '♭',  desc: 'Понижает ноту на полтона.' },
+    { id: 'isis',  it: 'isis',  ru: 'дубль диез',   sign: '𝄪',  desc: 'Повышает ноту на целый тон.' },
+    { id: 'eses',  it: 'eses',  ru: 'дубль бемоль', sign: '𝄫',  desc: 'Понижает ноту на целый тон.' },
+    { id: 'becar', it: 'becar', ru: 'бекар',        sign: '♮',  desc: 'Отменяет действие диеза или бемоля и возвращает ноту к исходной высоте.' }
 ];
 function getFreq(letter, semitone) {
     const L = LETTERS.find(x => x.letter === letter);
@@ -635,14 +636,15 @@ const DATABASE = {
     },
     signs: {
         title: "🎼 Знаки и лады",
-        hintText: "is — диез (повышает на полтона)\nes — бемоль (понижает на полтона)\nisis — дубль диез (повышает на тон)\neses — дубль бемоль (понижает на тон)\nmoll — минор\ndur — мажор",
+        hintText: "is — диез (повышает на полтона)\nes — бемоль (понижает на полтона)\nisis — дубль диез (повышает на тон)\neses — дубль бемоль (понижает на тон)\nbecar — бекар (отменяет знак)\nmoll — минор\ndur — мажор",
         terms: [
-            { it: 'is', ru: 'диез', fakeWord: 'бемоль' },
-            { it: 'es', ru: 'бемоль', fakeWord: 'диез' },
-            { it: 'isis', ru: 'дубль диез', fakeWord: 'дубль бемоль' },
-            { it: 'eses', ru: 'дубль бемоль', fakeWord: 'дубль диез' },
-            { it: 'moll', ru: 'минор', fakeWord: 'мажор' },
-            { it: 'dur', ru: 'мажор', fakeWord: 'минор' }
+            { it: 'is',    ru: 'диез',         fakeWord: 'бемоль' },
+            { it: 'es',    ru: 'бемоль',       fakeWord: 'диез' },
+            { it: 'isis',  ru: 'дубль диез',   fakeWord: 'дубль бемоль' },
+            { it: 'eses',  ru: 'дубль бемоль', fakeWord: 'дубль диез' },
+            { it: 'becar', ru: 'бекар',        fakeWord: 'дубль диез' },
+            { it: 'moll',  ru: 'минор',        fakeWord: 'мажор' },
+            { it: 'dur',   ru: 'мажор',        fakeWord: 'минор' }
         ]
     }
 };
@@ -778,13 +780,18 @@ function renderSignsSection() {
     </div>`;
     SIGNS.forEach(S => {
         const id = `sign-${S.id}`;
+        const demoText = S.id === 'is'   ? 'до → до-диез' :
+                         S.id === 'es'   ? 'до → до-бемоль' :
+                         S.id === 'isis' ? 'до → до-дубль-диез' :
+                         S.id === 'eses' ? 'до → до-дубль-бемоль' :
+                         S.id === 'becar'? 'до-диез → до (отмена знака)' : 'до';
         html += `
             <div class="sign-row">
                 <div class="sign-title">${S.it} <span style="font-size:22px; color:#c0392b;">${S.sign}</span></div>
                 <div class="sign-ru">${S.ru}</div>
                 <div class="sign-desc">${S.desc}</div>
                 <button class="sign-play" id="${id}" onclick="playSignDemo('${S.id}', '${id}')">
-                    🎵 Послушать: до → ${S.id === 'is' ? 'до-диез' : S.id === 'es' ? 'до-бемоль' : S.id === 'isis' ? 'до-дубль-диез' : 'до-дубль-бемоль'}
+                    🎵 Послушать: ${demoText}
                 </button>
             </div>
         `;
@@ -822,26 +829,28 @@ function playSignDemo(signId, btnId) {
         }, delay);
         activeTimeouts.push(t);
     };
+    let totalDur = 1800;
     if (signId === 'is') {
         playNote(getFreq('C', 0), 0.9, 0,    0.28, 'sine');
         playNote(getFreq('C', 1), 0.9, 0.65, 0.28, 'sine');
         highlightLater('C', 0, 50); highlightLater('C', 1, 700);
-        var totalDur = 1800;
     } else if (signId === 'es') {
         playNote(getFreq('C', 0),  0.9, 0,    0.28, 'sine');
         playNote(getFreq('C', -1), 0.9, 0.65, 0.28, 'sine');
         highlightLater('C', 0, 50); highlightLater('C', -1, 700);
-        var totalDur = 1800;
     } else if (signId === 'isis') {
         playNote(getFreq('C', 0), 0.9, 0,    0.28, 'sine');
         playNote(getFreq('C', 2), 0.9, 0.65, 0.28, 'sine');
         highlightLater('C', 0, 50); highlightLater('C', 2, 700);
-        var totalDur = 1800;
     } else if (signId === 'eses') {
         playNote(getFreq('C', 0),  0.9, 0,    0.28, 'sine');
         playNote(getFreq('C', -2), 0.9, 0.65, 0.28, 'sine');
         highlightLater('C', 0, 50); highlightLater('C', -2, 700);
-        var totalDur = 1800;
+    } else if (signId === 'becar') {
+        // Сначала до-диез, затем бекар возвращает чистую ноту до
+        playNote(getFreq('C', 1), 0.9, 0,    0.28, 'sine');
+        playNote(getFreq('C', 0), 0.9, 0.65, 0.28, 'sine');
+        highlightLater('C', 1, 50); highlightLater('C', 0, 700);
     } else if (signId === 'moll') {
         playNote(220, 1.6, 0,    0.24, 'sine');
         playNote(getFreq('C', 0), 1.6, 0.7,  0.24, 'sine');
@@ -850,13 +859,13 @@ function playSignDemo(signId, btnId) {
         const t2 = setTimeout(() => { updateStaffAndLabel('C', ''); highlightKeyAbs(0, false);  }, 750);
         const t3 = setTimeout(() => { updateStaffAndLabel('E', ''); highlightKeyAbs(4, false);  }, 1450);
         activeTimeouts.push(t1, t2, t3);
-        var totalDur = 3400;
+        totalDur = 3400;
     } else if (signId === 'dur') {
         playNote(getFreq('C', 0), 1.6, 0,    0.24, 'sine');
         playNote(getFreq('E', 0), 1.6, 0.7,  0.24, 'sine');
         playNote(getFreq('G', 0), 1.8, 1.4,  0.24, 'sine');
         highlightLater('C', 0, 50); highlightLater('E', 0, 750); highlightLater('G', 0, 1450);
-        var totalDur = 3400;
+        totalDur = 3400;
     }
     const t = setTimeout(() => {
         playingNoteIds.delete(btnId);
@@ -873,7 +882,7 @@ function renderTheoryList() {
     if (currentTheme === 'signs') { list.innerHTML = renderSignsSection(); updateKeyboardVisibility(); return; }
     if (currentTheme === 'all') {
         let html = `<div class="rule-block" style="background:#f3f8ee;">
-            🎯 <b>Проверка по всей теме «Буквенные обозначения»</b> — все 14 терминов из двух подразделов.
+            🎯 <b>Проверка по всей теме «Буквенные обозначения»</b> — все 15 терминов из двух подразделов.
         </div>`;
         html += `<div class="subsection-header">🔤 Буквы</div>`;
         html += `<div class="rule-block" style="font-weight:bold; white-space:pre-line;">${DATABASE.letters.hintText}</div>`;
@@ -945,8 +954,6 @@ function termCategory(term) {
     return /^[A-H]$/.test(term.it) ? 'letters' : 'signs';
 }
 
-// Строит 4 варианта ответа с правилом B ↔ H:
-// если правильный ответ — B (си-бемоль), среди неверных обязательно есть H (си) и наоборот.
 function buildOptions(correctTerm, category, mod) {
     let sameCategory = mod.terms.filter(t => termCategory(t) === category && t.it !== correctTerm.it);
     sameCategory = sameCategory.sort(() => Math.random() - 0.5);
