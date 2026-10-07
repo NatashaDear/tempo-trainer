@@ -149,6 +149,16 @@
         box-shadow: 0 10px 30px rgba(75,108,183,0.25);
     }
 
+    /* Буквы — изумрудный акцент */
+    .tile.letters {
+        --accent: linear-gradient(90deg, #3aa374, #14402e);
+        --glow: rgba(58,163,116,0.35);
+    }
+    .tile.letters:hover {
+        border-color: rgba(58,163,116,0.6);
+        box-shadow: 0 10px 30px rgba(58,163,116,0.25);
+    }
+
     /* Характер — терракотовый акцент */
     .tile.character {
         --accent: linear-gradient(90deg, #b76c4b, #48281d);
@@ -194,6 +204,17 @@
                 <div class="tile-text">
                     <div class="tile-title">Темпы</div>
                     <div class="tile-subtitle">Медленные, средние, быстрые, изменения — с живым ритмом и мелодией</div>
+                </div>
+                <div class="tile-arrow">›</div>
+            </div>
+        </a>
+
+        <a class="tile letters" href="letters.html">
+            <div class="tile-inner">
+                <div class="tile-icon">🔤</div>
+                <div class="tile-text">
+                    <div class="tile-title">Буквы</div>
+                    <div class="tile-subtitle">Нотная грамота и буквенные обозначения звуков</div>
                 </div>
                 <div class="tile-arrow">›</div>
             </div>
