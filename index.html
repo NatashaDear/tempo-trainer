@@ -11,7 +11,7 @@
     <script>
         window.APP_SETTINGS = {
             lockEnabled: true,
-            lockTimeoutMinutes: 90,
+            lockTimeoutMinutes: 10,
             lockPassword: "13"
         };
     </script>
@@ -22,7 +22,7 @@
         .header { background: linear-gradient(135deg, #4b6cb7, #182848); color: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px; text-align: center; }
         .header h1 { margin: 0; font-size: 18px; }
         .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
-        .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+        .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
         .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; }
         .btn-nav.active { background: #fff; color: #182848; }
         .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
@@ -41,50 +41,12 @@
         .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; font-size: 14px; gap: 8px; }
         .theory-term .term-text { flex: 1; font-weight: 500; min-width: 0; }
 
-        /* ============ КНОПКА ПРОСЛУШИВАНИЯ — пастельная, заметная ============ */
-        .play-hint {
-            font-size: 11px;
-            color: #4b6cb7;
-            font-weight: bold;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            animation: hint-blink 1.6s infinite;
-        }
-        @keyframes hint-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .play-hint .arrow {
-            font-size: 14px;
-            animation: arrow-move 1s infinite;
-        }
-        @keyframes arrow-move {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(4px); }
-        }
-        .btn-play-tempo {
-            background: #dce9f7;
-            border: 2px solid #7ba0d4;
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(75,108,183,0.3);
-            animation: btn-pulse 2s infinite;
-            cursor: pointer;
-        }
-        @keyframes btn-pulse {
-            0%, 100% { box-shadow: 0 2px 8px rgba(75,108,183,0.3); }
-            50% { box-shadow: 0 2px 18px rgba(75,108,183,0.7); }
-        }
+        .play-hint { font-size: 11px; color: #4b6cb7; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; animation: hint-blink 1.6s infinite; }
+        @keyframes hint-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .play-hint .arrow { font-size: 14px; animation: arrow-move 1s infinite; }
+        @keyframes arrow-move { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+        .btn-play-tempo { background: #dce9f7; border: 2px solid #7ba0d4; width: 46px; height: 46px; border-radius: 50%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(75,108,183,0.3); animation: btn-pulse 2s infinite; cursor: pointer; }
+        @keyframes btn-pulse { 0%, 100% { box-shadow: 0 2px 8px rgba(75,108,183,0.3); } 50% { box-shadow: 0 2px 18px rgba(75,108,183,0.7); } }
         .btn-play-tempo:hover { background: #c5dcf2; }
         .btn-play-tempo:active { transform: scale(0.95); }
 
@@ -173,17 +135,84 @@
         .compare-controls { display: flex; gap: 8px; margin-top: 12px; }
         .compare-controls button { margin-top: 0; }
 
-        .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .lock-overlay.active { display: flex; }
-        .lock-box { background: white; padding: 25px 22px; border-radius: 16px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .lock-box .lock-icon { font-size: 48px; margin-bottom: 8px; }
-        .lock-box h2 { color: #182848; margin: 0 0 8px; font-size: 22px; }
-        .lock-box p { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
-        .lock-input { font-size: 20px; padding: 12px; width: 100%; border: 2px solid #ccc; border-radius: 10px; text-align: center; letter-spacing: 2px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
-        .lock-input:focus { outline: none; border-color: #4b6cb7; box-shadow: 0 0 0 3px rgba(75,108,183,0.2); }
-        .lock-error { color: #e74c3c; font-size: 13px; margin-bottom: 8px; min-height: 18px; font-weight: bold; }
-        .lock-box button { background: #4b6cb7; }
-        .lock-hint { font-size: 11px; color: #aaa; margin-top: 14px; line-height: 1.4; }
+        /* ============ ИНСТРУКЦИЯ ============ */
+        .howto-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #f0f3f8;
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            z-index: 1002;
+            width: 92%;
+            max-width: 500px;
+            max-height: 88vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+        }
+        .howto-modal.active { display: flex; }
+        .howto-header {
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            color: white;
+            padding: 14px 18px;
+            text-align: center;
+        }
+        .howto-header h2 { margin: 0; font-size: 18px; }
+        .howto-body {
+            padding: 14px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .howto-block {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 6px solid;
+        }
+        .howto-block.intro { border-color: #4b6cb7; background: linear-gradient(135deg, #eef5fc, #ffffff); }
+        .howto-block.listen { border-color: #2ecc71; background: linear-gradient(135deg, #eafff2, #ffffff); }
+        .howto-block.test { border-color: #f39c12; background: linear-gradient(135deg, #fff8e8, #ffffff); }
+        .howto-block.hint { border-color: #e74c3c; background: linear-gradient(135deg, #ffecea, #ffffff); }
+        .howto-block.bag { border-color: #9b59b6; background: linear-gradient(135deg, #f8f0ff, #ffffff); }
+        .howto-block h3 {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .howto-block.intro h3 { color: #4b6cb7; }
+        .howto-block.listen h3 { color: #27ae60; }
+        .howto-block.test h3 { color: #d68910; }
+        .howto-block.hint h3 { color: #c0392b; }
+        .howto-block.bag h3 { color: #8e44ad; }
+        .howto-block p {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .howto-block p:last-child { margin-bottom: 0; }
+        .howto-block ol {
+            margin: 6px 0 0 0;
+            padding-left: 22px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .howto-block ol li { margin-bottom: 4px; }
+        .howto-block b { color: #182848; }
+        .howto-footer {
+            padding: 12px 14px;
+            background: #fff;
+            border-top: 1px solid #e1e8ed;
+        }
+        .howto-footer button { margin-top: 0; }
     </style>
 </head>
 <body>
@@ -198,6 +227,7 @@
         <div class="nav-buttons">
             <button class="btn-nav active" id="nav-learn" onclick="switchTab('learn')">Учеба ✍️</button>
             <button class="btn-nav" id="nav-shop" onclick="switchTab('shop')">Рюкзак 🎒</button>
+            <button class="btn-nav" onclick="openHowto()">❓ Как играть</button>
         </div>
     </div>
 
@@ -233,6 +263,65 @@
         <h3>📖 Таблица терминов</h3>
         <div id="hint-content" class="rule-block" style="white-space: pre-wrap;"></div>
         <button onclick="closeAllModals()">Закрыть</button>
+    </div>
+
+    <!-- ============ ИНСТРУКЦИЯ ============ -->
+    <div class="howto-modal" id="howto-modal">
+        <div class="howto-header">
+            <h2>🎵 Как играть</h2>
+        </div>
+        <div class="howto-body">
+
+            <div class="howto-block intro">
+                <h3>👋 Привет!</h3>
+                <p>Это тренажёр музыкальных темпов.</p>
+                <p>Здесь ты выучишь итальянские названия темпов — от самого медленного до самого быстрого. А ещё услышишь, как они звучат!</p>
+            </div>
+
+            <div class="howto-block listen">
+                <h3>🎧 Сначала — послушай</h3>
+                <p>В разделе «Учеба» выбери подраздел — например, «Медленные темпы».</p>
+                <p>Рядом с каждым термином есть круглая кнопка с ноткой 🎵. Нажми на неё — и услышишь:</p>
+                <ol>
+                    <li>барабанный ритм в этом темпе,</li>
+                    <li>мелодию, сыгранную именно в этом темпе,</li>
+                    <li>увидишь прыгающий мячик, который показывает, где сейчас удар.</li>
+                </ol>
+                <p>У широких темпов мяч делает большие шаги, у быстрых — мелко топает на месте.</p>
+                <p>А ещё можно нажать <b>🔀 Сравнить все темпы</b> — тогда все мячики побегут одновременно, и ты сразу увидишь, кто быстрее.</p>
+            </div>
+
+            <div class="howto-block test">
+                <h3>🎯 Потом — проверь себя</h3>
+                <p>Когда готов, нажми <b>«Начать зачетное испытание!»</b>. Тебя ждут 5 этапов:</p>
+                <ol>
+                    <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
+                    <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
+                    <li><b>Собери термин</b> — из перемешанных букв собери итальянское слово по его значению.</li>
+                    <li><b>Финальный диктант</b> — впиши перевод руками с клавиатуры.</li>
+                    <li><b>Финальный экзамен</b> — соедини сразу все термины темы.</li>
+                </ol>
+                <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁. Собери всю коллекцию — и станешь настоящим знатоком темпов!</p>
+            </div>
+
+            <div class="howto-block hint">
+                <h3>💡 Если забыл</h3>
+                <p>Нажимай <b>«💡 Подглядеть таблицу»</b> — но помни: если подсмотрел, трофей за этот этап не дадут. Учи заранее!</p>
+            </div>
+
+            <div class="howto-block bag">
+                <h3>🎒 Рюкзак</h3>
+                <p>Все заработанные трофеи хранятся в разделе <b>«Рюкзак 🎒»</b>. Заглядывай туда, чтобы посмотреть на свою коллекцию.</p>
+            </div>
+
+            <div style="text-align: center; padding: 8px 0 4px; color: #4b6cb7; font-weight: bold; font-size: 14px;">
+                Удачи! 🎼
+            </div>
+
+        </div>
+        <div class="howto-footer">
+            <button class="btn-check" onclick="closeAllModals()">Понятно, начинаем! 🚀</button>
+        </div>
     </div>
 
     <div class="tempo-modal" id="tempo-modal">
@@ -336,6 +425,28 @@
                 document.getElementById('lock-error').innerText = '❌ Неверный пароль';
                 document.getElementById('lock-password').value = '';
                 document.getElementById('lock-password').focus();
+            }
+        }
+
+        // ============ ИНСТРУКЦИЯ ============
+        const HOWTO_SEEN_KEY = 'tempo_trainer_howto_seen_v1';
+
+        function openHowto() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('howto-modal').classList.add('active');
+            try { localStorage.setItem(HOWTO_SEEN_KEY, '1'); } catch(e) {}
+        }
+
+        function closeHowto() {
+            document.getElementById('howto-modal').classList.remove('active');
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function maybeShowHowto() {
+            let seen = false;
+            try { seen = localStorage.getItem(HOWTO_SEEN_KEY) === '1'; } catch(e) {}
+            if (!seen) {
+                setTimeout(() => openHowto(), 400);
             }
         }
 
@@ -494,6 +605,7 @@
             document.getElementById('lock-password').addEventListener('keydown', e => {
                 if (e.key === 'Enter') unlockApp();
             });
+            maybeShowHowto();
         }
 
         function renderSubsections() {
@@ -509,7 +621,6 @@
             renderTheoryList();
         }
 
-        // Отрисовка термина с пастельной кнопкой и подсказкой "нажми ➜"
         function renderTermRow(term, showHint) {
             const bpmInfo = TEMPO_BPM[term.it];
             const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '';
@@ -1419,6 +1530,7 @@
             document.getElementById('hint-modal').style.display = 'none';
             document.getElementById('tempo-modal').style.display = 'none';
             document.getElementById('compare-modal').style.display = 'none';
+            closeHowto();
             stopTempoVisualizer();
             stopCompare();
             stopMelody();
