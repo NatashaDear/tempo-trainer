@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Музыкальный Тренажер: Штрихи</title>
+
+<script>
+    window.APP_SETTINGS = { lockEnabled: false, lockTimeoutMinutes: 10, lockPassword: "13" };
+</script>
+
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f0f3f8; color: #333; margin: 0; padding: 10px; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+    .header { background: linear-gradient(135deg, #7d5f82, #2e1b4d); color: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px; text-align: center; }
+    .header h1 { margin: 0; font-size: 18px; }
+    .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
+    .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; text-decoration: none; display: inline-block; }
+    .btn-nav.active { background: #fff; color: #2e1b4d; }
+    .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
+    .timer-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; font-size: 12px; }
+    .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+    .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
+    .rule-block { background: #faf7fb; border-left: 4px solid #7d5f82; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+
+    .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #ece0ef; font-size: 14px; gap: 8px; }
+
+    .stroke-mini { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 90px; }
+    .stroke-mini svg { display: block; width: 90px; height: 36px; }
+
+    .play-hint { font-size: 11px; color: #7d5f82; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; animation: hint-blink 1.6s infinite; }
+    @keyframes hint-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .play-hint .arrow { font-size: 14px; animation: arrow-move 1s infinite; }
+    @keyframes arrow-move { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+    .btn-play-stroke { background: #f0e4f4; border: 2px solid #9b6bab; width: 46px; height: 46px; border-radius: 50%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(125,95,178,0.3); animation: btn-pulse 2s infinite; cursor: pointer; }
+    @keyframes btn-pulse { 0%, 100% { box-shadow: 0 2px 8px rgba(125,95,178,0.3); } 50% { box-shadow: 0 2px 18px rgba(125,95,178,0.7); } }
+    .btn-play-stroke:hover { background: #e3d0ea; }
+    .btn-play-stroke:active { transform: scale(0.95); }
+
+    button { background: #7d5f82; color: white; border: none; padding: 12px 18px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: block; margin-top: 10px; font-family: inherit; }
+    button:active { opacity: 0.8; }
+    .btn-hint { background: #f39c12; }
+    .btn-check { background: #2ecc71; }
+    .btn-melody { background: #8e44ad; }
+    .btn-stop { background: #e74c3c; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; justify-content: center; }
+
+    .game-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+    .btn-exit { background: #95a5a6; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; font-family: inherit; margin: 0; width: auto; display: inline-block; flex-shrink: 0; }
+    .btn-exit:hover { background: #7f8c8d; }
+    .btn-exit:active { transform: scale(0.96); }
+    .progress-info { font-size: 13px; font-weight: bold; color: #7d5f82; background: #f8f0ff; padding: 8px 14px; border-radius: 20px; white-space: nowrap; border: 1px solid #e8d5ef; }
+
+    .chunk-card { background: #fdf2ec; border: 2px solid #e8b89a; color: #6b3410; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.15s; }
+    .chunk-card.ru-card { background: #ecf4fc; border-color: #a3c5e8; color: #1e4a7a; }
+    .chunk-card.active-card { border-color: #7d5f82; background: #f0e4f4; color: #2e1b4d; box-shadow: 0 4px 10px rgba(125,95,178,0.3); }
+    .chunk-card.ru-card.active-card { border-color: #4b6cb7; background: #d6e4f7; color: #182848; box-shadow: 0 4px 10px rgba(75,108,183,0.3); }
+
+    .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
+    .variant-option.active-card { border-color: #7d5f82; background: #f8f0ff; color: #7d5f82; }
+    .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 240px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
+
+    .assemble-answer { background: #fff; border: 2px dashed #7d5f82; border-radius: 10px; padding: 16px; margin: 12px 0; text-align: center; font-size: 22px; font-weight: bold; color: #2e1b4d; letter-spacing: 4px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; word-break: break-all; }
+    .assemble-letters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+    .letter-btn { background: #7d5f82; color: white; border: none; border-radius: 8px; padding: 0; font-size: 20px; font-weight: bold; cursor: pointer; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin: 0; font-family: 'Courier New', monospace; transition: all 0.15s; flex-shrink: 0; }
+    .letter-btn:hover { background: #5f4463; }
+    .letter-btn:active { transform: scale(0.95); }
+    .letter-btn.used { background: #ddd; color: #bbb; cursor: default; opacity: 0.5; transform: none; }
+    .letter-btn.space-btn { width: 60px; background: #fff; color: #7d5f82; border: 2px dashed #7d5f82; font-size: 18px; }
+    .letter-btn.space-btn:hover { background: #f8f0ff; }
+    .letter-btn.space-btn.used { background: #f5f5f5; color: #ccc; border-color: #ddd; cursor: default; }
+
+    .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+    .inventory-item { border: 2px solid #e1e8ed; border-radius: 12px; padding: 12px; text-align: center; background: #fff; opacity: 0.3; }
+    .inventory-item.unlocked { opacity: 1; border-color: #2ecc71; background: #fafffa; box-shadow: 0 4px 8px rgba(46,204,113,0.15); }
+    .item-icon { font-size: 36px; margin-bottom: 4px; }
+    .item-title { font-weight: bold; font-size: 13px; color: #2e1b4d; }
+    .item-status { font-size: 11px; margin-top: 4px; font-weight: bold; color: #7f8c8d; }
+    .inventory-item.unlocked .item-status { color: #2ecc71; }
+    .hint-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; width: 90%; max-width: 450px; box-sizing: border-box; }
+    .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+    .feedback { font-size: 15px; font-weight: bold; margin-top: 12px; text-align: center; line-height: 1.4; }
+    .success-text { color: #2ecc71; }
+    .error-text { color: #e74c3c; }
+
+    /* ===== МОДАЛКА ШТРИХА ===== */
+    .stroke-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 1001; width: 92%; max-width: 460px; box-sizing: border-box; text-align: center; }
+    .stroke-modal h3 { margin: 0 0 4px 0; color: #2e1b4d; font-size: 22px; }
+    .stroke-modal .stroke-translation { color: #7f8c8d; font-size: 14px; font-style: italic; margin-bottom: 8px; }
+    .stroke-modal .stroke-desc { color: #555; font-size: 13px; line-height: 1.4; margin-bottom: 12px; padding: 0 6px; }
+
+    .stroke-stage { position: relative; background: linear-gradient(180deg, #fdfaff, #f0e4f4); border-radius: 14px; padding: 12px 6px 6px; margin-bottom: 12px; box-shadow: inset 0 2px 6px rgba(125,95,178,0.1); }
+    .stroke-stage svg { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+
+    /* ===== ШКАЛА ПРОГРЕССА МЕЛОДИИ ===== */
+    .melody-progress { position: relative; height: 10px; background: #e8d5ef; border-radius: 5px; margin: 12px 6px 4px; }
+    .melody-progress-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0%; background: linear-gradient(90deg, #7d5f82, #b48bc0); border-radius: 5px; transition: width 0.1s linear; }
+    .melody-marker { position: absolute; top: -5px; left: 0%; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 3px solid #2e1b4d; transform: translateX(-50%); box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: left 0.1s linear; }
+    .melody-time-label { text-align: center; font-size: 11px; color: #7f8c8d; margin-bottom: 10px; font-weight: bold; }
+
+    .stroke-controls { display: flex; gap: 8px; }
+    .stroke-controls button { margin-top: 0; font-size: 13px; padding: 12px 10px; }
+
+    .confirm-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 22px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 1003; width: 90%; max-width: 380px; box-sizing: border-box; text-align: center; }
+    .confirm-modal.active { display: block; }
+    .confirm-modal h3 { margin: 0 0 12px; color: #2e1b4d; font-size: 19px; }
+    .confirm-modal .warn { display: inline-block; background: #ffecea; color: #c0392b; padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 14px; line-height: 1.4; border: 1px solid #f5b7b1; }
+    .confirm-modal p { margin: 0 0 18px; color: #666; font-size: 13px; line-height: 1.5; }
+    .confirm-buttons { display: flex; gap: 10px; }
+    .confirm-buttons button { margin-top: 0; flex: 1; }
+    .btn-danger { background: #e74c3c; }
+    .btn-cancel { background: #95a5a6; }
+
+    .stats-card { background: linear-gradient(135deg, #faf7fb, #ffffff); border-radius: 14px; padding: 18px 20px; margin: 18px auto; max-width: 340px; box-shadow: inset 0 0 0 2px #e8d5ef, 0 4px 12px rgba(125,95,178,0.1); }
+    .stats-card .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 15px; border-bottom: 1px dashed #e8d5ef; }
+    .stats-card .stat-row:last-child { border-bottom: none; }
+    .stats-card .stat-row span { color: #4a235a; }
+    .stats-card .stat-row b { color: #2e1b4d; font-size: 18px; background: #f0e4f4; padding: 2px 12px; border-radius: 12px; }
+
+    .howto-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #f0f3f8; padding: 0; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 1002; width: 92%; max-width: 500px; max-height: 88vh; box-sizing: border-box; overflow: hidden; flex-direction: column; }
+    .howto-modal.active { display: flex; }
+    .howto-header { background: linear-gradient(135deg, #7d5f82, #2e1b4d); color: white; padding: 14px 18px; text-align: center; }
+    .howto-header h2 { margin: 0; font-size: 18px; }
+    .howto-body { padding: 14px; overflow-y: auto; flex: 1; }
+    .howto-block { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; border-left: 6px solid; }
+    .howto-block.intro { border-color: #7d5f82; background: linear-gradient(135deg, #faf7fb, #ffffff); }
+    .howto-block.listen { border-color: #2ecc71; background: linear-gradient(135deg, #eafff2, #ffffff); }
+    .howto-block.test { border-color: #f39c12; background: linear-gradient(135deg, #fff8e8, #ffffff); }
+    .howto-block.hint { border-color: #e74c3c; background: linear-gradient(135deg, #ffecea, #ffffff); }
+    .howto-block.bag { border-color: #9b59b6; background: linear-gradient(135deg, #f8f0ff, #ffffff); }
+    .howto-block h3 { margin: 0 0 8px 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+    .howto-block.intro h3 { color: #7d5f82; }
+    .howto-block.listen h3 { color: #27ae60; }
+    .howto-block.test h3 { color: #d68910; }
+    .howto-block.hint h3 { color: #c0392b; }
+    .howto-block.bag h3 { color: #8e44ad; }
+    .howto-block p { margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #333; }
+    .howto-block p:last-child { margin-bottom: 0; }
+    .howto-block ol { margin: 6px 0 0 0; padding-left: 22px; font-size: 13px; line-height: 1.6; color: #333; }
+    .howto-block ol li { margin-bottom: 4px; }
+    .howto-block b { color: #2e1b4d; }
+    .howto-footer { padding: 12px 14px; background: #fff; border-top: 1px solid #e1e8ed; }
+    .howto-footer button { margin-top: 0; }
+
+    .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #2e1b4d 0%, #7d5f82 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .lock-overlay.active { display: flex; }
+    .lock-box { background: white; padding: 25px 22px; border-radius: 16px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lock-box .lock-icon { font-size: 48px; margin-bottom: 8px; }
+    .lock-box h2 { color: #2e1b4d; margin: 0 0 8px; font-size: 22px; }
+    .lock-box p { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
+    .lock-input { font-size: 20px; padding: 12px; width: 100%; border: 2px solid #ccc; border-radius: 10px; text-align: center; letter-spacing: 2px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
+    .lock-input:focus { outline: none; border-color: #7d5f82; box-shadow: 0 0 0 3px rgba(125,95,178,0.2); }
+    .lock-error { color: #e74c3c; font-size: 13px; margin-bottom: 8px; min-height: 18px; font-weight: bold; }
+    .lock-box button { background: #7d5f82; }
+    .lock-hint { font-size: 11px; color: #aaa; margin-top: 14px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🎻 Тренажер: Штрихи</h1>
+    <div class="sub-header">
+        <div class="balance-box">Очки: <span id="balance-val">0</span> ⭐</div>
+        <div>Трофеи: <span id="inv-count">0</span>/5 🎒</div>
+        <div class="timer-box" id="timer-box">⏱ <span id="timer-val">10:00</span></div>
+    </div>
+    <div class="nav-buttons">
+        <a href="index.html" class="btn-nav">🏠 Меню</a>
+        <button class="btn-nav active" id="nav-learn" onclick="switchTab('learn')">Учеба ✍️</button>
+        <button class="btn-nav" id="nav-shop" onclick="switchTab('shop')">Рюкзак 🎒</button>
+        <button class="btn-nav" onclick="openHowto()">❓ Как играть</button>
+    </div>
+</div>
+
+<div id="tab-learn-content">
+    <div class="card-box" id="screen-theory">
+        <h2 style="margin-top:0;">📚 Раздел «Штрихи»</h2>
+        <div id="theory-list"></div>
+        <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
+    </div>
+
+    <div class="card-box" id="screen-game" style="display: none;">
+        <div class="game-top-bar">
+            <button class="btn-exit" onclick="confirmExit()">← В меню</button>
+            <div class="progress-info" id="progress-info">📊 Пройдено: 0 / 0</div>
+        </div>
+        <h2 id="game-task-title">Задание</h2>
+        <div id="game-instruction" style="font-style: italic; color: #666; margin-bottom: 10px; font-size: 13px;"></div>
+        <div id="game-workspace"></div>
+        <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 5px;">
+            <div id="action-buttons" style="display:none; gap:10px; width:100%;"></div>
+            <button class="btn-hint" id="hint-main-btn" onclick="showHint()">💡 Подглядеть таблицу (Без трофея)</button>
+        </div>
+        <div class="feedback" id="game-feedback"></div>
+    </div>
+</div>
+
+<div id="tab-shop-content" style="display: none;">
+    <div class="card-box">
+        <h2>🎒 Твоя корзина музыкальных трофеев</h2>
+        <div class="inventory-grid" id="inventory-container"></div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+<div class="hint-modal" id="hint-modal">
+    <h3>📖 Таблица штрихов</h3>
+    <div id="hint-content" class="rule-block" style="white-space: pre-wrap;"></div>
+    <button onclick="closeAllModals()">Закрыть</button>
+</div>
+
+<div class="stroke-modal" id="stroke-modal">
+    <h3 id="stroke-title">legato</h3>
+    <div class="stroke-translation" id="stroke-translation">связно</div>
+    <div class="stroke-desc" id="stroke-desc">Звуки переходят один в другой без паузы.</div>
+
+    <div class="stroke-stage" id="stroke-stage"></div>
+
+    <div class="melody-progress" id="melody-progress">
+        <div class="melody-progress-fill" id="melody-progress-fill"></div>
+        <div class="melody-marker" id="melody-marker" style="left: 0%;"></div>
+    </div>
+    <div class="melody-time-label" id="melody-time-label">🎵 Нажми «Мелодия» — увидишь прогресс</div>
+
+    <div class="stroke-controls">
+        <button class="btn-melody" id="stroke-melody-btn" onclick="toggleStrokeMelody()">🎵 Мелодия</button>
+        <button onclick="closeAllModals()" style="background:#95a5a6;">Закрыть</button>
+    </div>
+</div>
+
+<div class="confirm-modal" id="confirm-modal">
+    <h3>Вернуться в меню?</h3>
+    <div class="warn">⚠️ Текущие результаты будут обнулены</div>
+    <p>Прогресс этого испытания начнётся заново. Очки и трофеи, заработанные ранее, сохранятся.</p>
+    <div class="confirm-buttons">
+        <button class="btn-danger" onclick="actuallyExit()">Да, выйти</button>
+        <button class="btn-cancel" onclick="closeConfirm()">Отмена</button>
+    </div>
+</div>
+
+<div class="howto-modal" id="howto-modal">
+    <div class="howto-header"><h2>🎵 Как играть</h2></div>
+    <div class="howto-body">
+        <div class="howto-block intro">
+            <h3>👋 Привет!</h3>
+            <p>Это тренажёр музыкальных штрихов.</p>
+            <p>Штрихи говорят музыканту, <b>как</b> извлекать звук: связно или отрывисто, с ударением или ровно, смычком или щипком.</p>
+        </div>
+        <div class="howto-block listen">
+            <h3>🎧 Сначала — послушай</h3>
+            <p>Рядом с каждым термином есть круглая кнопка 🎵. Нажми на неё — увидишь, как этот штрих изображается на нотном стане, и услышишь, как звучит одна и та же мелодия с разными штрихами.</p>
+            <p>В окошке нажми <b>🎵 Мелодия</b> — она проиграет мелодию дважды. Все штрихи играются в <b>одном и том же темпе</b>, отличается только длина нот и паузы: у <b>legato</b> ноты плотно прижимаются друг к другу, у <b>tenuto</b> — звук долго льётся, чуть накладываясь на следующую ноту, у <b>staccato</b> — короткие ноты с большими паузами. Слушай и сравнивай!</p>
+            <p>Каждая третья нота звучит с лёгким акцентом — так ты лучше чувствуешь ритм. А у штрихов <b>akzent</b>, <b>markato</b> и <b>sf</b> акценты ещё сильнее.</p>
+        </div>
+        <div class="howto-block test">
+            <h3>🎯 Потом — проверь себя</h3>
+            <p>Когда готов, нажми <b>«Начать зачетное испытание!»</b>. Тебя ждут 5 этапов:</p>
+            <ol>
+                <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
+                <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
+                <li><b>Собери термин</b> — из перемешанных букв собери итальянское слово по его значению.</li>
+                <li><b>Финальный диктант</b> — впиши перевод руками. Можно писать через дефис или пробел.</li>
+                <li><b>Финальный экзамен</b> — соедини сразу все 9 терминов.</li>
+            </ol>
+            <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁.</p>
+        </div>
+        <div class="howto-block hint">
+            <h3>💡 Если забыл</h3>
+            <p>Нажимай <b>«💡 Подглядеть таблицу»</b> — но помни: если подсмотрел, трофей за этот этап не дадут.</p>
+        </div>
+        <div class="howto-block bag">
+            <h3>🎒 Рюкзак</h3>
+            <p>Все заработанные трофеи хранятся в разделе <b>«Рюкзак 🎒»</b>.</p>
+        </div>
+        <div style="text-align: center; padding: 8px 0 4px; color: #7d5f82; font-weight: bold; font-size: 14px;">Удачи! 🎼</div>
+    </div>
+    <div class="howto-footer">
+        <button class="btn-check" onclick="closeAllModals()">Понятно, начинаем! 🚀</button>
+    </div>
+</div>
+
+<div class="lock-overlay" id="lock-overlay">
+    <div class="lock-box">
+        <div class="lock-icon">🔒</div>
+        <h2>Время истекло</h2>
+        <p>Позанимались — пора отдохнуть!<br>Введи пароль, чтобы продолжить.</p>
+        <input type="password" class="lock-input" id="lock-password" placeholder="Введите пароль" maxlength="8" inputmode="numeric" autocomplete="off">
+        <div class="lock-error" id="lock-error"></div>
+        <button onclick="unlockApp()">🔓 Разблокировать</button>
+        <div class="lock-hint">Пароль у родителя</div>
+    </div>
+</div>
+
+<script>
+// ==================== БЛОКИРОВКА ====================
+const LOCK_CONFIG = {
+    enabled: window.APP_SETTINGS.lockEnabled,
+    timeoutMs: window.APP_SETTINGS.lockTimeoutMinutes * 60 * 1000,
+    password: window.APP_SETTINGS.lockPassword
+};
+let lockTimerId = null, lockDeadline = 0, lockCountdownId = null;
+function startLockTimer() {
+    if (!LOCK_CONFIG.enabled) return;
+    if (lockTimerId) clearTimeout(lockTimerId);
+    if (lockCountdownId) clearInterval(lockCountdownId);
+    lockDeadline = Date.now() + LOCK_CONFIG.timeoutMs;
+    updateTimerDisplay();
+    lockTimerId = setTimeout(showLockScreen, LOCK_CONFIG.timeoutMs);
+    lockCountdownId = setInterval(updateTimerDisplay, 1000);
+}
+function updateTimerDisplay() {
+    const left = Math.max(0, lockDeadline - Date.now());
+    const totalSec = Math.floor(left / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    const el = document.getElementById('timer-val');
+    const box = document.getElementById('timer-box');
+    if (!el || !box) return;
+    el.innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+    if (totalSec <= 60) box.classList.add('warning'); else box.classList.remove('warning');
+}
+function showLockScreen() {
+    if (lockCountdownId) { clearInterval(lockCountdownId); lockCountdownId = null; }
+    if (lockTimerId) { clearTimeout(lockTimerId); lockTimerId = null; }
+    document.getElementById('lock-overlay').classList.add('active');
+    document.getElementById('lock-password').value = '';
+    document.getElementById('lock-error').innerText = '';
+    document.getElementById('timer-val').innerText = '0:00';
+    document.getElementById('timer-box').classList.add('warning');
+    setTimeout(() => document.getElementById('lock-password').focus(), 150);
+    try { stopStrokeMelody(); } catch(e) {}
+}
+function unlockApp() {
+    const entered = document.getElementById('lock-password').value.trim();
+    if (entered === LOCK_CONFIG.password) {
+        document.getElementById('lock-overlay').classList.remove('active');
+        document.getElementById('lock-error').innerText = '';
+        document.getElementById('timer-box').classList.remove('warning');
+        startLockTimer();
+    } else {
+        document.getElementById('lock-error').innerText = '❌ Неверный пароль';
+        document.getElementById('lock-password').value = '';
+        document.getElementById('lock-password').focus();
+    }
+}
+
+// ==================== ИНСТРУКЦИЯ ====================
+const HOWTO_SEEN_KEY = 'strokes_trainer_howto_seen_v1';
+function openHowto() {
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('howto-modal').classList.add('active');
+    try { localStorage.setItem(HOWTO_SEEN_KEY, '1'); } catch(e) {}
+}
+function maybeShowHowto() {
+    let seen = false;
+    try { seen = localStorage.getItem(HOWTO_SEEN_KEY) === '1'; } catch(e) {}
+    if (!seen) setTimeout(() => openHowto(), 400);
+}
+
+// ==================== СТАТИСТИКА ====================
+let sessionStats = { correct: 0, withoutHint: 0, pointsAtStart: 0, expectedTotal: 0 };
+let stageHandled = false;
+function resetSessionStats() {
+    const N = DATABASE.terms.length;
+    sessionStats.correct = 0;
+    sessionStats.withoutHint = 0;
+    sessionStats.pointsAtStart = scoreBalance;
+    sessionStats.expectedTotal = 1 + N * 3 + 1;
+    updateProgressDisplay();
+}
+function updateProgressDisplay() {
+    const el = document.getElementById('progress-info');
+    if (el) el.innerText = `📊 Пройдено: ${sessionStats.correct} / ${sessionStats.expectedTotal}`;
+}
+function addStat() {
+    sessionStats.correct++;
+    if (eligibleForLoot) sessionStats.withoutHint++;
+    updateProgressDisplay();
+}
+function confirmExit() {
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('confirm-modal').classList.add('active');
+}
+function closeConfirm() {
+    document.getElementById('confirm-modal').classList.remove('active');
+    document.getElementById('overlay').style.display = 'none';
+}
+function actuallyExit() {
+    closeConfirm();
+    resetSessionStats();
+    returnToTheory();
+}
+
+// ==================== ЗВУК ====================
+let audioCtx = null;
+let activeOscillators = [];
+let activeTimeouts = [];
+let playingNoteIds = new Set();
+function ensureAudio() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+function stopAnySound() {
+    activeOscillators.forEach(o => { try { o.stop(); } catch(e) {} });
+    activeOscillators = [];
+    activeTimeouts.forEach(t => clearTimeout(t));
+    activeTimeouts = [];
+    playingNoteIds.clear();
+    document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+}
+
+// ==================== SVG-СИМВОЛЫ ШТРИХОВ ====================
+function staffLines() {
+    return `
+        <line x1="34" y1="40" x2="300" y2="40" stroke="#333" stroke-width="1"/>
+        <line x1="34" y1="52" x2="300" y2="52" stroke="#333" stroke-width="1"/>
+        <line x1="34" y1="64" x2="300" y2="64" stroke="#333" stroke-width="1"/>
+        <line x1="34" y1="76" x2="300" y2="76" stroke="#333" stroke-width="1"/>
+        <line x1="34" y1="88" x2="300" y2="88" stroke="#333" stroke-width="1"/>
+        <text x="4" y="86" font-size="52" fill="#333" font-family="serif">𝄞</text>
+    `;
+}
+function noteHead(cx, cy) {
+    return `
+        <ellipse cx="${cx}" cy="${cy}" rx="9" ry="6.5" fill="#333" transform="rotate(-20 ${cx} ${cy})"/>
+        <line x1="${cx + 9}" y1="${cy}" x2="${cx + 9}" y2="${cy - 34}" stroke="#333" stroke-width="1.6"/>
+    `;
+}
+function svgLegato() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <path d="M110 42 Q160 22 210 42" stroke="#7d5f82" stroke-width="2.5" fill="none"/>
+    </svg>`;
+}
+function svgStaccato() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <circle cx="110" cy="38" r="4" fill="#7d5f82"/>
+        <circle cx="210" cy="38" r="4" fill="#7d5f82"/>
+    </svg>`;
+}
+function svgTenuto() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <line x1="98" y1="38" x2="122" y2="38" stroke="#7d5f82" stroke-width="3"/>
+        <line x1="198" y1="38" x2="222" y2="38" stroke="#7d5f82" stroke-width="3"/>
+    </svg>`;
+}
+function svgDetache() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <line x1="98" y1="38" x2="122" y2="38" stroke="#7d5f82" stroke-width="2"/>
+        <line x1="198" y1="38" x2="222" y2="38" stroke="#7d5f82" stroke-width="2"/>
+        <text x="152" y="70" font-size="16" fill="#bbb" font-weight="bold">|</text>
+    </svg>`;
+}
+function svgNonLegato() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <line x1="98" y1="38" x2="122" y2="38" stroke="#7d5f82" stroke-width="2"/>
+        <line x1="198" y1="38" x2="222" y2="38" stroke="#7d5f82" stroke-width="2"/>
+        <line x1="152" y1="52" x2="152" y2="90" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text x="160" y="48" font-size="14" fill="#7d5f82" font-weight="bold">+</text>
+    </svg>`;
+}
+function svgAkzent() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <path d="M96 34 L110 40 L96 46" stroke="#c0392b" stroke-width="2.5" fill="none"/>
+        <path d="M196 34 L210 40 L196 46" stroke="#c0392b" stroke-width="2.5" fill="none"/>
+    </svg>`;
+}
+function svgMarkato() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <path d="M100 34 L110 40 L120 34 M110 40 L110 46" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M200 34 L210 40 L220 34 M210 40 L210 46" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>`;
+}
+function svgSf() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <text x="94" y="38" font-size="20" fill="#c0392b" font-weight="bold" font-style="italic">sfz</text>
+        <text x="194" y="38" font-size="20" fill="#c0392b" font-weight="bold" font-style="italic">sfz</text>
+    </svg>`;
+}
+function svgPizzicato() {
+    return `<svg viewBox="0 0 340 120">
+        ${staffLines()}
+        ${noteHead(110, 76)}
+        ${noteHead(210, 76)}
+        <text x="86" y="40" font-size="16" fill="#c0392b" font-weight="bold" font-style="italic">pizz.</text>
+        <text x="186" y="40" font-size="16" fill="#c0392b" font-weight="bold" font-style="italic">pizz.</text>
+    </svg>`;
+}
+
+// ==================== ДАННЫЕ ====================
+// step — через сколько «долей» начинается следующая нота (у всех 1.0, темп одинаков)
+// noteLen — сколько «долей» звучит нота (>1 = наложение, <1 = пауза после ноты)
+// smooth — мягкая атака и длинный сустейн
+const STROKES_DATA = [
+    { it: "detache", ru: "отделять", fake: "связно", symbol: "detache",
+      desc: "Каждый звук извлекается отдельным движением смычка, но с паузами между звуками.",
+      melody: { step: 1.0, noteLen: 0.70, volume: 0.22, wave: "triangle", accentPattern: [], smooth: false } },
+    { it: "akzent", ru: "ударение на звуке", fake: "ровно, без ударения", symbol: "akzent",
+      desc: "Выделение одного звука большей силой (знак «>»).",
+      melody: { step: 1.0, noteLen: 0.85, volume: 0.22, wave: "triangle", accentPattern: [0, 2, 4, 6], smooth: false } },
+    { it: "legato", ru: "связно", fake: "отрывисто", symbol: "legato",
+      desc: "Звуки переходят один в другой без паузы. Каждая нота звучит ровно свою длительность и плотно прижимается к следующей — без «дырок» и без «слипания».",
+      melody: { step: 1.0, noteLen: 1.00, volume: 0.22, wave: "sine", accentPattern: [], smooth: false } },
+    { it: "markato", ru: "подчёркивая, выделяя", fake: "ровно, мягко", symbol: "markato",
+      desc: "Сильное подчёркивание звука (знак «^»).",
+      melody: { step: 1.0, noteLen: 0.70, volume: 0.22, wave: "sawtooth", accentPattern: [0, 1, 2, 3, 4, 5, 6, 7], smooth: false } },
+    { it: "non legato", ru: "не связно", fake: "плавно, связно", symbol: "non_legato",
+      desc: "Звуки исполняются раздельно, но не коротко.",
+      melody: { step: 1.0, noteLen: 0.60, volume: 0.22, wave: "triangle", accentPattern: [], smooth: false } },
+    { it: "pizzicato", ru: "щипком, остро", fake: "смычком", symbol: "pizzicato",
+      desc: "Играть щипком струны, а не смычком. Звук короткий, звонкий.",
+      melody: { step: 1.0, noteLen: 0.35, volume: 0.22, wave: "square", accentPattern: [], smooth: false } },
+    { it: "sf", ru: "сильный, жёсткий акцент", fake: "плавно, тихо", symbol: "sf",
+      desc: "Внезапный резкий акцент — «sfz» под нотой.",
+      melody: { step: 1.0, noteLen: 0.90, volume: 0.22, wave: "sawtooth", accentPattern: [0, 4], smooth: false } },
+    { it: "staccato", ru: "отрывисто", fake: "протяжно, связно", symbol: "staccato",
+      desc: "Звуки короткие, с паузами между ними. Как «точки» над нотами.",
+      melody: { step: 1.0, noteLen: 0.25, volume: 0.22, wave: "triangle", accentPattern: [], smooth: false } },
+    { it: "tenuto", ru: "выдержанно, точно по длительности и силе", fake: "коротко, отрывисто", symbol: "tenuto",
+      desc: "Звук тянется долго, чуть дольше, чем длится его «слот», и мягко накладывается на следующую ноту. Тягуче, певуче, с мягкой атакой.",
+      melody: { step: 1.0, noteLen: 1.40, volume: 0.26, wave: "sine", accentPattern: [], smooth: true } }
+];
+const SVG_BUILDERS = {
+    detache: svgDetache, akzent: svgAkzent, legato: svgLegato,
+    markato: svgMarkato, non_legato: svgNonLegato, pizzicato: svgPizzicato,
+    sf: svgSf, staccato: svgStaccato, tenuto: svgTenuto
+};
+
+const STROKE_MELODY = [
+    { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
+    { f: 329.63, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 1 },
+    { f: 261.63, d: 2 }, { f: 392.00, d: 1 }
+];
+
+// Единый DATABASE — без «Проверки», только один раздел
+const DATABASE = {
+    title: "🎻 Штрихи",
+    hintText: STROKES_DATA.map(s => `${s.it} — ${s.ru}`).join('\n'),
+    terms: STROKES_DATA
+};
+
+const INVENTORY = {
+    item_violin: { title: "Золотой Смычок", icon: "🎻", unlocked: false, text: "За точные пары!" },
+    item_fork:   { title: "Магический Камертон", icon: "🔱", unlocked: false, text: "За верный выбор!" },
+    item_key:    { title: "Хрустальный Ключ", icon: "🔑", unlocked: false, text: "За сборку термина!" },
+    item_harp:   { title: "Легендарная Арфа", icon: "🪕", unlocked: false, text: "За диктант руками!" },
+    item_cup:    { title: "Кубок Филармонии", icon: "🏆", unlocked: false, text: "За победу в зачете!" }
+};
+
+// ==================== СОСТОЯНИЕ ====================
+let scoreBalance = 0;
+let currentStep = 1;
+let activeTermIndex = 0;
+let selectedITCard = null, selectedRUCard = null, selectedVariant = null;
+let pairedCount = 0;
+let eligibleForLoot = true;
+let assembleState = { term: "", letters: [], answer: [] };
+
+let strokeState = {
+    term: null, melodyRunning: false,
+    session: 0, masterGain: null, timeouts: [],
+    totalDuration: 0, startTime: 0, progressRaf: null
+};
+
+// ==================== ШКАЛА ПРОГРЕССА ====================
+function resetMelodyProgress() {
+    const m = document.getElementById('melody-marker');
+    const f = document.getElementById('melody-progress-fill');
+    const t = document.getElementById('melody-time-label');
+    if (m) m.style.left = '0%';
+    if (f) f.style.width = '0%';
+    if (t) t.innerText = '🎵 Нажми «Мелодия» — увидишь прогресс';
+}
+function updateMelodyProgress(elapsed, total) {
+    const pct = Math.min(100, (elapsed / total) * 100);
+    const m = document.getElementById('melody-marker');
+    const f = document.getElementById('melody-progress-fill');
+    const t = document.getElementById('melody-time-label');
+    if (m) m.style.left = pct + '%';
+    if (f) f.style.width = pct + '%';
+    if (t) t.innerText = `${elapsed.toFixed(1)} / ${total.toFixed(1)} с`;
+}
+function cancelProgressLoop() {
+    if (strokeState.progressRaf) cancelAnimationFrame(strokeState.progressRaf);
+    strokeState.progressRaf = null;
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+function initApp() {
+    renderTheoryList();
+    renderInventory();
+    updateHeader();
+    if (!window.APP_SETTINGS.lockEnabled) document.getElementById('timer-box').style.display = 'none';
+    else startLockTimer();
+    document.getElementById('lock-password').addEventListener('keydown', e => { if (e.key === 'Enter') unlockApp(); });
+    maybeShowHowto();
+}
+
+// ==================== ТЕОРИЯ ====================
+function renderTermRow(term, showHint) {
+    const svgKey = term.symbol || term.it.replace(/\s+/g, '_');
+    const builder = SVG_BUILDERS[svgKey] || SVG_BUILDERS.legato;
+    const hintHtml = showHint ? `<div class="play-hint">нажми <span class="arrow">➜</span></div>` : '';
+    return `
+        <div class="theory-term">
+            <div class="stroke-mini">${builder()}</div>
+            <div style="flex:1; font-weight:500; min-width:0; line-height:1.4;">
+                <b>${term.it}</b> — ${term.ru}
+            </div>
+            ${hintHtml}
+            <button class="btn-play-stroke" onclick="openStrokeModal('${term.it.replace(/'/g, "\\'")}')">🎵</button>
+        </div>
+    `;
+}
+function renderTheoryList() {
+    const list = document.getElementById('theory-list');
+    let html = '';
+    DATABASE.terms.forEach((t, i) => { html += renderTermRow(t, i === 0); });
+    list.innerHTML = html;
+}
+
+// ==================== МОДАЛКА ШТРИХА ====================
+function openStrokeModal(termIt) {
+    const term = DATABASE.terms.find(t => t.it === termIt);
+    if (!term) return;
+
+    stopStrokeMelody();
+
+    strokeState.term = term;
+    document.getElementById('stroke-title').innerText = term.it;
+    document.getElementById('stroke-translation').innerText = term.ru;
+    document.getElementById('stroke-desc').innerText = term.desc || '';
+
+    const svgKey = term.symbol || term.it.replace(/\s+/g, '_');
+    const builder = SVG_BUILDERS[svgKey] || SVG_BUILDERS.legato;
+    document.getElementById('stroke-stage').innerHTML = builder();
+
+    resetMelodyProgress();
+
+    document.getElementById('stroke-melody-btn').innerText = '🎵 Мелодия';
+    document.getElementById('stroke-melody-btn').className = 'btn-melody';
+
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('stroke-modal').style.display = 'block';
+
+    ensureAudio();
+}
+
+// Одна нота.
+// smooth=true  — мягкая атака, длинный хвост, звук льётся
+// accent=true  — удар: очень резкая атака, громкость ×2.4
+function playStrokeNote(freq, noteLen, volume, waveType, when, outNode, accent, smooth) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = waveType || 'sine';
+    osc.frequency.value = freq;
+
+    const vol = accent ? volume * 2.4 : volume;
+
+    let attack, release;
+    if (smooth) {
+        attack = 0.14;
+        release = Math.max(0.4, noteLen * 0.65);
+    } else if (accent) {
+        attack = 0.005;
+        release = Math.max(0.1, noteLen * 0.4);
+    } else {
+        attack = 0.02;
+        release = Math.max(0.08, noteLen * 0.3);
+    }
+
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(vol, when + attack);
+    gain.gain.setValueAtTime(vol, when + Math.max(attack, noteLen - release));
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + noteLen);
+
+    osc.connect(gain);
+    gain.connect(outNode || audioCtx.destination);
+    osc.start(when);
+    osc.stop(when + noteLen + 0.1);
+    activeOscillators.push(osc);
+}
+
+// ==================== МЕЛОДИЯ ====================
+function toggleStrokeMelody() {
+    if (strokeState.melodyRunning) stopStrokeMelody();
+    else startStrokeMelody();
+}
+
+function startStrokeMelody() {
+    const term = strokeState.term;
+    if (!term) return;
+    ensureAudio();
+    stopStrokeMelody();
+    strokeState.session++;
+    const mySession = strokeState.session;
+    strokeState.melodyRunning = true;
+    document.getElementById('stroke-melody-btn').innerText = '⏸️ Стоп';
+    document.getElementById('stroke-melody-btn').className = 'btn-stop';
+
+    strokeState.masterGain = audioCtx.createGain();
+    strokeState.masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
+    strokeState.masterGain.connect(audioCtx.destination);
+
+    const cfg = term.melody;
+    const fullMelody = [...STROKE_MELODY, ...STROKE_MELODY];
+    const beatSec = 0.42;
+
+    let time = audioCtx.currentTime + 0.15;
+    let totalDur = 0;
+
+    fullMelody.forEach((n, idx) => {
+        const stepTime = cfg.step * beatSec * n.d;
+        const noteLenTime = Math.max(0.06, cfg.noteLen * beatSec * n.d);
+
+        const rhythmAccent = (idx % 3 === 0);
+        const strokeAccent = cfg.accentPattern.length > 0 && cfg.accentPattern.includes(idx % 8);
+        const accent = rhythmAccent || strokeAccent;
+
+        playStrokeNote(
+            n.f, noteLenTime, cfg.volume, cfg.wave,
+            time, strokeState.masterGain,
+            accent, cfg.smooth
+        );
+        time += stepTime;
+        totalDur += stepTime;
+    });
+
+    resetMelodyProgress();
+    strokeState.totalDuration = totalDur;
+    strokeState.startTime = performance.now();
+    const rafLoop = () => {
+        if (!strokeState.melodyRunning || mySession !== strokeState.session) return;
+        const elapsed = (performance.now() - strokeState.startTime) / 1000;
+        updateMelodyProgress(Math.min(elapsed, totalDur), totalDur);
+        if (elapsed < totalDur) strokeState.progressRaf = requestAnimationFrame(rafLoop);
+    };
+    strokeState.progressRaf = requestAnimationFrame(rafLoop);
+
+    const endMs = (totalDur + 0.8) * 1000;
+    const tid = setTimeout(() => {
+        if (mySession !== strokeState.session) return;
+        stopStrokeMelody();
+    }, endMs);
+    strokeState.timeouts.push(tid);
+}
+
+function stopStrokeMelody() {
+    strokeState.session++;
+    strokeState.melodyRunning = false;
+    cancelProgressLoop();
+    if (strokeState.masterGain && audioCtx) {
+        const now = audioCtx.currentTime;
+        try {
+            strokeState.masterGain.gain.cancelScheduledValues(now);
+            strokeState.masterGain.gain.setValueAtTime(strokeState.masterGain.gain.value, now);
+            strokeState.masterGain.gain.linearRampToValueAtTime(0, now + 0.05);
+        } catch(e) {}
+        const mg = strokeState.masterGain;
+        strokeState.masterGain = null;
+        setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 150);
+    }
+    strokeState.timeouts.forEach(t => clearTimeout(t));
+    strokeState.timeouts = [];
+    const btn = document.getElementById('stroke-melody-btn');
+    if (btn) { btn.innerText = '🎵 Мелодия'; btn.className = 'btn-melody'; }
+}
+
+// ==================== СБОРКА ТЕРМИНА ====================
+function initAssemble() {
+    const term = DATABASE.terms[activeTermIndex].it;
+    const chars = term.split('');
+    const shuffled = [...chars].sort(() => Math.random() - 0.5);
+    assembleState = { term, letters: shuffled.map((ch, i) => ({ char: ch, used: false, idx: i })), answer: [] };
+}
+function renderAssemble() {
+    const term = DATABASE.terms[activeTermIndex];
+    const workspace = document.getElementById('game-workspace');
+    const lettersHtml = assembleState.letters.map((l, i) => {
+        const isSpace = l.char === ' ';
+        const display = isSpace ? '␣' : l.char;
+        const cls = (l.used ? 'letter-btn used' : 'letter-btn') + (isSpace ? ' space-btn' : '');
+        return `<button class="${cls}" onclick="pickLetter(${i})" ${l.used ? 'disabled' : ''}>${display}</button>`;
+    }).join('');
+    const answerDisplay = assembleState.answer.length > 0
+        ? assembleState.answer.map(a => a.char === ' ' ? '_' : a.char).join('')
+        : '<span style="color:#ccc; font-size:16px; letter-spacing:1px;">Здесь появится ответ...</span>';
+    workspace.innerHTML = `
+        <div class="rule-block" style="background:#fff; text-align:center; font-size:15px; padding: 16px;">
+            Собери итальянский термин, который обозначает:<br>
+            <b style="color:#2e1b4d; font-size:18px;">«${term.ru}»</b>
+        </div>
+        <div class="assemble-answer">${answerDisplay}</div>
+        <div class="assemble-letters">${lettersHtml}</div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn-hint" onclick="removeLastLetter()" style="flex:1; width:auto;">⌫ Удалить</button>
+            <button class="btn-hint" onclick="clearAssemble()" style="flex:1; width:auto;">🗑 Очистить</button>
+        </div>
+    `;
+}
+function pickLetter(idx) {
+    if (stageHandled) return;
+    const letter = assembleState.letters[idx];
+    if (letter.used) return;
+    letter.used = true;
+    assembleState.answer.push({ char: letter.char, idx: idx });
+    renderAssemble();
+}
+function removeLastLetter() {
+    if (stageHandled || assembleState.answer.length === 0) return;
+    const last = assembleState.answer.pop();
+    assembleState.letters[last.idx].used = false;
+    renderAssemble();
+}
+function clearAssemble() {
+    if (stageHandled) return;
+    assembleState.answer.forEach(a => { assembleState.letters[a.idx].used = false; });
+    assembleState.answer = [];
+    renderAssemble();
+}
+function checkAssemble() {
+    if (stageHandled) return;
+    const userAnswer = assembleState.answer.map(a => a.char).join('');
+    const correct = assembleState.term;
+    const fb = document.getElementById('game-feedback');
+    if (userAnswer.toLowerCase() === correct.toLowerCase()) {
+        stageHandled = true;
+        scoreBalance += 15;
+        let lootText = "";
+        if (eligibleForLoot && !INVENTORY.item_key.unlocked) {
+            INVENTORY.item_key.unlocked = true;
+            lootText = "<br>🎁 ТРОФЕЙ: Хрустальный Ключ у тебя в рюкзаке!";
+        }
+        updateHeader(); addStat();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+        currentStep = 4;
+        setTimeout(loadStage, 2500);
+    } else {
+        fb.className = "feedback error-text";
+        if (userAnswer.length < correct.length) fb.innerText = "❌ Ещё не все буквы использованы!";
+        else fb.innerText = "❌ Неправильный порядок букв. Попробуй ещё раз!";
+    }
+}
+
+// ==================== ТАБЫ ====================
+function switchTab(tab) {
+    document.getElementById('nav-learn').classList.remove('active');
+    document.getElementById('nav-shop').classList.remove('active');
+    document.getElementById('tab-learn-content').style.display = 'none';
+    document.getElementById('tab-shop-content').style.display = 'none';
+    if (tab === 'learn') {
+        document.getElementById('nav-learn').classList.add('active');
+        document.getElementById('tab-learn-content').style.display = 'block';
+    } else {
+        document.getElementById('nav-shop').classList.add('active');
+        document.getElementById('tab-shop-content').style.display = 'block';
+        renderInventory();
+    }
+}
+function renderInventory() {
+    const container = document.getElementById('inventory-container');
+    container.innerHTML = '';
+    for (let key in INVENTORY) {
+        const item = INVENTORY[key];
+        container.innerHTML += `
+            <div class="inventory-item ${item.unlocked ? 'unlocked' : ''}">
+                <div class="item-icon">${item.unlocked ? item.icon : "🔒"}</div>
+                <div class="item-title">${item.title}</div>
+                <div class="item-status">${item.unlocked ? item.text : 'Закрыто'}</div>
+            </div>
+        `;
+    }
+}
+function updateHeader() {
+    document.getElementById('balance-val').innerText = scoreBalance;
+    let count = 0;
+    for (let key in INVENTORY) { if (INVENTORY[key].unlocked) count++; }
+    document.getElementById('inv-count').innerText = count;
+}
+
+// ==================== ИГРА ====================
+function startTraining() {
+    stopAnySound();
+    document.getElementById('screen-theory').style.display = 'none';
+    document.getElementById('screen-game').style.display = 'block';
+    activeTermIndex = 0;
+    currentStep = 1;
+    resetSessionStats();
+    loadStage();
+}
+function returnToTheory() {
+    stopAnySound();
+    document.getElementById('screen-game').style.display = 'none';
+    document.getElementById('screen-theory').style.display = 'block';
+    document.getElementById('hint-main-btn').style.display = 'block';
+    currentStep = 1; activeTermIndex = 0; eligibleForLoot = true;
+    document.getElementById('game-workspace').innerHTML = '';
+    document.getElementById('game-feedback').innerText = '';
+    document.getElementById('action-buttons').style.display = 'none';
+}
+function loadStage() {
+    const mod = DATABASE;
+    const workspace = document.getElementById('game-workspace');
+    const actionBtns = document.getElementById('action-buttons');
+    document.getElementById('game-feedback').innerText = '';
+    actionBtns.style.display = 'none';
+    eligibleForLoot = true;
+    stageHandled = false;
+
+    if (currentStep === 1) {
+        document.getElementById('game-task-title').innerText = `Этап 1: Соедини Пары 🧩`;
+        document.getElementById('game-instruction').innerText = "Найди правильные пары: итальянские термины — русские переводы:";
+        pairedCount = 0; selectedITCard = null; selectedRUCard = null;
+        workspace.innerHTML = `<div class="pool" id="pool-it" style="margin-bottom:5px;"></div><div class="pool" id="pool-ru"></div>`;
+        const itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+        const ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+        const pIT = document.getElementById('pool-it');
+        itList.forEach((text, i) => {
+            const card = document.createElement('div');
+            card.className = 'chunk-card'; card.id = 'it-card-' + i; card.innerText = text;
+            card.onclick = () => selectCard(card, 'it', text);
+            pIT.appendChild(card);
+        });
+        const pRU = document.getElementById('pool-ru');
+        ruList.forEach((text, i) => {
+            const card = document.createElement('div');
+            card.className = 'chunk-card ru-card'; card.id = 'ru-card-' + i; card.innerText = text;
+            card.onclick = () => selectCard(card, 'ru', text);
+            pRU.appendChild(card);
+        });
+    } else if (currentStep === 2) {
+        document.getElementById('game-task-title').innerText = `Этап 2: Выбери Верный Перевод 🧠`;
+        document.getElementById('game-instruction').innerText = `Термин ${activeTermIndex + 1} из ${mod.terms.length}. Выбери правильный перевод:`;
+        const term = mod.terms[activeTermIndex];
+        const options = [{ text: term.ru, correct: true }, { text: term.fake, correct: false }].sort(() => Math.random() - 0.5);
+        let html = `<div class="rule-block" style="background:#fff; text-align:center; font-size:20px; padding: 20px; color: #2e1b4d;"><b>${term.it}</b></div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">`;
+        options.forEach((opt, index) => { html += `<div class="variant-option" onclick="selectVariant(this, ${opt.correct})">${opt.text}</div>`; });
+        html += `</div>`;
+        workspace.innerHTML = html;
+        selectedVariant = null;
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkVariant()">Проверить ответ ✅</button>`;
+    } else if (currentStep === 3) {
+        document.getElementById('game-task-title').innerText = `Этап 3: Собери Термин 🧱`;
+        document.getElementById('game-instruction').innerText = `Термин ${activeTermIndex + 1} из ${mod.terms.length}. Нажимай буквы по порядку. Пробел обозначен клеточкой ␣, в ответе — подчёркиванием _.`;
+        initAssemble(); renderAssemble();
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkAssemble()">Проверить ✅</button>`;
+    } else if (currentStep === 4) {
+        document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
+        document.getElementById('game-instruction').innerHTML = `Термин ${activeTermIndex + 1} из ${mod.terms.length}.<br>• Можно писать через дефис или пробел.`;
+        document.getElementById('game-instruction').style.fontStyle = 'normal';
+        document.getElementById('game-instruction').style.color = '#555';
+        const term = mod.terms[activeTermIndex];
+        workspace.innerHTML = `<div class="rule-block" style="background:#fff; text-align:center;">
+            <span style="font-size:20px; font-weight:bold; color:#2e1b4d;">${term.it}</span>
+            <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
+            <div style="font-size:12px; color:#999; margin-top:10px;">Запятые обязательно.</div>
+        </div>`;
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkDictation()">Сдать зачетную строчку 🏆</button>`;
+    } else if (currentStep === 5) {
+        document.getElementById('game-task-title').innerText = `Этап 5: Финальный Экзамен 🎓`;
+        document.getElementById('game-instruction').innerText = "Соедини ВСЕ термины темы с их переводами:";
+        pairedCount = 0; selectedITCard = null; selectedRUCard = null;
+        workspace.innerHTML = `<div class="pool" id="pool-it" style="margin-bottom:5px;"></div><div class="pool" id="pool-ru"></div>`;
+        const itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+        const ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+        const pIT = document.getElementById('pool-it');
+        itList.forEach((text, i) => {
+            const card = document.createElement('div');
+            card.className = 'chunk-card'; card.id = 'it-card-' + i; card.innerText = text;
+            card.onclick = () => selectCard(card, 'it', text);
+            pIT.appendChild(card);
+        });
+        const pRU = document.getElementById('pool-ru');
+        ruList.forEach((text, i) => {
+            const card = document.createElement('div');
+            card.className = 'chunk-card ru-card'; card.id = 'ru-card-' + i; card.innerText = text;
+            card.onclick = () => selectCard(card, 'ru', text);
+            pRU.appendChild(card);
+        });
+    }
+}
+function selectCard(card, type, text) {
+    if (stageHandled) return;
+    if (type === 'it') {
+        if (selectedITCard) selectedITCard.classList.remove('active-card');
+        selectedITCard = card; selectedITCard.activeText = text;
+        selectedITCard.classList.add('active-card');
+    } else {
+        if (selectedRUCard) selectedRUCard.classList.remove('active-card');
+        selectedRUCard = card; selectedRUCard.activeText = text;
+        selectedRUCard.classList.add('active-card');
+    }
+    if (selectedITCard && selectedRUCard) {
+        const terms = DATABASE.terms;
+        const match = terms.find(t => t.it === selectedITCard.activeText && t.ru === selectedRUCard.activeText);
+        const fb = document.getElementById('game-feedback');
+        if (match) {
+            selectedITCard.style.visibility = 'hidden';
+            selectedRUCard.style.visibility = 'hidden';
+            selectedITCard = null; selectedRUCard = null;
+            pairedCount++; scoreBalance += 5; updateHeader();
+            if (pairedCount === terms.length) {
+                stageHandled = true; addStat();
+                if (currentStep === 5) {
+                    const pointsEarned = scoreBalance - sessionStats.pointsAtStart;
+                    fb.className = "feedback success-text";
+                    fb.innerHTML = `🎉 Всё готово! Загружаю итоги...`;
+                    document.getElementById('hint-main-btn').style.display = 'none';
+                    setTimeout(() => {
+                        document.getElementById('game-workspace').innerHTML = `
+                            <h2 style='text-align:center; color:#2ecc71; margin-bottom:6px;'>🎓 Модуль успешно завершен! 🎓</h2>
+                            <div class="stats-card">
+                                <div class="stat-row"><span>✅ Правильно решено</span><b>${sessionStats.correct} / ${sessionStats.expectedTotal}</b></div>
+                                <div class="stat-row"><span>💡 Без подсказок</span><b>${sessionStats.withoutHint} / ${sessionStats.expectedTotal}</b></div>
+                                <div class="stat-row"><span>⭐ Набрано очков</span><b>+${pointsEarned}</b></div>
+                            </div>
+                            <button onclick="returnToTheory()">Вернуться к обучению 🔄</button>
+                        `;
+                        document.getElementById('action-buttons').style.display = 'none';
+                        document.getElementById('game-feedback').innerText = '';
+                    }, 1500);
+                } else {
+                    let lootText = "";
+                    if (eligibleForLoot && !INVENTORY.item_violin.unlocked) {
+                        INVENTORY.item_violin.unlocked = true;
+                        lootText = "<br>🎁 ТРОФЕЙ: Золотой Смычок добавлен в рюкзак!";
+                    }
+                    fb.className = "feedback success-text";
+                    fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
+                    currentStep = 2; activeTermIndex = 0;
+                    setTimeout(loadStage, 2500);
+                }
+            }
+        } else {
+            fb.className = "feedback error-text";
+            fb.innerText = "❌ Неправильная пара! Попробуй соединить другие карточки.";
+            selectedITCard.classList.remove('active-card');
+            selectedRUCard.classList.remove('active-card');
+            selectedITCard = null; selectedRUCard = null;
+        }
+    }
+}
+function selectVariant(element, isCorrect) {
+    if (stageHandled) return;
+    document.querySelectorAll('.variant-option').forEach(el => el.classList.remove('active-card'));
+    element.classList.add('active-card');
+    selectedVariant = element; element.dataset.correct = isCorrect;
+}
+function checkVariant() {
+    if (stageHandled) return;
+    const fb = document.getElementById('game-feedback');
+    const mod = DATABASE;
+    if (!selectedVariant) { fb.className = "feedback error-text"; fb.innerText = "❌ Ты не выбрал вариант!"; return; }
+    const isCorrect = selectedVariant.dataset.correct === 'true';
+    if (isCorrect) {
+        stageHandled = true; scoreBalance += 15;
+        let lootText = "";
+        if (eligibleForLoot && !INVENTORY.item_fork.unlocked) {
+            INVENTORY.item_fork.unlocked = true;
+            lootText = "<br>🎁 ТРОФЕЙ: Магический Камертон у тебя в рюкзаке!";
+        }
+        updateHeader(); addStat();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+        currentStep = 3; setTimeout(loadStage, 2500);
+    } else {
+        fb.className = "feedback error-text";
+        fb.innerText = "❌ Неправильно! Попробуй снова.";
+        selectedVariant.classList.remove('active-card'); selectedVariant = null;
+    }
+}
+function normalizeForCheck(text) {
+    return String(text || '').toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/[—–\-]/g, ' ')
+        .replace(/[.,!?;:()"'«»]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+function latinToCyrillic(text) {
+    const map = {'a':'а','b':'б','c':'к','d':'д','e':'е','f':'ф','g':'г','h':'х','i':'и','j':'й','k':'к','l':'л','m':'м','n':'н','o':'о','p':'п','q':'к','r':'р','s':'с','t':'т','u':'у','v':'в','w':'в','x':'кс','y':'и','z':'з'};
+    return text.split('').map(ch => map[ch] || ch).join('');
+}
+function isAnswerCorrect(userRaw, realRaw) {
+    const u = normalizeForCheck(userRaw), r = normalizeForCheck(realRaw);
+    if (u === r) return true;
+    if (latinToCyrillic(u) === latinToCyrillic(r)) return true;
+    return false;
+}
+function checkDictation() {
+    if (stageHandled) return;
+    const userRaw = document.getElementById('dictation-input').value;
+    const realRaw = DATABASE.terms[activeTermIndex].ru;
+    const fb = document.getElementById('game-feedback');
+    if (isAnswerCorrect(userRaw, realRaw)) {
+        stageHandled = true; scoreBalance += 20;
+        let lootText = "";
+        if (eligibleForLoot && !INVENTORY.item_harp.unlocked) {
+            INVENTORY.item_harp.unlocked = true;
+            lootText = "<br>🎁 ЛЕГЕНДА: Легендарная Арфа добавлена в твою коллекцию!";
+        }
+        updateHeader(); addStat();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🏆 Блестяще! +20 ⭐ ${lootText}`;
+        activeTermIndex++;
+        if (activeTermIndex < DATABASE.terms.length) {
+            currentStep = 2; setTimeout(loadStage, 2500);
+        } else {
+            INVENTORY.item_cup.unlocked = true; updateHeader();
+            fb.className = "feedback success-text";
+            fb.innerHTML = `🎉 Блок терминов сдан! Переходим к Финальному Экзамену! 🎓`;
+            currentStep = 5; setTimeout(loadStage, 2500);
+        }
+    } else {
+        fb.className = "feedback error-text";
+        fb.innerText = "❌ Не до конца точно! Исправь буквы.";
+        document.getElementById('dictation-input').style.borderColor = '#e74c3c';
+    }
+}
+function showHint() {
+    document.getElementById('hint-content').innerText = DATABASE.hintText;
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('hint-modal').style.display = 'block';
+    eligibleForLoot = false;
+}
+function closeAllModals() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('hint-modal').style.display = 'none';
+    document.getElementById('stroke-modal').style.display = 'none';
+    document.getElementById('howto-modal').classList.remove('active');
+    document.getElementById('confirm-modal').classList.remove('active');
+    stopStrokeMelody();
+}
+
+initApp();
+</script>
+</body>
+</html>
