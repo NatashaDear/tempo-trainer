@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Музыкальный Тренажер: Темпы</title>
+
+    <!-- ============================================================ -->
+    <!--  ⚙️  НАСТРОЙКИ  —  МЕНЯЙТЕ  ЗДЕСЬ !                          -->
+    <!-- ============================================================ -->
+    <script>
+        window.APP_SETTINGS = {
+            lockEnabled: true,
+            lockTimeoutMinutes: 10,
+            lockPassword: "13"
+        };
+    </script>
+    <!-- ============================================================ -->
+
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f0f3f8; color: #333; margin: 0; padding: 10px; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         .header { background: linear-gradient(135deg, #4b6cb7, #182848); color: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px; text-align: center; }
@@ -25,9 +38,56 @@
 
         .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
         .rule-block { background: #f8fafd; border-left: 4px solid #4b6cb7; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
-        .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; font-size: 14px; }
-        .theory-term .term-text { flex: 1; font-weight: 500; }
-        .btn-play-tempo { background: #4b6cb7; width: 38px; height: 38px; border-radius: 50%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; font-size: 14px; gap: 8px; }
+        .theory-term .term-text { flex: 1; font-weight: 500; min-width: 0; }
+
+        /* ============ КНОПКА ПРОСЛУШИВАНИЯ — пастельная, заметная ============ */
+        .play-hint {
+            font-size: 11px;
+            color: #4b6cb7;
+            font-weight: bold;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            animation: hint-blink 1.6s infinite;
+        }
+        @keyframes hint-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .play-hint .arrow {
+            font-size: 14px;
+            animation: arrow-move 1s infinite;
+        }
+        @keyframes arrow-move {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+        }
+        .btn-play-tempo {
+            background: #dce9f7;
+            border: 2px solid #7ba0d4;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(75,108,183,0.3);
+            animation: btn-pulse 2s infinite;
+            cursor: pointer;
+        }
+        @keyframes btn-pulse {
+            0%, 100% { box-shadow: 0 2px 8px rgba(75,108,183,0.3); }
+            50% { box-shadow: 0 2px 18px rgba(75,108,183,0.7); }
+        }
+        .btn-play-tempo:hover { background: #c5dcf2; }
+        .btn-play-tempo:active { transform: scale(0.95); }
+
         .btn-compare { background: linear-gradient(135deg, #9b59b6, #8e44ad); margin-top: 15px; }
         .subsection-header { color: #4b6cb7; font-size: 15px; font-weight: bold; margin: 15px 0 8px; padding: 8px 12px; background: #eef5fc; border-radius: 8px; border-left: 4px solid #4b6cb7; }
 
@@ -43,72 +103,17 @@
         .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
         .variant-option.active-card { border-color: #4b6cb7; background: #eef5fc; color: #4b6cb7; }
         .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 200px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
-        
-        /* ============ СБОРКА ТЕРМИНА ============ */
-        .assemble-answer {
-            background: #fff;
-            border: 2px dashed #4b6cb7;
-            border-radius: 10px;
-            padding: 16px;
-            margin: 12px 0;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            color: #182848;
-            letter-spacing: 4px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Courier New', monospace;
-            word-break: break-all;
-        }
-        .assemble-letters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .letter-btn {
-            background: #4b6cb7;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            font-family: 'Courier New', monospace;
-            transition: all 0.15s;
-            flex-shrink: 0;
-        }
+
+        .assemble-answer { background: #fff; border: 2px dashed #4b6cb7; border-radius: 10px; padding: 16px; margin: 12px 0; text-align: center; font-size: 22px; font-weight: bold; color: #182848; letter-spacing: 4px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; word-break: break-all; }
+        .assemble-letters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+        .letter-btn { background: #4b6cb7; color: white; border: none; border-radius: 8px; padding: 0; font-size: 20px; font-weight: bold; cursor: pointer; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin: 0; font-family: 'Courier New', monospace; transition: all 0.15s; flex-shrink: 0; }
         .letter-btn:hover { background: #3a5a9c; }
         .letter-btn:active { transform: scale(0.95); }
         .letter-btn.used { background: #ddd; color: #bbb; cursor: default; opacity: 0.5; transform: none; }
         .letter-btn.used:hover { background: #ddd; }
-        
-        /* Кнопка пробела */
-        .letter-btn.space-btn {
-            width: 60px;
-            background: #fff;
-            color: #4b6cb7;
-            border: 2px dashed #4b6cb7;
-            font-size: 18px;
-        }
+        .letter-btn.space-btn { width: 60px; background: #fff; color: #4b6cb7; border: 2px dashed #4b6cb7; font-size: 18px; }
         .letter-btn.space-btn:hover { background: #eef5fc; }
-        .letter-btn.space-btn.used {
-            background: #f5f5f5;
-            color: #ccc;
-            border-color: #ddd;
-            cursor: default;
-        }
+        .letter-btn.space-btn.used { background: #f5f5f5; color: #ccc; border-color: #ddd; cursor: default; }
 
         .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .inventory-item { border: 2px solid #e1e8ed; border-radius: 12px; padding: 12px; text-align: center; background: #fff; opacity: 0.3; }
@@ -270,7 +275,7 @@
         <div class="lock-box">
             <div class="lock-icon">🔒</div>
             <h2>Время истекло</h2>
-            <p>Позанимались 10 минут — пора отдохнуть!<br>Введи пароль, чтобы продолжить.</p>
+            <p>Позанимались — пора отдохнуть!<br>Введи пароль, чтобы продолжить.</p>
             <input type="password" class="lock-input" id="lock-password" placeholder="Введите пароль" maxlength="8" inputmode="numeric" autocomplete="off">
             <div class="lock-error" id="lock-error"></div>
             <button onclick="unlockApp()">🔓 Разблокировать</button>
@@ -279,8 +284,11 @@
     </div>
 
 <script>
-        // ==================== НАСТРОЙКИ БЛОКИРОВКИ ====================
-        const LOCK_CONFIG = { enabled: true, timeoutMs: 10 * 60 * 1000, password: "13" };
+        const LOCK_CONFIG = {
+            enabled: window.APP_SETTINGS.lockEnabled,
+            timeoutMs: window.APP_SETTINGS.lockTimeoutMinutes * 60 * 1000,
+            password: window.APP_SETTINGS.lockPassword
+        };
         let lockTimerId = null, lockDeadline = 0, lockCountdownId = null;
 
         function startLockTimer() {
@@ -331,7 +339,6 @@
             }
         }
 
-        // ==================== БАЗА ТЕМПОВ ====================
         const DATABASE = {
             slow: {
                 title: "Медленные темпы",
@@ -461,7 +468,6 @@
         let selectedVariant = null;
         let pairedCount = 0;
         let eligibleForLoot = true;
-
         let assembleState = { term: "", letters: [], answer: [] };
 
         let vizState = {
@@ -480,7 +486,11 @@
             renderTheoryList();
             renderInventory();
             updateHeader();
-            startLockTimer();
+            if (!window.APP_SETTINGS.lockEnabled) {
+                document.getElementById('timer-box').style.display = 'none';
+            } else {
+                startLockTimer();
+            }
             document.getElementById('lock-password').addEventListener('keydown', e => {
                 if (e.key === 'Enter') unlockApp();
             });
@@ -499,6 +509,25 @@
             renderTheoryList();
         }
 
+        // Отрисовка термина с пастельной кнопкой и подсказкой "нажми ➜"
+        function renderTermRow(term, showHint) {
+            const bpmInfo = TEMPO_BPM[term.it];
+            const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '';
+            const widthIcon = bpmInfo ? (bpmInfo.width === 3 ? '↔️↔️' : bpmInfo.width === 2 ? '↔️' : '↕️') : '';
+            const weightIcon = bpmInfo && bpmInfo.weight === 3 ? '⚖️' : (bpmInfo && bpmInfo.weight === 1 ? '🪶' : '');
+            const hintHtml = showHint ? `<div class="play-hint">нажми <span class="arrow">➜</span></div>` : '';
+            return `
+                <div class="theory-term">
+                    <div class="term-text">
+                        <b>${term.it}</b> — ${term.ru}
+                        <span style="color:#7f8c8d; font-size:12px; margin-left:6px;">🎼 ${bpmLabel} BPM ${widthIcon} ${weightIcon}</span>
+                    </div>
+                    ${hintHtml}
+                    <button class="btn-play-tempo" onclick="openTempoVisualizer('${term.it.replace(/'/g, "\\'")}')">🎵</button>
+                </div>
+            `;
+        }
+
         function renderTheoryList() {
             const mod = DATABASE[currentTheme];
             const list = document.getElementById('theory-list');
@@ -506,49 +535,28 @@
                 let html = `<div class="rule-block" style="background:#fdf5ff; border-left-color:#9b59b6; color:#4a235a;">
                     🎯 <b>Проверка по всей теме «Темпы»</b> — здесь собраны все 26 терминов из 4 подразделов.
                 </div>`;
+                let firstTerm = true;
                 ['slow', 'medium', 'fast', 'change'].forEach(key => {
                     const subMod = DATABASE[key];
                     html += `<div class="subsection-header">${subMod.title}</div>`;
                     subMod.terms.forEach(term => {
-                        const bpmInfo = TEMPO_BPM[term.it];
-                        const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '';
-                        const widthIcon = bpmInfo ? (bpmInfo.width === 3 ? '↔️↔️' : bpmInfo.width === 2 ? '↔️' : '↕️') : '';
-                        const weightIcon = bpmInfo && bpmInfo.weight === 3 ? '⚖️' : (bpmInfo && bpmInfo.weight === 1 ? '🪶' : '');
-                        html += `
-                            <div class="theory-term">
-                                <div class="term-text">
-                                    <b>${term.it}</b> — ${term.ru}
-                                    <span style="color:#7f8c8d; font-size:12px; margin-left:6px;">🎼 ${bpmLabel} BPM ${widthIcon} ${weightIcon}</span>
-                                </div>
-                                <button class="btn-play-tempo" onclick="openTempoVisualizer('${term.it.replace(/'/g, "\\'")}')">🎵</button>
-                            </div>
-                        `;
+                        html += renderTermRow(term, firstTerm);
+                        firstTerm = false;
                     });
                 });
                 list.innerHTML = html;
                 return;
             }
             let html = '';
+            let firstTerm = true;
             mod.terms.forEach(term => {
-                const bpmInfo = TEMPO_BPM[term.it];
-                const bpmLabel = bpmInfo ? (bpmInfo.gradual ? `${bpmInfo.start}→${bpmInfo.end}` : `${bpmInfo.start}`) : '—';
-                const widthIcon = bpmInfo ? (bpmInfo.width === 3 ? '↔️↔️' : bpmInfo.width === 2 ? '↔️' : '↕️') : '';
-                const weightIcon = bpmInfo && bpmInfo.weight === 3 ? '⚖️' : (bpmInfo && bpmInfo.weight === 1 ? '🪶' : '');
-                html += `
-                    <div class="theory-term">
-                        <div class="term-text">
-                            <b>${term.it}</b> — ${term.ru}
-                            <span style="color:#7f8c8d; font-size:12px; margin-left:6px;">🎼 ${bpmLabel} BPM ${widthIcon} ${weightIcon}</span>
-                        </div>
-                        <button class="btn-play-tempo" onclick="openTempoVisualizer('${term.it.replace(/'/g, "\\'")}')">🎵</button>
-                    </div>
-                `;
+                html += renderTermRow(term, firstTerm);
+                firstTerm = false;
             });
             html += `<button class="btn-compare" onclick="openCompareView()">🔀 Сравнить все темпы этого раздела</button>`;
             list.innerHTML = html;
         }
 
-        // ============ СБОРКА ТЕРМИНА ============
         function initAssemble() {
             const term = DATABASE[currentTheme].terms[activeTermIndex].it;
             const chars = term.split('');
@@ -563,18 +571,15 @@
         function renderAssemble() {
             const term = DATABASE[currentTheme].terms[activeTermIndex];
             const workspace = document.getElementById('game-workspace');
-
             const lettersHtml = assembleState.letters.map((l, i) => {
                 const isSpace = l.char === ' ';
                 const display = isSpace ? '␣' : l.char;
                 const cls = (l.used ? 'letter-btn used' : 'letter-btn') + (isSpace ? ' space-btn' : '');
                 return `<button class="${cls}" onclick="pickLetter(${i})" ${l.used ? 'disabled' : ''}>${display}</button>`;
             }).join('');
-
             const answerDisplay = assembleState.answer.length > 0
                 ? assembleState.answer.map(a => a.char === ' ' ? '_' : a.char).join('')
                 : '<span style="color:#ccc; font-size:16px; letter-spacing:1px;">Здесь появится ответ...</span>';
-
             workspace.innerHTML = `
                 <div class="rule-block" style="background:#fff; text-align:center; font-size:15px; padding: 16px;">
                     Собери итальянский термин, который обозначает:<br>
@@ -596,27 +601,21 @@
             assembleState.answer.push({ char: letter.char, idx: idx });
             renderAssemble();
         }
-
         function removeLastLetter() {
             if (assembleState.answer.length === 0) return;
             const last = assembleState.answer.pop();
             assembleState.letters[last.idx].used = false;
             renderAssemble();
         }
-
         function clearAssemble() {
-            assembleState.answer.forEach(a => {
-                assembleState.letters[a.idx].used = false;
-            });
+            assembleState.answer.forEach(a => { assembleState.letters[a.idx].used = false; });
             assembleState.answer = [];
             renderAssemble();
         }
-
         function checkAssemble() {
             const userAnswer = assembleState.answer.map(a => a.char).join('');
             const correct = assembleState.term;
             const fb = document.getElementById('game-feedback');
-
             if (userAnswer.toLowerCase() === correct.toLowerCase()) {
                 scoreBalance += 15;
                 let lootText = "";
@@ -650,10 +649,8 @@
             if (!term) return;
             const bpmInfo = TEMPO_BPM[termIt];
             if (!bpmInfo) return;
-
             stopMelody();
             stopTempoVisualizer();
-
             vizState.termIt = termIt;
             vizState.startBpm = bpmInfo.start;
             vizState.endBpm = bpmInfo.end;
@@ -665,7 +662,6 @@
             vizState.running = false;
             vizState.ballX = 50;
             vizState.direction = 1;
-
             document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
             document.getElementById('tempo-title').innerText = term.it;
             document.getElementById('tempo-translation').innerText = term.ru;
@@ -677,11 +673,9 @@
             document.getElementById('viz-play-btn').className = 'btn-check';
             document.getElementById('viz-melody-btn').innerText = '🎵 Мелодия';
             document.getElementById('viz-melody-btn').className = 'btn-melody';
-
             applyBreadthVisuals();
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('tempo-modal').style.display = 'block';
-
             if (!vizState.audioCtx) {
                 try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
             }
@@ -1204,12 +1198,22 @@
             }
             else if (currentStep === 4) {
                 document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
-                document.getElementById('game-instruction').innerText = "Введи точный перевод термина руками с клавиатуры:";
+                document.getElementById('game-instruction').innerHTML = `
+                    Введи точный перевод термина руками с клавиатуры.<br>
+                    • Если внутри определения есть итальянский термин — его можно писать русскими буквами.<br>
+                    • Запятые ставить обязательно.
+                `;
+                document.getElementById('game-instruction').style.fontStyle = 'normal';
+                document.getElementById('game-instruction').style.color = '#555';
                 let term = mod.terms[activeTermIndex];
                 workspace.innerHTML = `
                     <div class="rule-block" style="background:#fff; text-align:center;">
                         <span style="font-size:20px; font-weight:bold; color:#182848;">${term.it}</span>
                         <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
+                        <div style="font-size:12px; color:#999; margin-top:10px; line-height:1.4;">
+                            Пример: если в ответе встречается <b>andante</b> — можно написать <b>анданте</b>.<br>
+                            Запятые обязательно.
+                        </div>
                     </div>
                 `;
                 actionBtns.style.display = 'flex';
@@ -1374,7 +1378,6 @@
             const userRaw = document.getElementById('dictation-input').value;
             const realRaw = DATABASE[currentTheme].terms[activeTermIndex].ru;
             const fb = document.getElementById('game-feedback');
-
             if (isAnswerCorrect(userRaw, realRaw)) {
                 scoreBalance += 20;
                 let lootText = "";
@@ -1385,7 +1388,6 @@
                 updateHeader();
                 fb.className = "feedback success-text";
                 fb.innerHTML = `🏆 Блестяще! Зачетное слово введено абсолютно дословно! +20 ⭐ ${lootText}`;
-
                 activeTermIndex++;
                 if (activeTermIndex < DATABASE[currentTheme].terms.length) {
                     currentStep = 2;
