@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Музыкальный Тренажер: Характер</title>
+
+<!-- ============================================================ -->
+<!--  ⚙️  НАСТРОЙКИ  —  МЕНЯЙТЕ  ЗДЕСЬ !                          -->
+<!-- ============================================================ -->
+<script>
+    window.APP_SETTINGS = {
+        lockEnabled: true,
+        lockTimeoutMinutes: 10,
+        lockPassword: "13"
+    };
+</script>
+<!-- ============================================================ -->
+
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f0f3f8; color: #333; margin: 0; padding: 10px; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+    .header { background: linear-gradient(135deg, #b76c4b, #48281d); color: white; padding: 12px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px; text-align: center; }
+    .header h1 { margin: 0; font-size: 18px; }
+    .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
+    .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; }
+    .btn-nav.active { background: #fff; color: #48281d; }
+    .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
+    .timer-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; font-size: 12px; }
+    .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+    .subsections { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; justify-content: center; }
+    .btn-subsection { background: #fff; color: #b76c4b; border: 2px solid #b76c4b; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; flex: 1 1 auto; min-width: 100px; }
+    .btn-subsection.active { background: #b76c4b; color: #fff; }
+    .btn-subsection.check { border-color: #9b59b6; color: #9b59b6; background: linear-gradient(135deg, #fff, #f8f0ff); }
+    .btn-subsection.check.active { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; border-color: #8e44ad; }
+
+    .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
+    .rule-block { background: #fdf6f3; border-left: 4px solid #b76c4b; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .theory-term { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; margin-bottom: 6px; background: #fff; border-radius: 8px; border: 1px solid #ecdfd7; font-size: 14px; gap: 8px; }
+    .theory-term .term-text { flex: 1; font-weight: 500; min-width: 0; line-height: 1.4; }
+    .theory-term .term-example { font-size: 12px; color: #95a5a6; margin-top: 3px; font-style: italic; }
+    .theory-term.service-term { background: #fafaf7; border-color: #e8e8e3; }
+    .subsection-header { color: #b76c4b; font-size: 15px; font-weight: bold; margin: 15px 0 8px; padding: 8px 12px; background: #fdf2ec; border-radius: 8px; border-left: 4px solid #b76c4b; }
+
+    .play-hint { font-size: 11px; color: #b76c4b; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; animation: hint-blink 1.6s infinite; }
+    @keyframes hint-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .play-hint .arrow { font-size: 14px; animation: arrow-move 1s infinite; }
+    @keyframes arrow-move { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+    .btn-play-char { background: #fce4d6; border: 2px solid #e67e22; width: 46px; height: 46px; border-radius: 50%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(230,126,34,0.3); animation: btn-pulse 2s infinite; cursor: pointer; }
+    @keyframes btn-pulse { 0%, 100% { box-shadow: 0 2px 8px rgba(230,126,34,0.3); } 50% { box-shadow: 0 2px 18px rgba(230,126,34,0.7); } }
+    .btn-play-char:hover { background: #fbd5bb; }
+    .btn-play-char:active { transform: scale(0.95); }
+
+    button { background: #b76c4b; color: white; border: none; padding: 12px 18px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: block; margin-top: 10px; }
+    button:active { opacity: 0.8; }
+    .btn-hint { background: #f39c12; }
+    .btn-check { background: #2ecc71; }
+    .btn-stop { background: #e74c3c; }
+    .pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; justify-content: center; }
+
+    /* ============ КАРТОЧКИ: ТЕРМИН vs ПЕРЕВОД ============ */
+    .chunk-card {
+        background: #fdf2ec;
+        border: 2px solid #e8b89a;
+        color: #6b3410;
+        padding: 10px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.15s;
+    }
+    .chunk-card.ru-card {
+        background: #ecf4fc;
+        border-color: #a3c5e8;
+        color: #1e4a7a;
+    }
+    .chunk-card.active-card {
+        border-color: #b76c4b;
+        background: #fce4d6;
+        color: #48281d;
+        box-shadow: 0 4px 10px rgba(183,108,75,0.3);
+    }
+    .chunk-card.ru-card.active-card {
+        border-color: #4b6cb7;
+        background: #d6e4f7;
+        color: #182848;
+        box-shadow: 0 4px 10px rgba(75,108,183,0.3);
+    }
+
+    .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
+    .variant-option.active-card { border-color: #b76c4b; background: #fdf2ec; color: #b76c4b; }
+    .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 240px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
+
+    .assemble-answer { background: #fff; border: 2px dashed #b76c4b; border-radius: 10px; padding: 16px; margin: 12px 0; text-align: center; font-size: 22px; font-weight: bold; color: #48281d; letter-spacing: 4px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; word-break: break-all; }
+    .assemble-letters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+    .letter-btn { background: #b76c4b; color: white; border: none; border-radius: 8px; padding: 0; font-size: 20px; font-weight: bold; cursor: pointer; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin: 0; font-family: 'Courier New', monospace; transition: all 0.15s; flex-shrink: 0; }
+    .letter-btn:hover { background: #9a5639; }
+    .letter-btn:active { transform: scale(0.95); }
+    .letter-btn.used { background: #ddd; color: #bbb; cursor: default; opacity: 0.5; transform: none; }
+    .letter-btn.space-btn { width: 60px; background: #fff; color: #b76c4b; border: 2px dashed #b76c4b; font-size: 18px; }
+    .letter-btn.space-btn:hover { background: #fdf2ec; }
+    .letter-btn.space-btn.used { background: #f5f5f5; color: #ccc; border-color: #ddd; cursor: default; }
+
+    .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+    .inventory-item { border: 2px solid #e1e8ed; border-radius: 12px; padding: 12px; text-align: center; background: #fff; opacity: 0.3; }
+    .inventory-item.unlocked { opacity: 1; border-color: #2ecc71; background: #fafffa; box-shadow: 0 4px 8px rgba(46,204,113,0.15); }
+    .item-icon { font-size: 36px; margin-bottom: 4px; }
+    .item-title { font-weight: bold; font-size: 13px; color: #48281d; }
+    .item-status { font-size: 11px; margin-top: 4px; font-weight: bold; color: #7f8c8d; }
+    .inventory-item.unlocked .item-status { color: #2ecc71; }
+    .hint-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; width: 90%; max-width: 450px; box-sizing: border-box; }
+    .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
+    .feedback { font-size: 15px; font-weight: bold; margin-top: 12px; text-align: center; line-height: 1.4; }
+    .success-text { color: #2ecc71; }
+    .error-text { color: #e74c3c; }
+
+    /* ============ МОДАЛЬНОЕ ОКНО ХАРАКТЕРА ============ */
+    .char-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 1001; width: 92%; max-width: 420px; box-sizing: border-box; text-align: center; }
+    .char-modal h3 { margin: 0 0 4px 0; color: #48281d; font-size: 22px; }
+    .char-modal .char-translation { color: #7f8c8d; font-size: 14px; font-style: italic; margin-bottom: 14px; }
+    .char-stage { position: relative; height: 220px; background: linear-gradient(to bottom, #fdf6f3, #f4e4d8); border-radius: 14px; overflow: hidden; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 6px rgba(0,0,0,0.08); }
+    .char-circle { width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 46px; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.25); will-change: transform, box-shadow; }
+
+    @keyframes animBreath {
+        0%, 100% { transform: scale(1);    box-shadow: 0 0 20px 4px var(--glow); }
+        50%      { transform: scale(1.15); box-shadow: 0 0 50px 18px var(--glow); }
+    }
+    .anim-breath { animation: animBreath 3.5s ease-in-out infinite; }
+
+    @keyframes animJitter {
+        0%   { transform: translate(0,0) scale(1);        box-shadow: 0 0 22px 6px var(--glow); }
+        20%  { transform: translate(-4px,2px) scale(1.04); box-shadow: 0 0 32px 10px var(--glow); }
+        40%  { transform: translate(3px,-3px) scale(1);   box-shadow: 0 0 22px 6px var(--glow); }
+        60%  { transform: translate(-3px,-2px) scale(1.04); box-shadow: 0 0 32px 10px var(--glow); }
+        80%  { transform: translate(4px,3px) scale(1);    box-shadow: 0 0 22px 6px var(--glow); }
+        100% { transform: translate(0,0) scale(1);        box-shadow: 0 0 22px 6px var(--glow); }
+    }
+    .anim-jitter { animation: animJitter 0.32s ease-in-out infinite; }
+
+    @keyframes animFire {
+        0%, 100% { transform: scale(1) translateX(0);      box-shadow: 0 0 24px 6px var(--glow); }
+        25%      { transform: scale(1.2) translateX(-3px); box-shadow: 0 0 60px 22px var(--glow); }
+        75%      { transform: scale(1.2) translateX(3px);  box-shadow: 0 0 60px 22px var(--glow); }
+    }
+    .anim-fire { animation: animFire 0.55s ease-in-out infinite; }
+
+    @keyframes animBounce {
+        0%, 100% { transform: translateY(0) scale(1);        box-shadow: 0 6px 18px 2px var(--glow); }
+        40%      { transform: translateY(-16px) scale(1.08); box-shadow: 0 20px 30px 4px var(--glow); }
+        60%      { transform: translateY(0) scale(0.96);     box-shadow: 0 4px 12px 2px var(--glow); }
+    }
+    .anim-bounce { animation: animBounce 0.7s ease-out infinite; }
+
+    @keyframes animMajestic {
+        0%, 100% { transform: scale(1) rotate(0deg);    box-shadow: 0 0 30px 6px var(--glow); }
+        50%      { transform: scale(1.25) rotate(3deg); box-shadow: 0 0 70px 22px var(--glow); }
+    }
+    .anim-majestic { animation: animMajestic 2.8s ease-in-out infinite; }
+
+    @keyframes animDrop {
+        0%   { transform: translateY(-30px) scale(1);       box-shadow: 0 30px 20px rgba(0,0,0,0.4); }
+        30%  { transform: translateY(0) scale(1.15, 0.9);   box-shadow: 0 0 60px 18px var(--glow); }
+        50%  { transform: translateY(0) scale(1);           box-shadow: 0 0 30px 8px var(--glow); }
+        100% { transform: translateY(-30px) scale(1);       box-shadow: 0 30px 20px rgba(0,0,0,0.4); }
+    }
+    .anim-drop { animation: animDrop 1.6s cubic-bezier(0.5,0,0.8,1) infinite; }
+
+    @keyframes animWave {
+        0%, 100% { transform: scale(1) rotate(-2deg);    box-shadow: 0 0 24px 6px var(--glow); }
+        50%      { transform: scale(1.15) rotate(2deg);  box-shadow: 0 0 50px 16px var(--glow); }
+    }
+    .anim-wave { animation: animWave 2s ease-in-out infinite; }
+
+    @keyframes animSteady {
+        0%, 100% { transform: scale(1);    box-shadow: 0 0 20px 4px var(--glow); }
+        50%      { transform: scale(1.08); box-shadow: 0 0 36px 10px var(--glow); }
+    }
+    .anim-steady { animation: animSteady 1s ease-in-out infinite; }
+
+    @keyframes animSparkle {
+        0%, 100% { transform: scale(1);    box-shadow: 0 0 30px 8px var(--glow), 0 0 60px 20px rgba(255,215,0,0.3); }
+        50%      { transform: scale(1.15); box-shadow: 0 0 50px 20px var(--glow), 0 0 90px 30px rgba(255,215,0,0.5); }
+    }
+    .anim-sparkle { animation: animSparkle 0.8s ease-in-out infinite; }
+
+    @keyframes animSway {
+        0%, 100% { transform: rotate(-8deg) scale(1);  box-shadow: 0 0 24px 6px var(--glow); }
+        50%      { transform: rotate(8deg) scale(1.1); box-shadow: 0 0 40px 12px var(--glow); }
+    }
+    .anim-sway { animation: animSway 1.2s ease-in-out infinite; }
+
+    @keyframes animSimple {
+        0%, 100% { transform: scale(1);    box-shadow: 0 0 16px 3px var(--glow); }
+        50%      { transform: scale(1.06); box-shadow: 0 0 28px 8px var(--glow); }
+    }
+    .anim-simple { animation: animSimple 2s ease-in-out infinite; }
+
+    @keyframes animFade {
+        0%   { transform: scale(1.1); box-shadow: 0 0 50px 18px var(--glow); opacity: 1; }
+        100% { transform: scale(0.9); box-shadow: 0 0 10px 2px var(--glow);  opacity: 0.45; }
+    }
+    .anim-fade { animation: animFade 5s ease-out infinite alternate; }
+
+    .char-controls { display: flex; gap: 8px; }
+    .char-controls button { margin-top: 0; }
+
+    .howto-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #f0f3f8; padding: 0; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 1002; width: 92%; max-width: 500px; max-height: 88vh; box-sizing: border-box; overflow: hidden; flex-direction: column; }
+    .howto-modal.active { display: flex; }
+    .howto-header { background: linear-gradient(135deg, #b76c4b, #48281d); color: white; padding: 14px 18px; text-align: center; }
+    .howto-header h2 { margin: 0; font-size: 18px; }
+    .howto-body { padding: 14px; overflow-y: auto; flex: 1; }
+    .howto-block { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; border-left: 6px solid; }
+    .howto-block.intro { border-color: #b76c4b; background: linear-gradient(135deg, #fdf6f3, #ffffff); }
+    .howto-block.listen { border-color: #2ecc71; background: linear-gradient(135deg, #eafff2, #ffffff); }
+    .howto-block.test { border-color: #f39c12; background: linear-gradient(135deg, #fff8e8, #ffffff); }
+    .howto-block.hint { border-color: #e74c3c; background: linear-gradient(135deg, #ffecea, #ffffff); }
+    .howto-block.bag { border-color: #9b59b6; background: linear-gradient(135deg, #f8f0ff, #ffffff); }
+    .howto-block h3 { margin: 0 0 8px 0; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+    .howto-block.intro h3 { color: #b76c4b; }
+    .howto-block.listen h3 { color: #27ae60; }
+    .howto-block.test h3 { color: #d68910; }
+    .howto-block.hint h3 { color: #c0392b; }
+    .howto-block.bag h3 { color: #8e44ad; }
+    .howto-block p { margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #333; }
+    .howto-block p:last-child { margin-bottom: 0; }
+    .howto-block ol { margin: 6px 0 0 0; padding-left: 22px; font-size: 13px; line-height: 1.6; color: #333; }
+    .howto-block ol li { margin-bottom: 4px; }
+    .howto-block b { color: #48281d; }
+    .howto-footer { padding: 12px 14px; background: #fff; border-top: 1px solid #e1e8ed; }
+    .howto-footer button { margin-top: 0; }
+
+    .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #48281d 0%, #b76c4b 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .lock-overlay.active { display: flex; }
+    .lock-box { background: white; padding: 25px 22px; border-radius: 16px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lock-box .lock-icon { font-size: 48px; margin-bottom: 8px; }
+    .lock-box h2 { color: #48281d; margin: 0 0 8px; font-size: 22px; }
+    .lock-box p { color: #666; font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
+    .lock-input { font-size: 20px; padding: 12px; width: 100%; border: 2px solid #ccc; border-radius: 10px; text-align: center; letter-spacing: 2px; font-weight: bold; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
+    .lock-input:focus { outline: none; border-color: #b76c4b; box-shadow: 0 0 0 3px rgba(183,108,75,0.2); }
+    .lock-error { color: #e74c3c; font-size: 13px; margin-bottom: 8px; min-height: 18px; font-weight: bold; }
+    .lock-box button { background: #b76c4b; }
+    .lock-hint { font-size: 11px; color: #aaa; margin-top: 14px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🎭 Тренажер: Характер</h1>
+    <div class="sub-header">
+        <div class="balance-box">Очки: <span id="balance-val">0</span> ⭐</div>
+        <div>Трофеи: <span id="inv-count">0</span>/5 🎒</div>
+        <div class="timer-box" id="timer-box">⏱ <span id="timer-val">10:00</span></div>
+    </div>
+    <div class="nav-buttons">
+        <button class="btn-nav active" id="nav-learn" onclick="switchTab('learn')">Учеба ✍️</button>
+        <button class="btn-nav" id="nav-shop" onclick="switchTab('shop')">Рюкзак 🎒</button>
+        <button class="btn-nav" onclick="openHowto()">❓ Как играть</button>
+    </div>
+</div>
+
+<div id="tab-learn-content">
+    <div class="card-box" id="screen-theory">
+        <h2 style="margin-top:0;">📚 Раздел «Характер»</h2>
+        <div class="subsections" id="subsection-buttons"></div>
+        <div id="theory-list"></div>
+        <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
+    </div>
+
+    <div class="card-box" id="screen-game" style="display: none;">
+        <h2 id="game-task-title">Задание</h2>
+        <div id="game-instruction" style="font-style: italic; color: #666; margin-bottom: 10px; font-size: 13px;"></div>
+        <div id="game-workspace"></div>
+        <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 5px;">
+            <div id="action-buttons" style="display:none; gap:10px; width:100%;"></div>
+            <button class="btn-hint" id="hint-main-btn" onclick="showHint()">💡 Подглядеть таблицу (Без трофея)</button>
+        </div>
+        <div class="feedback" id="game-feedback"></div>
+    </div>
+</div>
+
+<div id="tab-shop-content" style="display: none;">
+    <div class="card-box">
+        <h2>🎒 Твоя корзина музыкальных трофеев</h2>
+        <div class="inventory-grid" id="inventory-container"></div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+<div class="hint-modal" id="hint-modal">
+    <h3>📖 Таблица терминов</h3>
+    <div id="hint-content" class="rule-block" style="white-space: pre-wrap;"></div>
+    <button onclick="closeAllModals()">Закрыть</button>
+</div>
+
+<div class="char-modal" id="char-modal">
+    <h3 id="char-title">dolce</h3>
+    <div class="char-translation" id="char-translation">нежно</div>
+    <div class="char-stage">
+        <div class="char-circle" id="char-circle">🌸</div>
+    </div>
+    <div class="char-controls">
+        <button class="btn-check" id="char-play-btn" onclick="toggleCharacterPlay()">▶️ Слушать</button>
+        <button onclick="closeAllModals()" style="background:#95a5a6;">Закрыть</button>
+    </div>
+</div>
+
+<div class="howto-modal" id="howto-modal">
+    <div class="howto-header">
+        <h2>🎵 Как играть</h2>
+    </div>
+    <div class="howto-body">
+        <div class="howto-block intro">
+            <h3>👋 Привет!</h3>
+            <p>Это тренажёр музыкальных характеров.</p>
+            <p>Здесь ты выучишь итальянские слова, которые говорят музыкантам, <b>как</b> играть: нежно или страстно, легко или грузно, спокойно или взволнованно.</p>
+        </div>
+        <div class="howto-block listen">
+            <h3>🎧 Сначала — послушай</h3>
+            <p>В разделе «Учеба» выбери подраздел: <b>Настроение</b>, <b>Манера</b> или <b>Служебные</b>.</p>
+            <p>Рядом с каждым термином есть круглая кнопка 🎵. Нажми на неё — и услышишь одну и ту же мелодию, но сыгранную в этом характере. Одновременно круг будет пульсировать в такт.</p>
+            <p>У служебных слов (assai, con, molto...) кнопки нет — но у каждого есть пример, где это слово встречается. Прочитай его — так ты запомнишь, как оно используется.</p>
+        </div>
+        <div class="howto-block test">
+            <h3>🎯 Потом — проверь себя</h3>
+            <p>Когда готов, нажми <b>«Начать зачетное испытание!»</b>. Тебя ждут 5 этапов:</p>
+            <ol>
+                <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
+                <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
+                <li><b>Собери термин</b> — из перемешанных букв собери итальянское слово по его значению.</li>
+                <li><b>Финальный диктант</b> — впиши перевод руками с клавиатуры.</li>
+                <li><b>Финальный экзамен</b> — соедини сразу все термины темы.</li>
+            </ol>
+            <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁. Собери всю коллекцию — и станешь настоящим знатоком характеров!</p>
+        </div>
+        <div class="howto-block hint">
+            <h3>💡 Если забыл</h3>
+            <p>Нажимай <b>«💡 Подглядеть таблицу»</b> — но помни: если подсмотрел, трофей за этот этап не дадут. Учи заранее!</p>
+        </div>
+        <div class="howto-block bag">
+            <h3>🎒 Рюкзак</h3>
+            <p>Все заработанные трофеи хранятся в разделе <b>«Рюкзак 🎒»</b>. Заглядывай туда, чтобы посмотреть на свою коллекцию.</p>
+        </div>
+        <div style="text-align: center; padding: 8px 0 4px; color: #b76c4b; font-weight: bold; font-size: 14px;">
+            Удачи! 🎼
+        </div>
+    </div>
+    <div class="howto-footer">
+        <button class="btn-check" onclick="closeAllModals()">Понятно, начинаем! 🚀</button>
+    </div>
+</div>
+
+<div class="lock-overlay" id="lock-overlay">
+    <div class="lock-box">
+        <div class="lock-icon">🔒</div>
+        <h2>Время истекло</h2>
+        <p>Позанимались — пора отдохнуть!<br>Введи пароль, чтобы продолжить.</p>
+        <input type="password" class="lock-input" id="lock-password" placeholder="Введите пароль" maxlength="8" inputmode="numeric" autocomplete="off">
+        <div class="lock-error" id="lock-error"></div>
+        <button onclick="unlockApp()">🔓 Разблокировать</button>
+        <div class="lock-hint">Пароль у родителя</div>
+    </div>
+</div>
+
+<script>
+// ==================== БЛОКИРОВКА ====================
+const LOCK_CONFIG = {
+    enabled: window.APP_SETTINGS.lockEnabled,
+    timeoutMs: window.APP_SETTINGS.lockTimeoutMinutes * 60 * 1000,
+    password: window.APP_SETTINGS.lockPassword
+};
+let lockTimerId = null, lockDeadline = 0, lockCountdownId = null;
+
+function startLockTimer() {
+    if (!LOCK_CONFIG.enabled) return;
+    if (lockTimerId) clearTimeout(lockTimerId);
+    if (lockCountdownId) clearInterval(lockCountdownId);
+    lockDeadline = Date.now() + LOCK_CONFIG.timeoutMs;
+    updateTimerDisplay();
+    lockTimerId = setTimeout(showLockScreen, LOCK_CONFIG.timeoutMs);
+    lockCountdownId = setInterval(updateTimerDisplay, 1000);
+}
+function updateTimerDisplay() {
+    const left = Math.max(0, lockDeadline - Date.now());
+    const totalSec = Math.floor(left / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    const el = document.getElementById('timer-val');
+    const box = document.getElementById('timer-box');
+    if (!el || !box) return;
+    el.innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+    if (totalSec <= 60) box.classList.add('warning');
+    else box.classList.remove('warning');
+}
+function showLockScreen() {
+    if (lockCountdownId) { clearInterval(lockCountdownId); lockCountdownId = null; }
+    if (lockTimerId) { clearTimeout(lockTimerId); lockTimerId = null; }
+    document.getElementById('lock-overlay').classList.add('active');
+    document.getElementById('lock-password').value = '';
+    document.getElementById('lock-error').innerText = '';
+    document.getElementById('timer-val').innerText = '0:00';
+    document.getElementById('timer-box').classList.add('warning');
+    setTimeout(() => document.getElementById('lock-password').focus(), 150);
+    try { stopCharacterPlay(); } catch(e) {}
+}
+function unlockApp() {
+    const entered = document.getElementById('lock-password').value.trim();
+    if (entered === LOCK_CONFIG.password) {
+        document.getElementById('lock-overlay').classList.remove('active');
+        document.getElementById('lock-error').innerText = '';
+        document.getElementById('timer-box').classList.remove('warning');
+        startLockTimer();
+    } else {
+        document.getElementById('lock-error').innerText = '❌ Неверный пароль';
+        document.getElementById('lock-password').value = '';
+        document.getElementById('lock-password').focus();
+    }
+}
+
+// ==================== ИНСТРУКЦИЯ ====================
+const HOWTO_SEEN_KEY = 'character_trainer_howto_seen_v1';
+function openHowto() {
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('howto-modal').classList.add('active');
+    try { localStorage.setItem(HOWTO_SEEN_KEY, '1'); } catch(e) {}
+}
+function maybeShowHowto() {
+    let seen = false;
+    try { seen = localStorage.getItem(HOWTO_SEEN_KEY) === '1'; } catch(e) {}
+    if (!seen) setTimeout(() => openHowto(), 400);
+}
+
+// ==================== МЕЛОДИЯ ====================
+const MELODY_NOTES = [
+    { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
+    { f: 329.63, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 1 },
+    { f: 261.63, d: 2 },
+    { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
+    { f: 440.00, d: 1 }, { f: 392.00, d: 1 }, { f: 329.63, d: 1 },
+    { f: 261.63, d: 2 }
+];
+
+// ==================== БАЗА ====================
+const DATABASE = {
+    mood: {
+        title: "😊 Настроение",
+        hintText: "agitato — взволнованно\nanimato — одушевлённо, оживлённо\nbrio — живо, весело\ndolce — нежно\nespressivo — выразительно\nfuoco — огонь\nlacrimoso — печально, жалостно\nlamentoso — жалобный, горестный\npassionato — страстно\ntranquillo — спокойно, безмятежно",
+        terms: [
+            { it: "agitato", ru: "взволнованно", fakeWord: "спокойно", icon: "⚡", colorFrom: "#ffcc80", colorTo: "#ff6f00", glow: "rgba(255,111,0,0.7)", animClass: "anim-jitter",
+              melody: { beatSec: 0.13, volume: 0.20, wave: "square", legato: 0.65 } },
+            { it: "animato", ru: "одушевлённо, оживлённо", fakeWord: "безжизненно, вяло", icon: "🌱", colorFrom: "#c5e1a5", colorTo: "#7cb342", glow: "rgba(124,179,66,0.7)", animClass: "anim-bounce",
+              melody: { beatSec: 0.20, volume: 0.22, wave: "triangle", legato: 0.75 } },
+            { it: "brio", ru: "живо, весело", fakeWord: "грустно, уныло", icon: "🎉", colorFrom: "#a5d6a7", colorTo: "#388e3c", glow: "rgba(56,142,60,0.7)", animClass: "anim-bounce",
+              melody: { beatSec: 0.16, volume: 0.22, wave: "triangle", legato: 0.55 } },
+            { it: "dolce", ru: "нежно", fakeWord: "грубо", icon: "🌸", colorFrom: "#f8bbd0", colorTo: "#e91e63", glow: "rgba(233,30,99,0.55)", animClass: "anim-breath",
+              melody: { beatSec: 0.42, volume: 0.18, wave: "sine", legato: 0.98 } },
+            { it: "espressivo", ru: "выразительно", fakeWord: "безразлично", icon: "🎨", colorFrom: "#ffab91", colorTo: "#e64a19", glow: "rgba(230,74,25,0.7)", animClass: "anim-wave",
+              melody: { beatSec: 0.38, volume: 0.22, wave: "sine", legato: 0.95 } },
+            { it: "fuoco", ru: "огонь", fakeWord: "вода", icon: "🔥", colorFrom: "#ff9800", colorTo: "#d32f2f", glow: "rgba(211,47,47,0.75)", animClass: "anim-fire",
+              melody: { beatSec: 0.13, volume: 0.28, wave: "sawtooth", legato: 0.7 } },
+            { it: "lacrimoso", ru: "печально, жалостно", fakeWord: "радостно, весело", icon: "💧", colorFrom: "#90caf9", colorTo: "#1565c0", glow: "rgba(21,101,192,0.7)", animClass: "anim-wave",
+              melody: { beatSec: 0.50, volume: 0.18, wave: "sine", legato: 0.98 } },
+            { it: "lamentoso", ru: "жалобный, горестный", fakeWord: "ликующий, радостный", icon: "😢", colorFrom: "#7986cb", colorTo: "#283593", glow: "rgba(40,53,147,0.75)", animClass: "anim-wave",
+              melody: { beatSec: 0.55, volume: 0.20, wave: "sine", legato: 0.98 } },
+            { it: "passionato", ru: "страстно", fakeWord: "равнодушно", icon: "❤️", colorFrom: "#ef9a9a", colorTo: "#c62828", glow: "rgba(198,40,40,0.75)", animClass: "anim-wave",
+              melody: { beatSec: 0.28, volume: 0.25, wave: "sawtooth", legato: 0.9 } },
+            { it: "tranquillo", ru: "спокойно, безмятежно", fakeWord: "тревожно, взволнованно", icon: "☁️", colorFrom: "#b2ebf2", colorTo: "#00838f", glow: "rgba(0,131,143,0.65)", animClass: "anim-breath",
+              melody: { beatSec: 0.60, volume: 0.16, wave: "sine", legato: 0.98 } }
+        ]
+    },
+    manner: {
+        title: "🎨 Манера",
+        hintText: "brilliante — блестяще\ncantabile — певуче\ncapriccioso — капризно, прихотливо\nleggiero — легко\nmaestoso — величественно, торжественно\nmorendo — замирая\nmosso — подвижно\nmoto — движение\npesante — грузно, тяжеловесно\nrisoluto — решительно, твердо\nscherzando — шутливо\nsemplice — просто, естественно",
+        terms: [
+            { it: "brilliante", ru: "блестяще", fakeWord: "тускло", icon: "✨", colorFrom: "#ffe082", colorTo: "#ff8f00", glow: "rgba(255,143,0,0.8)", animClass: "anim-sparkle",
+              melody: { beatSec: 0.14, volume: 0.24, wave: "sawtooth", legato: 0.5 } },
+            { it: "cantabile", ru: "певуче", fakeWord: "отрывисто", icon: "🎤", colorFrom: "#ce93d8", colorTo: "#6a1b9a", glow: "rgba(106,27,154,0.7)", animClass: "anim-wave",
+              melody: { beatSec: 0.40, volume: 0.20, wave: "sine", legato: 0.98 } },
+            { it: "capriccioso", ru: "капризно, прихотливо", fakeWord: "просто, ровно", icon: "🎭", colorFrom: "#dce775", colorTo: "#827717", glow: "rgba(130,119,23,0.7)", animClass: "anim-sway",
+              melody: { beatSec: 0.18, volume: 0.22, wave: "square", legato: 0.5, irregular: true } },
+            { it: "leggiero", ru: "легко", fakeWord: "тяжело", icon: "🍃", colorFrom: "#c8e6c9", colorTo: "#4caf50", glow: "rgba(76,175,80,0.65)", animClass: "anim-bounce",
+              melody: { beatSec: 0.14, volume: 0.16, wave: "triangle", legato: 0.4 } },
+            { it: "maestoso", ru: "величественно, торжественно", fakeWord: "скромно, буднично", icon: "👑", colorFrom: "#b39ddb", colorTo: "#673ab7", glow: "rgba(103,58,183,0.75)", animClass: "anim-majestic",
+              melody: { beatSec: 0.55, volume: 0.26, wave: "sine", legato: 0.98 } },
+            { it: "morendo", ru: "замирая", fakeWord: "ускоряясь", icon: "🌙", colorFrom: "#cfd8dc", colorTo: "#455a64", glow: "rgba(69,90,100,0.6)", animClass: "anim-fade",
+              melody: { beatSec: 0.42, volume: 0.22, wave: "sine", legato: 0.95, fadeout: true } },
+            { it: "mosso", ru: "подвижно", fakeWord: "неподвижно", icon: "🌊", colorFrom: "#80cbc4", colorTo: "#00695c", glow: "rgba(0,105,92,0.7)", animClass: "anim-steady",
+              melody: { beatSec: 0.22, volume: 0.20, wave: "triangle", legato: 0.85 } },
+            { it: "moto", ru: "движение", fakeWord: "остановка", icon: "⚙️", colorFrom: "#81d4fa", colorTo: "#0277bd", glow: "rgba(2,119,189,0.7)", animClass: "anim-steady",
+              melody: { beatSec: 0.28, volume: 0.20, wave: "triangle", legato: 0.85 } },
+            { it: "pesante", ru: "грузно, тяжеловесно", fakeWord: "легко, воздушно", icon: "🪨", colorFrom: "#a1887f", colorTo: "#3e2723", glow: "rgba(62,39,35,0.85)", animClass: "anim-drop",
+              melody: { beatSec: 0.70, volume: 0.42, wave: "triangle", legato: 0.88, thump: true, thumpVolume: 0.35 } },
+            { it: "risoluto", ru: "решительно, твердо", fakeWord: "неуверенно, мягко", icon: "🛡️", colorFrom: "#90a4ae", colorTo: "#263238", glow: "rgba(38,50,56,0.7)", animClass: "anim-steady",
+              melody: { beatSec: 0.30, volume: 0.26, wave: "square", legato: 0.9 } },
+            { it: "scherzando", ru: "шутливо", fakeWord: "серьёзно", icon: "🤹", colorFrom: "#fff59d", colorTo: "#f9a825", glow: "rgba(249,168,37,0.75)", animClass: "anim-bounce",
+              melody: { beatSec: 0.15, volume: 0.20, wave: "triangle", legato: 0.5 } },
+            { it: "semplice", ru: "просто, естественно", fakeWord: "сложно, вычурно", icon: "🌾", colorFrom: "#ffe0b2", colorTo: "#bf6c00", glow: "rgba(191,108,0,0.6)", animClass: "anim-simple",
+              melody: { beatSec: 0.35, volume: 0.20, wave: "sine", legato: 0.95 } }
+        ]
+    },
+    service: {
+        title: "🔧 Служебные",
+        hintText: "assai — весьма, очень\ncon — с\nmeno — менее, меньше\nmolto — очень, много\nnon — не\nnon troppo — не слишком\npiu — более\nrubato — ритмически свободно\nscherzo — шутка\nsempre — всегда, всё время\nsimile — так же\nsubito — внезапно, вдруг",
+        terms: [
+            { it: "assai", ru: "весьма, очень", fakeWord: "немного, чуть-чуть", example: "Allegro assai — очень скоро" },
+            { it: "con", ru: "с", fakeWord: "без", example: "con brio — с огнём" },
+            { it: "meno", ru: "менее, меньше", fakeWord: "более, больше", example: "meno mosso — менее подвижно" },
+            { it: "molto", ru: "очень, много", fakeWord: "мало, чуть-чуть", example: "molto allegro — очень скоро" },
+            { it: "non", ru: "не", fakeWord: "да", example: "non legato — не связно" },
+            { it: "non troppo", ru: "не слишком", fakeWord: "слишком сильно", example: "Allegro non troppo — скоро, но не слишком" },
+            { it: "piu", ru: "более", fakeWord: "менее", example: "piu mosso — более подвижно" },
+            { it: "rubato", ru: "ритмически свободно", fakeWord: "строго по метроному", example: "tempo rubato — ритмически свободно" },
+            { it: "scherzo", ru: "шутка", fakeWord: "трагедия", example: "scherzo — шутка (жанр пьесы)" },
+            { it: "sempre", ru: "всегда, всё время", fakeWord: "никогда", example: "sempre legato — всё время связно" },
+            { it: "simile", ru: "так же", fakeWord: "по-другому", example: "simile — продолжай так же" },
+            { it: "subito", ru: "внезапно, вдруг", fakeWord: "постепенно", example: "subito piano — внезапно тихо" }
+        ]
+    }
+};
+
+DATABASE.all = {
+    title: "Проверка по всей теме Характер",
+    skipPairs: true,
+    hintText: "Все термины из 3 подразделов:\n\nНАСТРОЕНИЕ:\n" + DATABASE.mood.hintText +
+        "\n\nМАНЕРА:\n" + DATABASE.manner.hintText +
+        "\n\nСЛУЖЕБНЫЕ:\n" + DATABASE.service.hintText,
+    terms: [...DATABASE.mood.terms, ...DATABASE.manner.terms, ...DATABASE.service.terms]
+};
+
+const SUBSECTIONS = [
+    { id: 'mood',    title: '😊 Настроение' },
+    { id: 'manner',  title: '🎨 Манера' },
+    { id: 'service', title: '🔧 Служебные' },
+    { id: 'all',     title: '🎯 Проверка', special: true }
+];
+
+const INVENTORY = {
+    item_violin: { title: "Золотой Смычок", icon: "🎻", unlocked: false, text: "За точные пары!" },
+    item_fork:   { title: "Магический Камертон", icon: "🔱", unlocked: false, text: "За верный выбор!" },
+    item_key:    { title: "Хрустальный Ключ", icon: "🔑", unlocked: false, text: "За сборку термина!" },
+    item_harp:   { title: "Легендарная Арфа", icon: "🪕", unlocked: false, text: "За диктант руками!" },
+    item_cup:    { title: "Кубок Филармонии", icon: "🏆", unlocked: false, text: "За победу в зачете!" }
+};
+
+// ==================== СОСТОЯНИЕ ====================
+let scoreBalance = 0;
+let currentStep = 1;
+let currentTheme = "mood";
+let activeTermIndex = 0;
+let selectedITCard = null;
+let selectedRUCard = null;
+let selectedVariant = null;
+let pairedCount = 0;
+let eligibleForLoot = true;
+let assembleState = { term: "", letters: [], answer: [] };
+
+let charState = { term: null, running: false, session: 0, masterGain: null, audioCtx: null, timeouts: [], playing: false };
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+function initApp() {
+    renderSubsections();
+    renderTheoryList();
+    renderInventory();
+    updateHeader();
+    if (!window.APP_SETTINGS.lockEnabled) {
+        document.getElementById('timer-box').style.display = 'none';
+    } else {
+        startLockTimer();
+    }
+    document.getElementById('lock-password').addEventListener('keydown', e => {
+        if (e.key === 'Enter') unlockApp();
+    });
+    maybeShowHowto();
+}
+
+function renderSubsections() {
+    const container = document.getElementById('subsection-buttons');
+    container.innerHTML = SUBSECTIONS.map(s => `
+        <button class="btn-subsection ${s.special ? 'check' : ''} ${currentTheme === s.id ? 'active' : ''}"
+                onclick="switchSubsection('${s.id}')">${s.title}</button>
+    `).join('');
+}
+function switchSubsection(id) {
+    currentTheme = id;
+    renderSubsections();
+    renderTheoryList();
+}
+
+function renderTermRow(term, showHint) {
+    const isService = !term.melody;
+    const hintHtml = (showHint && !isService) ? `<div class="play-hint">нажми <span class="arrow">➜</span></div>` : '';
+    const btnHtml = isService ? '' : `<button class="btn-play-char" onclick="openCharacterModal('${term.it.replace(/'/g, "\\'")}')">🎵</button>`;
+    const exampleHtml = isService && term.example ? `<div class="term-example">Например: ${term.example}</div>` : '';
+    return `
+        <div class="theory-term ${isService ? 'service-term' : ''}">
+            <div class="term-text">
+                <b>${term.it}</b> — ${term.ru}
+                ${exampleHtml}
+            </div>
+            ${hintHtml}
+            ${btnHtml}
+        </div>
+    `;
+}
+
+function renderTheoryList() {
+    const mod = DATABASE[currentTheme];
+    const list = document.getElementById('theory-list');
+    if (currentTheme === 'all') {
+        let html = `<div class="rule-block" style="background:#f8f0ff; border-left-color:#9b59b6; color:#4a235a;">
+            🎯 <b>Проверка по всей теме «Характер»</b> — здесь собраны все 34 термина из 3 подразделов.
+        </div>`;
+        let first = true;
+        ['mood', 'manner', 'service'].forEach(key => {
+            const sub = DATABASE[key];
+            html += `<div class="subsection-header">${sub.title}</div>`;
+            sub.terms.forEach(t => { html += renderTermRow(t, first); first = false; });
+        });
+        list.innerHTML = html;
+        return;
+    }
+    let html = '';
+    let first = true;
+    mod.terms.forEach(t => { html += renderTermRow(t, first); first = false; });
+    list.innerHTML = html;
+}
+
+// ==================== МОДАЛЬНОЕ ОКНО ХАРАКТЕРА ====================
+function openCharacterModal(termIt) {
+    let term = DATABASE[currentTheme].terms.find(t => t.it === termIt);
+    if (!term) {
+        for (let key of ['mood', 'manner']) {
+            const found = DATABASE[key].terms.find(t => t.it === termIt);
+            if (found) { term = found; break; }
+        }
+    }
+    if (!term || !term.melody) return;
+
+    stopCharacterPlay();
+
+    charState.term = term;
+    document.getElementById('char-title').innerText = term.it;
+    document.getElementById('char-translation').innerText = term.ru;
+    const circle = document.getElementById('char-circle');
+    circle.innerText = term.icon;
+    circle.style.background = `radial-gradient(circle at 30% 30%, ${term.colorFrom}, ${term.colorTo})`;
+    circle.style.setProperty('--glow', term.glow);
+    circle.className = 'char-circle';
+    document.getElementById('char-play-btn').innerText = '▶️ Слушать';
+    document.getElementById('char-play-btn').className = 'btn-check';
+
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('char-modal').style.display = 'block';
+
+    if (!charState.audioCtx) {
+        try { charState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    setTimeout(() => startCharacterPlay(), 200);
+}
+
+function ensureAudio() {
+    if (!charState.audioCtx) {
+        try { charState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    if (charState.audioCtx && charState.audioCtx.state === 'suspended') charState.audioCtx.resume();
+}
+
+function toggleCharacterPlay() {
+    if (charState.playing) stopCharacterPlay();
+    else startCharacterPlay();
+}
+
+function startCharacterPlay() {
+    const term = charState.term;
+    if (!term || !term.melody) return;
+    ensureAudio();
+
+    charState.session++;
+    const mySession = charState.session;
+    charState.playing = true;
+
+    charState.masterGain = charState.audioCtx.createGain();
+    charState.masterGain.gain.setValueAtTime(1, charState.audioCtx.currentTime);
+    charState.masterGain.connect(charState.audioCtx.destination);
+
+    const circle = document.getElementById('char-circle');
+    circle.className = 'char-circle';
+    void circle.offsetWidth;
+    circle.classList.add(term.animClass);
+
+    const btn = document.getElementById('char-play-btn');
+    btn.innerText = '⏸️ Стоп';
+    btn.className = 'btn-stop';
+
+    const cfg = term.melody;
+    const ctx = charState.audioCtx;
+    let time = ctx.currentTime + 0.1;
+    let totalDur = 0;
+    const totalBeats = MELODY_NOTES.reduce((s, n) => s + n.d, 0);
+    let beatCount = 0;
+
+    MELODY_NOTES.forEach(note => {
+        let beatSec = cfg.beatSec;
+        if (cfg.irregular) beatSec *= (0.7 + Math.random() * 0.6);
+
+        const dur = note.d * beatSec;
+        const freq = note.f * (cfg.octave || 1);
+        const soundDur = dur * (cfg.legato || 0.9);
+
+        let volume = cfg.volume;
+        if (cfg.fadeout) {
+            const progress = beatCount / totalBeats;
+            volume = cfg.volume * (1 - 0.75 * progress);
+        }
+
+        playNote(freq, soundDur, time, volume, cfg.wave, charState.masterGain);
+
+        if (cfg.thump) {
+            playNote(freq / 2, 0.18, time, cfg.thumpVolume, 'sine', charState.masterGain);
+        }
+
+        time += dur;
+        totalDur += dur;
+        beatCount += note.d;
+    });
+
+    const endMs = (totalDur + 0.8) * 1000;
+    const tid = setTimeout(() => {
+        if (mySession !== charState.session) return;
+        stopCharacterPlay();
+    }, endMs);
+    charState.timeouts.push(tid);
+}
+
+function playNote(freq, duration, when, volume, waveType, outNode) {
+    const osc = charState.audioCtx.createOscillator();
+    const gain = charState.audioCtx.createGain();
+    osc.type = waveType || 'sine';
+    osc.frequency.value = freq;
+    const attack = 0.015;
+    const release = Math.max(0.05, duration * 0.4);
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(volume, when + attack);
+    gain.gain.setValueAtTime(volume, when + duration - release);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    osc.connect(gain);
+    gain.connect(outNode || charState.audioCtx.destination);
+    osc.start(when);
+    osc.stop(when + duration + 0.05);
+}
+
+function stopCharacterPlay() {
+    charState.session++;
+    charState.playing = false;
+
+    if (charState.masterGain && charState.audioCtx) {
+        const now = charState.audioCtx.currentTime;
+        try {
+            charState.masterGain.gain.cancelScheduledValues(now);
+            charState.masterGain.gain.setValueAtTime(charState.masterGain.gain.value, now);
+            charState.masterGain.gain.linearRampToValueAtTime(0, now + 0.05);
+        } catch(e) {}
+        const mg = charState.masterGain;
+        charState.masterGain = null;
+        setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 150);
+    }
+    charState.timeouts.forEach(t => clearTimeout(t));
+    charState.timeouts = [];
+
+    const circle = document.getElementById('char-circle');
+    if (circle) circle.className = 'char-circle';
+
+    const btn = document.getElementById('char-play-btn');
+    if (btn) { btn.innerText = '▶️ Слушать'; btn.className = 'btn-check'; }
+}
+
+// ==================== СБОРКА ТЕРМИНА ====================
+function initAssemble() {
+    const term = DATABASE[currentTheme].terms[activeTermIndex].it;
+    const chars = term.split('');
+    const shuffled = [...chars].sort(() => Math.random() - 0.5);
+    assembleState = {
+        term: term,
+        letters: shuffled.map((ch, i) => ({ char: ch, used: false, idx: i })),
+        answer: []
+    };
+}
+
+function renderAssemble() {
+    const term = DATABASE[currentTheme].terms[activeTermIndex];
+    const workspace = document.getElementById('game-workspace');
+    const lettersHtml = assembleState.letters.map((l, i) => {
+        const isSpace = l.char === ' ';
+        const display = isSpace ? '␣' : l.char;
+        const cls = (l.used ? 'letter-btn used' : 'letter-btn') + (isSpace ? ' space-btn' : '');
+        return `<button class="${cls}" onclick="pickLetter(${i})" ${l.used ? 'disabled' : ''}>${display}</button>`;
+    }).join('');
+    const answerDisplay = assembleState.answer.length > 0
+        ? assembleState.answer.map(a => a.char === ' ' ? '_' : a.char).join('')
+        : '<span style="color:#ccc; font-size:16px; letter-spacing:1px;">Здесь появится ответ...</span>';
+    workspace.innerHTML = `
+        <div class="rule-block" style="background:#fff; text-align:center; font-size:15px; padding: 16px;">
+            Собери итальянский термин, который обозначает:<br>
+            <b style="color:#48281d; font-size:18px;">«${term.ru}»</b>
+        </div>
+        <div class="assemble-answer">${answerDisplay}</div>
+        <div class="assemble-letters">${lettersHtml}</div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn-hint" onclick="removeLastLetter()" style="flex:1; width:auto;">⌫ Удалить</button>
+            <button class="btn-hint" onclick="clearAssemble()" style="flex:1; width:auto;">🗑 Очистить</button>
+        </div>
+    `;
+}
+function pickLetter(idx) {
+    const letter = assembleState.letters[idx];
+    if (letter.used) return;
+    letter.used = true;
+    assembleState.answer.push({ char: letter.char, idx: idx });
+    renderAssemble();
+}
+function removeLastLetter() {
+    if (assembleState.answer.length === 0) return;
+    const last = assembleState.answer.pop();
+    assembleState.letters[last.idx].used = false;
+    renderAssemble();
+}
+function clearAssemble() {
+    assembleState.answer.forEach(a => { assembleState.letters[a.idx].used = false; });
+    assembleState.answer = [];
+    renderAssemble();
+}
+function checkAssemble() {
+    const userAnswer = assembleState.answer.map(a => a.char).join('');
+    const correct = assembleState.term;
+    const fb = document.getElementById('game-feedback');
+    if (userAnswer.toLowerCase() === correct.toLowerCase()) {
+        scoreBalance += 15;
+        let lootText = "";
+        if (eligibleForLoot && !INVENTORY.item_key.unlocked) {
+            INVENTORY.item_key.unlocked = true;
+            lootText = "<br>🎁 ТРОФЕЙ: Хрустальный Ключ у тебя в рюкзаке!";
+        }
+        updateHeader();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE[currentTheme].terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+        currentStep = 4;
+        setTimeout(loadStage, 2500);
+    } else {
+        fb.className = "feedback error-text";
+        if (userAnswer.length < correct.length) fb.innerText = "❌ Ещё не все буквы использованы! Собери термин целиком.";
+        else fb.innerText = "❌ Неправильный порядок букв. Попробуй ещё раз!";
+    }
+}
+
+// ==================== ЗАПУСК ИСПЫТАНИЯ ====================
+function switchTab(tab) {
+    document.getElementById('nav-learn').classList.remove('active');
+    document.getElementById('nav-shop').classList.remove('active');
+    document.getElementById('tab-learn-content').style.display = 'none';
+    document.getElementById('tab-shop-content').style.display = 'none';
+    if (tab === 'learn') {
+        document.getElementById('nav-learn').classList.add('active');
+        document.getElementById('tab-learn-content').style.display = 'block';
+    } else {
+        document.getElementById('nav-shop').classList.add('active');
+        document.getElementById('tab-shop-content').style.display = 'block';
+        renderInventory();
+    }
+}
+
+function renderInventory() {
+    const container = document.getElementById('inventory-container');
+    container.innerHTML = '';
+    for (let key in INVENTORY) {
+        const item = INVENTORY[key];
+        container.innerHTML += `
+            <div class="inventory-item ${item.unlocked ? 'unlocked' : ''}">
+                <div class="item-icon">${item.unlocked ? item.icon : "🔒"}</div>
+                <div class="item-title">${item.title}</div>
+                <div class="item-status">${item.unlocked ? item.text : 'Закрыто'}</div>
+            </div>
+        `;
+    }
+}
+function updateHeader() {
+    document.getElementById('balance-val').innerText = scoreBalance;
+    let count = 0;
+    for (let key in INVENTORY) { if (INVENTORY[key].unlocked) count++; }
+    document.getElementById('inv-count').innerText = count;
+}
+
+function startTraining() {
+    document.getElementById('screen-theory').style.display = 'none';
+    document.getElementById('screen-game').style.display = 'block';
+    activeTermIndex = 0;
+    currentStep = DATABASE[currentTheme].skipPairs ? 2 : 1;
+    loadStage();
+}
+
+function returnToTheory() {
+    document.getElementById('screen-game').style.display = 'none';
+    document.getElementById('screen-theory').style.display = 'block';
+    document.getElementById('hint-main-btn').style.display = 'block';
+    currentStep = 1;
+    activeTermIndex = 0;
+    eligibleForLoot = true;
+    document.getElementById('game-workspace').innerHTML = '';
+    document.getElementById('game-feedback').innerText = '';
+    document.getElementById('action-buttons').style.display = 'none';
+}
+
+function loadStage() {
+    const mod = DATABASE[currentTheme];
+    const workspace = document.getElementById('game-workspace');
+    const actionBtns = document.getElementById('action-buttons');
+    document.getElementById('game-feedback').innerText = '';
+    actionBtns.style.display = 'none';
+    eligibleForLoot = true;
+
+    if (currentStep === 1) {
+        document.getElementById('game-task-title').innerText = `Этап 1: Соедини Пары 🧩`;
+        document.getElementById('game-instruction').innerText = "Найди правильные пары: итальянские термины (персиковые) — русские переводы (голубые):";
+        pairedCount = 0;
+        selectedITCard = null;
+        selectedRUCard = null;
+        workspace.innerHTML = `
+            <div class="pool" id="pool-it" style="margin-bottom:5px;"></div>
+            <div class="pool" id="pool-ru"></div>
+        `;
+        let itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+        let ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+        const pIT = document.getElementById('pool-it');
+        itList.forEach((text, i) => {
+            let card = document.createElement('div');
+            card.className = 'chunk-card';
+            card.id = 'it-card-' + i;
+            card.innerText = text;
+            card.onclick = () => selectCard(card, 'it', text);
+            pIT.appendChild(card);
+        });
+        const pRU = document.getElementById('pool-ru');
+        ruList.forEach((text, i) => {
+            let card = document.createElement('div');
+            card.className = 'chunk-card ru-card';
+            card.id = 'ru-card-' + i;
+            card.innerText = text;
+            card.onclick = () => selectCard(card, 'ru', text);
+            pRU.appendChild(card);
+        });
+    }
+    else if (currentStep === 2) {
+        document.getElementById('game-task-title').innerText = `Этап 2: Выбери Верный Перевод 🧠`;
+        document.getElementById('game-instruction').innerText = "Выбери правильный перевод термина из двух вариантов:";
+        let term = mod.terms[activeTermIndex];
+        let options = [
+            { text: term.ru, correct: true },
+            { text: term.fakeWord, correct: false }
+        ].sort(() => Math.random() - 0.5);
+        let html = `
+            <div class="rule-block" style="background:#fff; text-align:center; font-size:20px; padding: 20px; color: #48281d;">
+                <b>${term.it}</b>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+        `;
+        options.forEach((opt, index) => {
+            html += `<div class="variant-option" id="variant-${index}" onclick="selectVariant(this, ${opt.correct})">${opt.text}</div>`;
+        });
+        html += `</div>`;
+        workspace.innerHTML = html;
+        selectedVariant = null;
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkVariant()">Проверить ответ ✅</button>`;
+    }
+    else if (currentStep === 3) {
+        document.getElementById('game-task-title').innerText = `Этап 3: Собери Термин 🧱`;
+        document.getElementById('game-instruction').innerText = "Нажимай буквы по порядку, чтобы собрать итальянский термин. Пробел обозначен клеточкой ␣. В строке ответа пробел будет виден как подчёркивание _ между словами.";
+        initAssemble();
+        renderAssemble();
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkAssemble()">Проверить ✅</button>`;
+    }
+    else if (currentStep === 4) {
+        document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
+        document.getElementById('game-instruction').innerHTML = `
+            Введи точный перевод термина руками с клавиатуры.<br>
+            • Если внутри определения есть итальянский термин — его можно писать русскими буквами.<br>
+            • Запятые ставить обязательно.
+        `;
+        document.getElementById('game-instruction').style.fontStyle = 'normal';
+        document.getElementById('game-instruction').style.color = '#555';
+        let term = mod.terms[activeTermIndex];
+        workspace.innerHTML = `
+            <div class="rule-block" style="background:#fff; text-align:center;">
+                <span style="font-size:20px; font-weight:bold; color:#48281d;">${term.it}</span>
+                <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
+                <div style="font-size:12px; color:#999; margin-top:10px; line-height:1.4;">
+                    Пример: если в ответе встречается <b>andante</b> — можно написать <b>анданте</b>.<br>
+                    Запятые обязательно.
+                </div>
+            </div>
+        `;
+        actionBtns.style.display = 'flex';
+        actionBtns.innerHTML = `<button class="btn-check" onclick="checkDictation()">Сдать зачетную строчку 🏆</button>`;
+    }
+    else if (currentStep === 5) {
+        document.getElementById('game-task-title').innerText = `Этап 5: Финальный Экзамен 🎓`;
+        document.getElementById('game-instruction').innerText = "Соедини ВСЕ термины темы с их переводами: персиковые — термины, голубые — переводы:";
+        pairedCount = 0;
+        selectedITCard = null;
+        selectedRUCard = null;
+        workspace.innerHTML = `
+            <div class="pool" id="pool-it" style="margin-bottom:5px;"></div>
+            <div class="pool" id="pool-ru"></div>
+        `;
+        let itList = mod.terms.map(t => t.it).sort(() => Math.random() - 0.5);
+        let ruList = mod.terms.map(t => t.ru).sort(() => Math.random() - 0.5);
+        const pIT = document.getElementById('pool-it');
+        itList.forEach((text, i) => {
+            let card = document.createElement('div');
+            card.className = 'chunk-card';
+            card.id = 'it-card-' + i;
+            card.innerText = text;
+            card.onclick = () => selectCard(card, 'it', text);
+            pIT.appendChild(card);
+        });
+        const pRU = document.getElementById('pool-ru');
+        ruList.forEach((text, i) => {
+            let card = document.createElement('div');
+            card.className = 'chunk-card ru-card';
+            card.id = 'ru-card-' + i;
+            card.innerText = text;
+            card.onclick = () => selectCard(card, 'ru', text);
+            pRU.appendChild(card);
+        });
+    }
+}
+
+function selectCard(card, type, text) {
+    if (type === 'it') {
+        if(selectedITCard) selectedITCard.classList.remove('active-card');
+        selectedITCard = card; selectedITCard.activeText = text;
+        selectedITCard.classList.add('active-card');
+    } else {
+        if(selectedRUCard) selectedRUCard.classList.remove('active-card');
+        selectedRUCard = card; selectedRUCard.activeText = text;
+        selectedRUCard.classList.add('active-card');
+    }
+    if (selectedITCard && selectedRUCard) {
+        const terms = DATABASE[currentTheme].terms;
+        let match = terms.find(t => t.it === selectedITCard.activeText && t.ru === selectedRUCard.activeText);
+        const fb = document.getElementById('game-feedback');
+        if (match) {
+            selectedITCard.style.visibility = 'hidden';
+            selectedRUCard.style.visibility = 'hidden';
+            selectedITCard = null; selectedRUCard = null;
+            pairedCount++;
+            scoreBalance += 5;
+            updateHeader();
+            if (pairedCount === terms.length) {
+                if (currentStep === 5) {
+                    fb.className = "feedback success-text";
+                    fb.innerHTML = `🎉 ПОЗДРАВЛЯЮ! Ты прошел всю тему! 🎉`;
+                    document.getElementById('hint-main-btn').style.display = 'none';
+                    setTimeout(() => {
+                        document.getElementById('game-workspace').innerHTML = `
+                            <h2 style='text-align:center; color:#2ecc71;'>🎓 Модуль успешно завершен! 🎓</h2>
+                            <p style='text-align:center;'>Ты закрепил все термины. Отличная работа!</p>
+                            <button onclick="returnToTheory()">Вернуться к выбору подразделов 🔄</button>
+                        `;
+                        document.getElementById('action-buttons').style.display = 'none';
+                    }, 2500);
+                } else {
+                    let lootText = "";
+                    if(eligibleForLoot && !INVENTORY.item_violin.unlocked) {
+                        INVENTORY.item_violin.unlocked = true;
+                        lootText = "<br>🎁 ТРОФЕЙ: Золотой Смычок добавлен в рюкзак!";
+                    }
+                    fb.className = "feedback success-text";
+                    fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
+                    currentStep = 2;
+                    activeTermIndex = 0;
+                    setTimeout(loadStage, 2500);
+                }
+            }
+        } else {
+            fb.className = "feedback error-text";
+            fb.innerText = "❌ Неправильная пара! Попробуй соединить другие карточки.";
+            selectedITCard.classList.remove('active-card');
+            selectedRUCard.classList.remove('active-card');
+            selectedITCard = null; selectedRUCard = null;
+        }
+    }
+}
+
+function selectVariant(element, isCorrect) {
+    document.querySelectorAll('.variant-option').forEach(el => el.classList.remove('active-card'));
+    element.classList.add('active-card');
+    selectedVariant = element;
+    element.dataset.correct = isCorrect;
+}
+
+function checkVariant() {
+    const fb = document.getElementById('game-feedback');
+    const mod = DATABASE[currentTheme];
+    if (!selectedVariant) { fb.className = "feedback error-text"; fb.innerText = "❌ Ты не выбрал вариант!"; return; }
+    const isCorrect = selectedVariant.dataset.correct === 'true';
+    if (isCorrect) {
+        scoreBalance += 15;
+        let lootText = "";
+        if(eligibleForLoot && !INVENTORY.item_fork.unlocked) {
+            INVENTORY.item_fork.unlocked = true;
+            lootText = "<br>🎁 ТРОФЕЙ: Магический Камертон у тебя в рюкзаке!";
+        }
+        updateHeader();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+        currentStep = 3;
+        setTimeout(loadStage, 2500);
+    } else {
+        fb.className = "feedback error-text";
+        fb.innerText = "❌ Неправильно! Вспомни точный перевод и попробуй снова.";
+        selectedVariant.classList.remove('active-card');
+        selectedVariant = null;
+    }
+}
+
+function normalizeForCheck(text) {
+    return text.toLowerCase().replace(/ё/g, 'е')
+        .replace(/[.,!?;:—–\-()"'«»]/g, '')
+        .replace(/\s+/g, ' ').trim();
+}
+function latinToCyrillic(text) {
+    const map = {'a':'а','b':'б','c':'к','d':'д','e':'е','f':'ф','g':'г','h':'х','i':'и','j':'й','k':'к','l':'л','m':'м','n':'н','o':'о','p':'п','q':'к','r':'р','s':'с','t':'т','u':'у','v':'в','w':'в','x':'кс','y':'и','z':'з'};
+    return text.split('').map(ch => map[ch] || ch).join('');
+}
+function isAnswerCorrect(userRaw, realRaw) {
+    const u = normalizeForCheck(userRaw);
+    const r = normalizeForCheck(realRaw);
+    if (u === r) return true;
+    if (latinToCyrillic(u) === latinToCyrillic(r)) return true;
+    return false;
+}
+
+function checkDictation() {
+    const userRaw = document.getElementById('dictation-input').value;
+    const realRaw = DATABASE[currentTheme].terms[activeTermIndex].ru;
+    const fb = document.getElementById('game-feedback');
+    if (isAnswerCorrect(userRaw, realRaw)) {
+        scoreBalance += 20;
+        let lootText = "";
+        if (eligibleForLoot && !INVENTORY.item_harp.unlocked) {
+            INVENTORY.item_harp.unlocked = true;
+            lootText = "<br>🎁 ЛЕГЕНДА: Легендарная Арфа добавлена в твою коллекцию!";
+        }
+        updateHeader();
+        fb.className = "feedback success-text";
+        fb.innerHTML = `🏆 Блестяще! Зачетное слово введено абсолютно дословно! +20 ⭐ ${lootText}`;
+        activeTermIndex++;
+        if (activeTermIndex < DATABASE[currentTheme].terms.length) {
+            currentStep = 2;
+            setTimeout(loadStage, 2500);
+        } else {
+            INVENTORY.item_cup.unlocked = true;
+            updateHeader();
+            fb.className = "feedback success-text";
+            fb.innerHTML = `🎉 Блок терминов сдан! Переходим к Финальному Экзамену! 🎓`;
+            currentStep = 5;
+            setTimeout(loadStage, 2500);
+        }
+    } else {
+        fb.className = "feedback error-text";
+        fb.innerText = "❌ Не до конца точно! Вспомни формулировку из таблицы и исправь буквы.";
+        document.getElementById('dictation-input').style.borderColor = '#e74c3c';
+    }
+}
+
+function showHint() {
+    document.getElementById('hint-content').innerText = DATABASE[currentTheme].hintText;
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('hint-modal').style.display = 'block';
+    eligibleForLoot = false;
+}
+
+function closeAllModals() {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('hint-modal').style.display = 'none';
+    document.getElementById('char-modal').style.display = 'none';
+    document.getElementById('howto-modal').classList.remove('active');
+    stopCharacterPlay();
+}
+
+initApp();
+</script>
+</body>
+</html>
