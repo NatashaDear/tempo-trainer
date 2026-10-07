@@ -139,6 +139,8 @@
         color: #b8c7e0;
     }
 
+    /* ============ ЦВЕТА ПЛИТОК ============ */
+
     /* Буквы — изумрудный акцент */
     .tile.letters {
         --accent: linear-gradient(90deg, #3aa374, #14402e);
@@ -167,6 +169,26 @@
     .tile.character:hover {
         border-color: rgba(183,108,75,0.6);
         box-shadow: 0 10px 30px rgba(183,108,75,0.25);
+    }
+
+    /* Штрихи — фиолетовый акцент */
+    .tile.strokes {
+        --accent: linear-gradient(90deg, #7d5f82, #2e1b4d);
+        --glow: rgba(125,95,178,0.35);
+    }
+    .tile.strokes:hover {
+        border-color: rgba(125,95,178,0.6);
+        box-shadow: 0 10px 30px rgba(125,95,178,0.25);
+    }
+
+    /* Динамика — красно-бордовый акцент */
+    .tile.dynamics {
+        --accent: linear-gradient(90deg, #b03a2e, #641e16);
+        --glow: rgba(176,58,46,0.4);
+    }
+    .tile.dynamics:hover {
+        border-color: rgba(176,58,46,0.65);
+        box-shadow: 0 10px 30px rgba(176,58,46,0.3);
     }
 
     .hub-footer {
@@ -226,6 +248,28 @@
                 <div class="tile-text">
                     <div class="tile-title">Характер</div>
                     <div class="tile-subtitle">Настроение, манера, служебные слова — с пульсацией и звуком</div>
+                </div>
+                <div class="tile-arrow">›</div>
+            </div>
+        </a>
+
+        <a class="tile strokes" href="strokes.html">
+            <div class="tile-inner">
+                <div class="tile-icon">🎻</div>
+                <div class="tile-text">
+                    <div class="tile-title">Штрихи</div>
+                    <div class="tile-subtitle">Связно, отрывисто, с акцентом — как извлекать звук</div>
+                </div>
+                <div class="tile-arrow">›</div>
+            </div>
+        </a>
+
+        <a class="tile dynamics" href="dynamics.html">
+            <div class="tile-inner">
+                <div class="tile-icon">🔊</div>
+                <div class="tile-text">
+                    <div class="tile-title">Динамика</div>
+                    <div class="tile-subtitle">Тихо, громко, постепенно — сила музыкального звука</div>
                 </div>
                 <div class="tile-arrow">›</div>
             </div>
