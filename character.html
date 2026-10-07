@@ -23,7 +23,7 @@
     .header h1 { margin: 0; font-size: 18px; }
     .sub-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 13px; padding: 0 5px; gap: 6px; flex-wrap: wrap; }
     .nav-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
-    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; }
+    .btn-nav { background: rgba(255,255,255,0.2); border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; color: white; cursor: pointer; font-size: 13px; font-weight: bold; font-family: inherit; }
     .btn-nav.active { background: #fff; color: #48281d; }
     .balance-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; }
     .timer-box { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #fff; font-size: 12px; }
@@ -31,7 +31,7 @@
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
     .subsections { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; justify-content: center; }
-    .btn-subsection { background: #fff; color: #b76c4b; border: 2px solid #b76c4b; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; flex: 1 1 auto; min-width: 100px; }
+    .btn-subsection { background: #fff; color: #b76c4b; border: 2px solid #b76c4b; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; flex: 1 1 auto; min-width: 100px; font-family: inherit; }
     .btn-subsection.active { background: #b76c4b; color: #fff; }
     .btn-subsection.check { border-color: #9b59b6; color: #9b59b6; background: linear-gradient(135deg, #fff, #f8f0ff); }
     .btn-subsection.check.active { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; border-color: #8e44ad; }
@@ -53,50 +53,18 @@
     .btn-play-char:hover { background: #fbd5bb; }
     .btn-play-char:active { transform: scale(0.95); }
 
-    button { background: #b76c4b; color: white; border: none; padding: 12px 18px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: block; margin-top: 10px; }
+    button { background: #b76c4b; color: white; border: none; padding: 12px 18px; font-size: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: block; margin-top: 10px; font-family: inherit; }
     button:active { opacity: 0.8; }
     .btn-hint { background: #f39c12; }
     .btn-check { background: #2ecc71; }
     .btn-stop { background: #e74c3c; }
     .pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; justify-content: center; }
 
-    /* ============ ВЕРХНЯЯ ПАНЕЛЬ ИГРЫ ============ */
-    .game-top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .btn-exit {
-        background: #95a5a6;
-        color: white;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: bold;
-        cursor: pointer;
-        font-family: inherit;
-        margin: 0;
-        width: auto;
-        display: inline-block;
-        flex-shrink: 0;
-        transition: background 0.15s;
-    }
+    .game-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+    .btn-exit { background: #95a5a6; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; font-family: inherit; margin: 0; width: auto; display: inline-block; flex-shrink: 0; }
     .btn-exit:hover { background: #7f8c8d; }
     .btn-exit:active { transform: scale(0.96); }
-    .progress-info {
-        font-size: 13px;
-        font-weight: bold;
-        color: #b76c4b;
-        background: #fdf2ec;
-        padding: 8px 14px;
-        border-radius: 20px;
-        white-space: nowrap;
-        border: 1px solid #f0d9c8;
-    }
+    .progress-info { font-size: 13px; font-weight: bold; color: #b76c4b; background: #fdf2ec; padding: 8px 14px; border-radius: 20px; white-space: nowrap; border: 1px solid #f0d9c8; }
 
     /* ============ КАРТОЧКИ: ТЕРМИН vs ПЕРЕВОД ============ */
     .chunk-card {
@@ -247,84 +215,6 @@
     .char-controls { display: flex; gap: 8px; }
     .char-controls button { margin-top: 0; }
 
-    /* ============ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА ============ */
-    .confirm-modal {
-        display: none;
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 22px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        z-index: 1003;
-        width: 90%;
-        max-width: 380px;
-        box-sizing: border-box;
-        text-align: center;
-    }
-    .confirm-modal.active { display: block; }
-    .confirm-modal h3 {
-        margin: 0 0 12px;
-        color: #48281d;
-        font-size: 19px;
-    }
-    .confirm-modal .warn {
-        display: inline-block;
-        background: #ffecea;
-        color: #c0392b;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 13px;
-        margin-bottom: 14px;
-        line-height: 1.4;
-        border: 1px solid #f5b7b1;
-    }
-    .confirm-modal p {
-        margin: 0 0 18px;
-        color: #666;
-        font-size: 13px;
-        line-height: 1.5;
-    }
-    .confirm-buttons {
-        display: flex;
-        gap: 10px;
-    }
-    .confirm-buttons button {
-        margin-top: 0;
-        flex: 1;
-    }
-    .btn-danger { background: #e74c3c; }
-    .btn-cancel { background: #95a5a6; }
-
-    /* ============ СТАТИСТИКА В КОНЦЕ ТЕМЫ ============ */
-    .stats-card {
-        background: linear-gradient(135deg, #fdf6f3, #ffffff);
-        border-radius: 14px;
-        padding: 18px 20px;
-        margin: 18px auto;
-        max-width: 340px;
-        box-shadow: inset 0 0 0 2px #f0d9c8, 0 4px 12px rgba(183,108,75,0.1);
-    }
-    .stats-card .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        font-size: 15px;
-        border-bottom: 1px dashed #f0d9c8;
-    }
-    .stats-card .stat-row:last-child { border-bottom: none; }
-    .stats-card .stat-row span { color: #6b3410; }
-    .stats-card .stat-row b {
-        color: #48281d;
-        font-size: 18px;
-        background: #fce4d6;
-        padding: 2px 12px;
-        border-radius: 12px;
-    }
-
     .howto-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #f0f3f8; padding: 0; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); z-index: 1002; width: 92%; max-width: 500px; max-height: 88vh; box-sizing: border-box; overflow: hidden; flex-direction: column; }
     .howto-modal.active { display: flex; }
     .howto-header { background: linear-gradient(135deg, #b76c4b, #48281d); color: white; padding: 14px 18px; text-align: center; }
@@ -349,6 +239,36 @@
     .howto-block b { color: #48281d; }
     .howto-footer { padding: 12px 14px; background: #fff; border-top: 1px solid #e1e8ed; }
     .howto-footer button { margin-top: 0; }
+
+    .confirm-modal {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 22px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        z-index: 1003;
+        width: 90%;
+        max-width: 380px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    .confirm-modal.active { display: block; }
+    .confirm-modal h3 { margin: 0 0 12px; color: #48281d; font-size: 19px; }
+    .confirm-modal .warn { display: inline-block; background: #ffecea; color: #c0392b; padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 14px; line-height: 1.4; border: 1px solid #f5b7b1; }
+    .confirm-modal p { margin: 0 0 18px; color: #666; font-size: 13px; line-height: 1.5; }
+    .confirm-buttons { display: flex; gap: 10px; }
+    .confirm-buttons button { margin-top: 0; flex: 1; }
+    .btn-danger { background: #e74c3c; }
+    .btn-cancel { background: #95a5a6; }
+
+    .stats-card { background: linear-gradient(135deg, #fdf6f3, #ffffff); border-radius: 14px; padding: 18px 20px; margin: 18px auto; max-width: 340px; box-shadow: inset 0 0 0 2px #f0d9c8, 0 4px 12px rgba(183,108,75,0.1); }
+    .stats-card .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 15px; border-bottom: 1px dashed #f0d9c8; }
+    .stats-card .stat-row:last-child { border-bottom: none; }
+    .stats-card .stat-row span { color: #6b3410; }
+    .stats-card .stat-row b { color: #48281d; font-size: 18px; background: #fce4d6; padding: 2px 12px; border-radius: 12px; }
 
     .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #48281d 0%, #b76c4b 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
     .lock-overlay.active { display: flex; }
@@ -440,9 +360,7 @@
 </div>
 
 <div class="howto-modal" id="howto-modal">
-    <div class="howto-header">
-        <h2>🎵 Как играть</h2>
-    </div>
+    <div class="howto-header"><h2>🎵 Как играть</h2></div>
     <div class="howto-body">
         <div class="howto-block intro">
             <h3>👋 Привет!</h3>
@@ -462,7 +380,7 @@
                 <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
                 <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
                 <li><b>Собери термин</b> — из перемешанных букв собери итальянское слово по его значению.</li>
-                <li><b>Финальный диктант</b> — впиши перевод руками с клавиатуры.</li>
+                <li><b>Финальный диктант</b> — впиши перевод руками. Можно писать через дефис или пробел — оба варианта верные.</li>
                 <li><b>Финальный экзамен</b> — соедини сразу все термины темы.</li>
             </ol>
             <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁. Собери всю коллекцию — и станешь настоящим знатоком характеров!</p>
@@ -565,14 +483,8 @@ function maybeShowHowto() {
     if (!seen) setTimeout(() => openHowto(), 400);
 }
 
-// ==================== СТАТИСТИКА СЕССИИ ====================
-let sessionStats = {
-    correct: 0,
-    withoutHint: 0,
-    pointsAtStart: 0,
-    expectedTotal: 0
-};
-
+// ==================== СТАТИСТИКА ====================
+let sessionStats = { correct: 0, withoutHint: 0, pointsAtStart: 0, expectedTotal: 0 };
 function resetSessionStats() {
     const N = DATABASE[currentTheme].terms.length;
     const skipPairs = !!DATABASE[currentTheme].skipPairs;
@@ -582,20 +494,15 @@ function resetSessionStats() {
     sessionStats.expectedTotal = (skipPairs ? 0 : 1) + N * 3 + 1;
     updateProgressDisplay();
 }
-
 function updateProgressDisplay() {
     const el = document.getElementById('progress-info');
-    if (!el) return;
-    el.innerText = `📊 Пройдено: ${sessionStats.correct} / ${sessionStats.expectedTotal}`;
+    if (el) el.innerText = `📊 Пройдено: ${sessionStats.correct} / ${sessionStats.expectedTotal}`;
 }
-
 function addStat() {
     sessionStats.correct++;
     if (eligibleForLoot) sessionStats.withoutHint++;
     updateProgressDisplay();
 }
-
-// ==================== ПОДТВЕРЖДЕНИЕ ВЫХОДА ====================
 function confirmExit() {
     document.getElementById('overlay').style.display = 'block';
     document.getElementById('confirm-modal').classList.add('active');
@@ -610,7 +517,44 @@ function actuallyExit() {
     returnToTheory();
 }
 
-// ==================== МЕЛОДИЯ ====================
+// ==================== ЗВУК ====================
+let audioCtx = null;
+let activeOscillators = [];
+let activeTimeouts = [];
+let playingNoteIds = new Set();
+
+function ensureAudio() {
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+function playNote(freq, duration, delay, volume, waveType) {
+    if (!audioCtx) return;
+    const when = audioCtx.currentTime + (delay || 0);
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = waveType || 'sine';
+    osc.frequency.value = freq;
+    const attack = 0.02;
+    const release = Math.max(0.06, duration * 0.4);
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(volume, when + attack);
+    gain.gain.setValueAtTime(volume, when + duration - release);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(when); osc.stop(when + duration + 0.05);
+    activeOscillators.push(osc);
+}
+function stopAnySound() {
+    activeOscillators.forEach(o => { try { o.stop(); } catch(e) {} });
+    activeOscillators = [];
+    activeTimeouts.forEach(t => clearTimeout(t));
+    activeTimeouts = [];
+    playingNoteIds.clear();
+    document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
+}
+
+// ==================== ДАННЫЕ ====================
 const MELODY_NOTES = [
     { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
     { f: 329.63, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 1 },
@@ -620,7 +564,6 @@ const MELODY_NOTES = [
     { f: 261.63, d: 2 }
 ];
 
-// ==================== БАЗА ====================
 const DATABASE = {
     mood: {
         title: "😊 Настроение",
@@ -893,10 +836,10 @@ function startCharacterPlay() {
             volume = cfg.volume * (1 - 0.75 * progress);
         }
 
-        playNote(freq, soundDur, time, volume, cfg.wave, charState.masterGain);
+        playNoteChar(freq, soundDur, time, volume, cfg.wave, charState.masterGain);
 
         if (cfg.thump) {
-            playNote(freq / 2, 0.18, time, cfg.thumpVolume, 'sine', charState.masterGain);
+            playNoteChar(freq / 2, 0.18, time, cfg.thumpVolume, 'sine', charState.masterGain);
         }
 
         time += dur;
@@ -912,7 +855,7 @@ function startCharacterPlay() {
     charState.timeouts.push(tid);
 }
 
-function playNote(freq, duration, when, volume, waveType, outNode) {
+function playNoteChar(freq, duration, when, volume, waveType, outNode) {
     const osc = charState.audioCtx.createOscillator();
     const gain = charState.audioCtx.createGain();
     osc.type = waveType || 'sine';
@@ -1033,7 +976,7 @@ function checkAssemble() {
     }
 }
 
-// ==================== ЗАПУСК ИСПЫТАНИЯ ====================
+// ==================== ТАБЫ ====================
 function switchTab(tab) {
     document.getElementById('nav-learn').classList.remove('active');
     document.getElementById('nav-shop').classList.remove('active');
@@ -1165,8 +1108,7 @@ function loadStage() {
         document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
         document.getElementById('game-instruction').innerHTML = `
             Термин ${activeTermIndex + 1} из ${mod.terms.length}.<br>
-            • Если внутри определения есть итальянский термин — его можно писать русскими буквами.<br>
-            • Запятые ставить обязательно.
+            • Можно писать через дефис или пробел: <b>си-бемоль</b> и <b>си бемоль</b> — оба варианта верные.
         `;
         document.getElementById('game-instruction').style.fontStyle = 'normal';
         document.getElementById('game-instruction').style.color = '#555';
@@ -1176,7 +1118,6 @@ function loadStage() {
                 <span style="font-size:20px; font-weight:bold; color:#48281d;">${term.it}</span>
                 <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
                 <div style="font-size:12px; color:#999; margin-top:10px; line-height:1.4;">
-                    Пример: если в ответе встречается <b>andante</b> — можно написать <b>анданте</b>.<br>
                     Запятые обязательно.
                 </div>
             </div>
@@ -1220,11 +1161,13 @@ function loadStage() {
 function selectCard(card, type, text) {
     if (type === 'it') {
         if(selectedITCard) selectedITCard.classList.remove('active-card');
-        selectedITCard = card; selectedITCard.activeText = text;
+        selectedITCard = card;
+        selectedITCard.activeText = text;
         selectedITCard.classList.add('active-card');
     } else {
         if(selectedRUCard) selectedRUCard.classList.remove('active-card');
-        selectedRUCard = card; selectedRUCard.activeText = text;
+        selectedRUCard = card;
+        selectedRUCard.activeText = text;
         selectedRUCard.classList.add('active-card');
     }
     if (selectedITCard && selectedRUCard) {
@@ -1234,14 +1177,14 @@ function selectCard(card, type, text) {
         if (match) {
             selectedITCard.style.visibility = 'hidden';
             selectedRUCard.style.visibility = 'hidden';
-            selectedITCard = null; selectedRUCard = null;
+            selectedITCard = null;
+            selectedRUCard = null;
             pairedCount++;
             scoreBalance += 5;
             updateHeader();
             if (pairedCount === terms.length) {
                 addStat();
                 if (currentStep === 5) {
-                    // Завершение всего модуля
                     const pointsEarned = scoreBalance - sessionStats.pointsAtStart;
                     fb.className = "feedback success-text";
                     fb.innerHTML = `🎉 Всё готово! Загружаю итоги...`;
@@ -1249,20 +1192,11 @@ function selectCard(card, type, text) {
                     setTimeout(() => {
                         document.getElementById('game-workspace').innerHTML = `
                             <h2 style='text-align:center; color:#2ecc71; margin-bottom:6px;'>🎓 Модуль успешно завершен! 🎓</h2>
-                            <p style='text-align:center; color:#6b3410; margin:0 0 6px;'>Ты закрепил все термины темы.</p>
+                            <p style='text-align:center; color:#48281d; margin:0 0 6px;'>Ты закрепил все термины темы.</p>
                             <div class="stats-card">
-                                <div class="stat-row">
-                                    <span>✅ Правильно решено</span>
-                                    <b>${sessionStats.correct} / ${sessionStats.expectedTotal}</b>
-                                </div>
-                                <div class="stat-row">
-                                    <span>💡 Без подсказок</span>
-                                    <b>${sessionStats.withoutHint} / ${sessionStats.expectedTotal}</b>
-                                </div>
-                                <div class="stat-row">
-                                    <span>⭐ Набрано очков</span>
-                                    <b>+${pointsEarned}</b>
-                                </div>
+                                <div class="stat-row"><span>✅ Правильно решено</span><b>${sessionStats.correct} / ${sessionStats.expectedTotal}</b></div>
+                                <div class="stat-row"><span>💡 Без подсказок</span><b>${sessionStats.withoutHint} / ${sessionStats.expectedTotal}</b></div>
+                                <div class="stat-row"><span>⭐ Набрано очков</span><b>+${pointsEarned}</b></div>
                             </div>
                             <p style='text-align:center; color:#7f8c8d; font-size:13px; margin: 0 0 12px;'>Отличная работа!</p>
                             <button onclick="returnToTheory()">Вернуться к выбору подразделов 🔄</button>
@@ -1288,7 +1222,8 @@ function selectCard(card, type, text) {
             fb.innerText = "❌ Неправильная пара! Попробуй соединить другие карточки.";
             selectedITCard.classList.remove('active-card');
             selectedRUCard.classList.remove('active-card');
-            selectedITCard = null; selectedRUCard = null;
+            selectedITCard = null;
+            selectedRUCard = null;
         }
     }
 }
@@ -1303,7 +1238,11 @@ function selectVariant(element, isCorrect) {
 function checkVariant() {
     const fb = document.getElementById('game-feedback');
     const mod = DATABASE[currentTheme];
-    if (!selectedVariant) { fb.className = "feedback error-text"; fb.innerText = "❌ Ты не выбрал вариант!"; return; }
+    if (!selectedVariant) {
+        fb.className = "feedback error-text";
+        fb.innerText = "❌ Ты не выбрал вариант!";
+        return;
+    }
     const isCorrect = selectedVariant.dataset.correct === 'true';
     if (isCorrect) {
         scoreBalance += 15;
@@ -1326,10 +1265,15 @@ function checkVariant() {
     }
 }
 
+// ==================== ПРОВЕРКА ДИКТАНТА ====================
+// Тире и дефисы превращаются в пробел, поэтому «си-бемоль» = «си бемоль» = «си  бемоль».
 function normalizeForCheck(text) {
-    return text.toLowerCase().replace(/ё/g, 'е')
-        .replace(/[.,!?;:—–\-()"'«»]/g, '')
-        .replace(/\s+/g, ' ').trim();
+    return String(text || '').toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/[—–\-]/g, ' ')
+        .replace(/[.,!?;:()"'«»]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 function latinToCyrillic(text) {
     const map = {'a':'а','b':'б','c':'к','d':'д','e':'е','f':'ф','g':'г','h':'х','i':'и','j':'й','k':'к','l':'л','m':'м','n':'н','o':'о','p':'п','q':'к','r':'р','s':'с','t':'т','u':'у','v':'в','w':'в','x':'кс','y':'и','z':'з'};
@@ -1357,7 +1301,7 @@ function checkDictation() {
         updateHeader();
         addStat();
         fb.className = "feedback success-text";
-        fb.innerHTML = `🏆 Блестяще! Зачетное слово введено абсолютно дословно! +20 ⭐ ${lootText}`;
+        fb.innerHTML = `🏆 Блестяще! +20 ⭐ ${lootText}`;
         activeTermIndex++;
         if (activeTermIndex < DATABASE[currentTheme].terms.length) {
             currentStep = 2;
@@ -1372,7 +1316,7 @@ function checkDictation() {
         }
     } else {
         fb.className = "feedback error-text";
-        fb.innerText = "❌ Не до конца точно! Вспомни формулировку из таблицы и исправь буквы.";
+        fb.innerText = "❌ Не до конца точно! Вспомни формулировку и исправь буквы.";
         document.getElementById('dictation-input').style.borderColor = '#e74c3c';
     }
 }
