@@ -43,6 +43,73 @@
         .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
         .variant-option.active-card { border-color: #4b6cb7; background: #eef5fc; color: #4b6cb7; }
         .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 200px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
+        
+        /* ============ СБОРКА ТЕРМИНА ============ */
+        .assemble-answer {
+            background: #fff;
+            border: 2px dashed #4b6cb7;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 12px 0;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #182848;
+            letter-spacing: 4px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .assemble-letters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .letter-btn {
+            background: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .letter-btn:hover { background: #3a5a9c; }
+        .letter-btn:active { transform: scale(0.95); }
+        .letter-btn.used { background: #ddd; color: #bbb; cursor: default; opacity: 0.5; transform: none; }
+        .letter-btn.used:hover { background: #ddd; }
+        
+        /* Кнопка пробела */
+        .letter-btn.space-btn {
+            width: 60px;
+            background: #fff;
+            color: #4b6cb7;
+            border: 2px dashed #4b6cb7;
+            font-size: 18px;
+        }
+        .letter-btn.space-btn:hover { background: #eef5fc; }
+        .letter-btn.space-btn.used {
+            background: #f5f5f5;
+            color: #ccc;
+            border-color: #ddd;
+            cursor: default;
+        }
+
         .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .inventory-item { border: 2px solid #e1e8ed; border-radius: 12px; padding: 12px; text-align: center; background: #fff; opacity: 0.3; }
         .inventory-item.unlocked { opacity: 1; border-color: #2ecc71; background: #fafffa; box-shadow: 0 4px 8px rgba(46,204,113,0.15); }
@@ -101,7 +168,6 @@
         .compare-controls { display: flex; gap: 8px; margin-top: 12px; }
         .compare-controls button { margin-top: 0; }
 
-        /* ============ ЭКРАН БЛОКИРОВКИ ============ */
         .lock-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #182848 0%, #4b6cb7 100%); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .lock-overlay.active { display: flex; }
         .lock-box { background: white; padding: 25px 22px; border-radius: 16px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
@@ -121,7 +187,7 @@
         <h1>🎵 Тренажер: Музыкальные темпы</h1>
         <div class="sub-header">
             <div class="balance-box">Очки: <span id="balance-val">0</span> ⭐</div>
-            <div>Трофеи: <span id="inv-count">0</span>/4 🎒</div>
+            <div>Трофеи: <span id="inv-count">0</span>/5 🎒</div>
             <div class="timer-box" id="timer-box">⏱ <span id="timer-val">10:00</span></div>
         </div>
         <div class="nav-buttons">
@@ -200,7 +266,6 @@
         </div>
     </div>
 
-    <!-- ============ ЭКРАН БЛОКИРОВКИ ============ -->
     <div class="lock-overlay" id="lock-overlay">
         <div class="lock-box">
             <div class="lock-icon">🔒</div>
@@ -215,14 +280,8 @@
 
 <script>
         // ==================== НАСТРОЙКИ БЛОКИРОВКИ ====================
-        const LOCK_CONFIG = {
-            enabled: true,
-            timeoutMs: 10 * 60 * 1000,
-            password: "13"
-        };
-        let lockTimerId = null;
-        let lockDeadline = 0;
-        let lockCountdownId = null;
+        const LOCK_CONFIG = { enabled: true, timeoutMs: 10 * 60 * 1000, password: "13" };
+        let lockTimerId = null, lockDeadline = 0, lockCountdownId = null;
 
         function startLockTimer() {
             if (!LOCK_CONFIG.enabled) return;
@@ -233,7 +292,6 @@
             lockTimerId = setTimeout(showLockScreen, LOCK_CONFIG.timeoutMs);
             lockCountdownId = setInterval(updateTimerDisplay, 1000);
         }
-
         function updateTimerDisplay() {
             const left = Math.max(0, lockDeadline - Date.now());
             const totalSec = Math.floor(left / 1000);
@@ -246,7 +304,6 @@
             if (totalSec <= 60) box.classList.add('warning');
             else box.classList.remove('warning');
         }
-
         function showLockScreen() {
             if (lockCountdownId) { clearInterval(lockCountdownId); lockCountdownId = null; }
             if (lockTimerId) { clearTimeout(lockTimerId); lockTimerId = null; }
@@ -260,7 +317,6 @@
             try { stopTempoVisualizer(); } catch(e) {}
             try { stopCompare(); } catch(e) {}
         }
-
         function unlockApp() {
             const entered = document.getElementById('lock-password').value.trim();
             if (entered === LOCK_CONFIG.password) {
@@ -331,11 +387,10 @@
         DATABASE.all = {
             title: "Проверка по всей теме Темпы",
             skipPairs: true,
-            hintText: "Все термины из 4 подразделов:\n\n" +
-                "МЕДЛЕННЫЕ:\n" + DATABASE.slow.hintText + "\n\n" +
-                "СРЕДНИЕ:\n" + DATABASE.medium.hintText + "\n\n" +
-                "БЫСТРЫЕ:\n" + DATABASE.fast.hintText + "\n\n" +
-                "ИЗМЕНЕНИЯ:\n" + DATABASE.change.hintText,
+            hintText: "Все термины из 4 подразделов:\n\nМЕДЛЕННЫЕ:\n" + DATABASE.slow.hintText +
+                "\n\nСРЕДНИЕ:\n" + DATABASE.medium.hintText +
+                "\n\nБЫСТРЫЕ:\n" + DATABASE.fast.hintText +
+                "\n\nИЗМЕНЕНИЯ:\n" + DATABASE.change.hintText,
             terms: [
                 ...DATABASE.slow.terms,
                 ...DATABASE.medium.terms,
@@ -392,6 +447,7 @@
         const INVENTORY = {
             item_violin: { title: "Золотой Смычок", icon: "🎻", unlocked: false, text: "За точные пары!" },
             item_fork: { title: "Магический Камертон", icon: "🔱", unlocked: false, text: "За верный выбор!" },
+            item_key: { title: "Хрустальный Ключ", icon: "🔑", unlocked: false, text: "За сборку термина!" },
             item_harp: { title: "Легендарная Арфа", icon: "🪕", unlocked: false, text: "За диктант руками!" },
             item_cup: { title: "Кубок Филармонии", icon: "🏆", unlocked: false, text: "За победу в зачете!" }
         };
@@ -406,17 +462,17 @@
         let pairedCount = 0;
         let eligibleForLoot = true;
 
+        let assembleState = { term: "", letters: [], answer: [] };
+
         let vizState = {
             termIt: "", currentBpm: 100, startBpm: 100, endBpm: 100,
             width: 2, weight: 2, gradual: false, beat: 0, totalBeats: 8,
             timer: null, audioCtx: null, running: false, ballX: 50, direction: 1,
             melodyRunning: false
         };
-
         let melodySession = 0;
         let melodyMasterGain = null;
         let melodyTimeouts = [];
-
         let compareState = { running: false, lanes: [], startTime: 0, duration: 9000 };
 
         function initApp() {
@@ -437,7 +493,6 @@
                         onclick="switchSubsection('${s.id}')">${s.title}</button>
             `).join('');
         }
-
         function switchSubsection(id) {
             currentTheme = id;
             renderSubsections();
@@ -447,11 +502,9 @@
         function renderTheoryList() {
             const mod = DATABASE[currentTheme];
             const list = document.getElementById('theory-list');
-
             if (currentTheme === 'all') {
                 let html = `<div class="rule-block" style="background:#fdf5ff; border-left-color:#9b59b6; color:#4a235a;">
                     🎯 <b>Проверка по всей теме «Темпы»</b> — здесь собраны все 26 терминов из 4 подразделов.
-                    Пройди испытание и получи трофеи!
                 </div>`;
                 ['slow', 'medium', 'fast', 'change'].forEach(key => {
                     const subMod = DATABASE[key];
@@ -475,7 +528,6 @@
                 list.innerHTML = html;
                 return;
             }
-
             let html = '';
             mod.terms.forEach(term => {
                 const bpmInfo = TEMPO_BPM[term.it];
@@ -494,6 +546,97 @@
             });
             html += `<button class="btn-compare" onclick="openCompareView()">🔀 Сравнить все темпы этого раздела</button>`;
             list.innerHTML = html;
+        }
+
+        // ============ СБОРКА ТЕРМИНА ============
+        function initAssemble() {
+            const term = DATABASE[currentTheme].terms[activeTermIndex].it;
+            const chars = term.split('');
+            const shuffled = [...chars].sort(() => Math.random() - 0.5);
+            assembleState = {
+                term: term,
+                letters: shuffled.map((ch, i) => ({ char: ch, used: false, idx: i })),
+                answer: []
+            };
+        }
+
+        function renderAssemble() {
+            const term = DATABASE[currentTheme].terms[activeTermIndex];
+            const workspace = document.getElementById('game-workspace');
+
+            const lettersHtml = assembleState.letters.map((l, i) => {
+                const isSpace = l.char === ' ';
+                const display = isSpace ? '␣' : l.char;
+                const cls = (l.used ? 'letter-btn used' : 'letter-btn') + (isSpace ? ' space-btn' : '');
+                return `<button class="${cls}" onclick="pickLetter(${i})" ${l.used ? 'disabled' : ''}>${display}</button>`;
+            }).join('');
+
+            const answerDisplay = assembleState.answer.length > 0
+                ? assembleState.answer.map(a => a.char === ' ' ? '_' : a.char).join('')
+                : '<span style="color:#ccc; font-size:16px; letter-spacing:1px;">Здесь появится ответ...</span>';
+
+            workspace.innerHTML = `
+                <div class="rule-block" style="background:#fff; text-align:center; font-size:15px; padding: 16px;">
+                    Собери итальянский термин, который обозначает:<br>
+                    <b style="color:#182848; font-size:18px;">«${term.ru}»</b>
+                </div>
+                <div class="assemble-answer">${answerDisplay}</div>
+                <div class="assemble-letters">${lettersHtml}</div>
+                <div style="display:flex; gap:8px; margin-top:12px;">
+                    <button class="btn-hint" onclick="removeLastLetter()" style="flex:1; width:auto;">⌫ Удалить</button>
+                    <button class="btn-hint" onclick="clearAssemble()" style="flex:1; width:auto;">🗑 Очистить</button>
+                </div>
+            `;
+        }
+
+        function pickLetter(idx) {
+            const letter = assembleState.letters[idx];
+            if (letter.used) return;
+            letter.used = true;
+            assembleState.answer.push({ char: letter.char, idx: idx });
+            renderAssemble();
+        }
+
+        function removeLastLetter() {
+            if (assembleState.answer.length === 0) return;
+            const last = assembleState.answer.pop();
+            assembleState.letters[last.idx].used = false;
+            renderAssemble();
+        }
+
+        function clearAssemble() {
+            assembleState.answer.forEach(a => {
+                assembleState.letters[a.idx].used = false;
+            });
+            assembleState.answer = [];
+            renderAssemble();
+        }
+
+        function checkAssemble() {
+            const userAnswer = assembleState.answer.map(a => a.char).join('');
+            const correct = assembleState.term;
+            const fb = document.getElementById('game-feedback');
+
+            if (userAnswer.toLowerCase() === correct.toLowerCase()) {
+                scoreBalance += 15;
+                let lootText = "";
+                if (eligibleForLoot && !INVENTORY.item_key.unlocked) {
+                    INVENTORY.item_key.unlocked = true;
+                    lootText = "<br>🎁 ТРОФЕЙ: Хрустальный Ключ у тебя в рюкзаке!";
+                }
+                updateHeader();
+                fb.className = "feedback success-text";
+                fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE[currentTheme].terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
+                currentStep = 4;
+                setTimeout(loadStage, 2500);
+            } else {
+                fb.className = "feedback error-text";
+                if (userAnswer.length < correct.length) {
+                    fb.innerText = "❌ Ещё не все буквы использованы! Собери термин целиком.";
+                } else {
+                    fb.innerText = "❌ Неправильный порядок букв. Попробуй ещё раз!";
+                }
+            }
         }
 
         function openTempoVisualizer(termIt) {
@@ -524,7 +667,6 @@
             vizState.direction = 1;
 
             document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
-
             document.getElementById('tempo-title').innerText = term.it;
             document.getElementById('tempo-translation').innerText = term.ru;
             document.getElementById('viz-bpm').innerText = bpmInfo.start;
@@ -537,7 +679,6 @@
             document.getElementById('viz-melody-btn').className = 'btn-melody';
 
             applyBreadthVisuals();
-
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('tempo-modal').style.display = 'block';
 
@@ -554,25 +695,19 @@
             const stepLabel = document.getElementById('viz-step');
             const w = vizState.width;
             const wgt = vizState.weight;
-
             const ballWidth = w === 1 ? 50 : (w === 2 ? 75 : 110);
             ball.style.width = ballWidth + 'px';
-
             if (wgt === 3) ball.style.background = 'radial-gradient(circle at 30% 30%, #6d4c41, #3e2723)';
             else ball.style.background = 'radial-gradient(circle at 30% 30%, #ff8c42, #e74c3c)';
-
             aura.style.width = (ballWidth * 2.2) + 'px';
             aura.style.height = '80px';
             marker.style.left = (w === 1 ? 15 : (w === 2 ? 50 : 88)) + '%';
-
             let labelText = '', stepText = '';
             if (w === 1) { labelText = '🎯 Ширина: УЗКАЯ (звуки плотно, тесно)'; stepText = 'мелкий'; }
             else if (w === 2) { labelText = '🎯 Ширина: СРЕДНЯЯ'; stepText = 'средний'; }
             else { labelText = '🎯 Ширина: ШИРОКАЯ (звуки просторно, раздольно)'; stepText = 'большой'; }
-
             if (wgt === 3) stepText = 'тяжёлый, ' + stepText;
             else if (wgt === 1) stepText = 'лёгкий, ' + stepText;
-
             label.innerText = labelText;
             stepLabel.innerText = stepText;
         }
@@ -597,22 +732,17 @@
             const gain = ctx.createGain();
             const osc2 = ctx.createOscillator();
             const gain2 = ctx.createGain();
-
             osc.type = 'triangle'; osc.frequency.value = freq;
             osc2.type = 'sine'; osc2.frequency.value = freq * 2;
-
             gain.gain.setValueAtTime(0.0001, when);
             gain.gain.exponentialRampToValueAtTime(0.22, when + 0.04);
             gain.gain.setValueAtTime(0.22, when + duration * 0.55);
             gain.gain.exponentialRampToValueAtTime(0.001, when + duration);
-
             gain2.gain.setValueAtTime(0.0001, when);
             gain2.gain.exponentialRampToValueAtTime(0.06, when + 0.04);
             gain2.gain.exponentialRampToValueAtTime(0.001, when + duration);
-
             osc.connect(gain); gain.connect(masterGain);
             osc2.connect(gain2); gain2.connect(masterGain);
-
             osc.start(when); osc2.start(when);
             osc.stop(when + duration + 0.05); osc2.stop(when + duration + 0.05);
         }
@@ -623,7 +753,6 @@
             const startTime = performance.now();
             const isWide = width === 3;
             const isHeavy = weight === 3;
-
             function frame(now) {
                 if (mode === 'rhythm' && !vizState.running) return;
                 if (mode === 'melody' && !vizState.melodyRunning) return;
@@ -665,20 +794,16 @@
             const totalDuration = customDuration || Math.max(120, (60000 / vizState.currentBpm) * 0.85);
             const fallDuration = totalDuration * 0.7;
             const returnDuration = totalDuration * 0.3;
-
             const stepPercent = vizState.width === 3 ? 20 : (vizState.width === 2 ? 10 : 4);
             let newX = vizState.ballX + vizState.direction * stepPercent;
             if (newX > 82) { newX = 82; vizState.direction = -1; }
             if (newX < 18) { newX = 18; vizState.direction = 1; }
-
             aura.classList.remove('breathing');
             void aura.offsetWidth;
             aura.classList.add('breathing');
-
             animateBall(vizState.ballX, newX, stageHeight, fallDuration, vizState.width, vizState.weight, mode, () => {
                 addFootprint(newX, vizState.weight);
             });
-
             setTimeout(() => {
                 if (mode === 'rhythm' && !vizState.running) return;
                 if (mode === 'melody' && !vizState.melodyRunning) return;
@@ -686,7 +811,6 @@
                 ball.style.transition = `top ${returnDuration}ms ease-out`;
                 ball.style.top = '0px';
             }, fallDuration + 40);
-
             vizState.ballX = newX;
         }
 
@@ -700,20 +824,17 @@
                 try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
             }
             if (vizState.audioCtx && vizState.audioCtx.state === 'suspended') vizState.audioCtx.resume();
-
             document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
             vizState.ballX = 50;
             vizState.direction = 1;
             document.getElementById('viz-ball').style.transition = 'none';
             document.getElementById('viz-ball').style.left = '50%';
             document.getElementById('viz-ball').style.top = '0px';
-
             vizState.running = true;
             vizState.beat = 0;
             vizState.currentBpm = vizState.startBpm;
             document.getElementById('viz-play-btn').innerText = '⏸️ Стоп';
             document.getElementById('viz-play-btn').className = 'btn-stop';
-
             playClick(true);
             triggerBallDrop(null, 'rhythm');
             vizState.beat = 1;
@@ -766,51 +887,40 @@
                 try { vizState.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
             }
             if (vizState.audioCtx.state === 'suspended') vizState.audioCtx.resume();
-
             melodySession++;
             const mySession = melodySession;
-
             melodyMasterGain = vizState.audioCtx.createGain();
             melodyMasterGain.gain.setValueAtTime(1, vizState.audioCtx.currentTime);
             melodyMasterGain.connect(vizState.audioCtx.destination);
-
             document.querySelectorAll('#viz-stage .viz-footprint').forEach(el => el.remove());
             vizState.ballX = 50;
             vizState.direction = 1;
             document.getElementById('viz-ball').style.transition = 'none';
             document.getElementById('viz-ball').style.left = '50%';
             document.getElementById('viz-ball').style.top = '0px';
-
             vizState.melodyRunning = true;
             document.getElementById('viz-melody-btn').innerText = '⏸️ Стоп';
             document.getElementById('viz-melody-btn').className = 'btn-stop';
-
             const ctx = vizState.audioCtx;
             const startAudioTime = ctx.currentTime + 0.15;
             const startWallTime = performance.now() + 150;
-
             const totalBeats = MELODY_NOTES.reduce((s, n) => s + n.d, 0);
             let audioTime = startAudioTime;
             let wallTime = startWallTime;
             let beatCount = 0;
-
             MELODY_NOTES.forEach((note) => {
                 let currentBpm;
                 if (vizState.gradual) {
                     const progress = beatCount / totalBeats;
                     currentBpm = vizState.startBpm + (vizState.endBpm - vizState.startBpm) * progress;
                 } else currentBpm = vizState.startBpm;
-
                 const beatSec = 60 / currentBpm;
                 const noteDuration = note.d * beatSec;
-
                 playMelodyNote(note.f, noteDuration * 0.9, audioTime, melodyMasterGain);
-
                 const delayMs = wallTime - performance.now();
                 const dropDur = noteDuration * 1000 * 0.85;
                 const beatNum = beatCount + 1;
                 const bpmCapture = currentBpm;
-
                 const tid = setTimeout(() => {
                     if (mySession !== melodySession) return;
                     if (!vizState.melodyRunning) return;
@@ -821,12 +931,10 @@
                     if (vizState.gradual) bpmEl.classList.add('changing');
                 }, Math.max(0, delayMs));
                 melodyTimeouts.push(tid);
-
                 audioTime += noteDuration;
                 wallTime += noteDuration * 1000;
                 beatCount += note.d;
             });
-
             const endDelay = wallTime - performance.now() + 800;
             const tid = setTimeout(() => {
                 if (mySession !== melodySession) return;
@@ -838,7 +946,6 @@
         function stopMelody() {
             melodySession++;
             vizState.melodyRunning = false;
-
             if (melodyMasterGain && vizState.audioCtx) {
                 const now = vizState.audioCtx.currentTime;
                 try {
@@ -850,13 +957,10 @@
                 melodyMasterGain = null;
                 setTimeout(() => { try { mg.disconnect(); } catch(e) {} }, 150);
             }
-
             melodyTimeouts.forEach(t => clearTimeout(t));
             melodyTimeouts = [];
-
             const ball = document.getElementById('viz-ball');
             if (ball) { ball.style.transition = 'top 0.2s ease-out'; ball.style.top = '0px'; }
-
             const btn = document.getElementById('viz-melody-btn');
             if (btn) { btn.innerText = '🎵 Мелодия'; btn.className = 'btn-melody'; }
             const bpmEl = document.getElementById('viz-bpm');
@@ -869,16 +973,13 @@
             lanes.innerHTML = '';
             compareState.lanes = [];
             compareState.running = false;
-
             mod.terms.forEach(term => {
                 const info = TEMPO_BPM[term.it];
                 if (!info) return;
-
                 const laneEl = document.createElement('div');
                 laneEl.className = 'compare-lane';
                 const bpmText = info.gradual ? `${info.start}→${info.end}` : `${info.start}`;
                 const ballClass = info.weight === 3 ? 'lane-ball heavy' : 'lane-ball';
-
                 laneEl.innerHTML = `
                     <div class="lane-label">
                         <div class="lane-name">${term.it}</div>
@@ -891,7 +992,6 @@
                     </div>
                 `;
                 lanes.appendChild(laneEl);
-
                 compareState.lanes.push({
                     term: term.it, ru: term.ru,
                     startBpm: info.start, endBpm: info.end,
@@ -902,7 +1002,6 @@
                     position: 0, beat: 0, timer: null
                 });
             });
-
             document.getElementById('compare-play-btn').innerText = '▶️ Запустить';
             document.getElementById('compare-play-btn').className = 'btn-check';
             document.getElementById('overlay').style.display = 'block';
@@ -934,25 +1033,20 @@
             if (!compareState.running) return;
             const elapsed = Date.now() - compareState.startTime;
             if (elapsed >= compareState.duration) return;
-
             let currentBpm = lane.startBpm;
             if (lane.gradual) {
                 const progress = Math.min(1, elapsed / compareState.duration);
                 currentBpm = lane.startBpm + (lane.endBpm - lane.startBpm) * progress;
             }
-
             const stepPct = 2.5 + (lane.width - 1) * 0.3;
             lane.position = Math.min(100, lane.position + stepPct);
-
             if (lane.width === 3 || lane.weight === 1) {
                 lane.ballEl.classList.remove('bounce');
                 void lane.ballEl.offsetWidth;
                 lane.ballEl.classList.add('bounce');
             }
-
             lane.ballEl.style.transition = 'left 0.15s ease-out';
             lane.ballEl.style.left = lane.position + '%';
-
             const posAtBeat = lane.position;
             const w = lane.width;
             const wgt = lane.weight;
@@ -966,7 +1060,6 @@
                 lane.trackEl.appendChild(fp);
                 setTimeout(() => fp.remove(), 2200);
             }, 100);
-
             lane.beat++;
             const beatDuration = 60000 / currentBpm;
             lane.timer = setTimeout(() => scheduleLaneBeat(lane), beatDuration);
@@ -1102,7 +1195,15 @@
                 actionBtns.innerHTML = `<button class="btn-check" onclick="checkVariant()">Проверить ответ ✅</button>`;
             }
             else if (currentStep === 3) {
-                document.getElementById('game-task-title').innerText = `Этап 3: Финальный Диктант ✍️`;
+                document.getElementById('game-task-title').innerText = `Этап 3: Собери Термин 🧱`;
+                document.getElementById('game-instruction').innerText = "Нажимай буквы по порядку, чтобы собрать итальянский термин. Пробел обозначен клеточкой ␣. В строке ответа пробел будет виден как подчёркивание _ между словами.";
+                initAssemble();
+                renderAssemble();
+                actionBtns.style.display = 'flex';
+                actionBtns.innerHTML = `<button class="btn-check" onclick="checkAssemble()">Проверить ✅</button>`;
+            }
+            else if (currentStep === 4) {
+                document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
                 document.getElementById('game-instruction').innerText = "Введи точный перевод термина руками с клавиатуры:";
                 let term = mod.terms[activeTermIndex];
                 workspace.innerHTML = `
@@ -1114,8 +1215,8 @@
                 actionBtns.style.display = 'flex';
                 actionBtns.innerHTML = `<button class="btn-check" onclick="checkDictation()">Сдать зачетную строчку 🏆</button>`;
             }
-            else if (currentStep === 4) {
-                document.getElementById('game-task-title').innerText = `Этап 4: Финальный Экзамен 🎓`;
+            else if (currentStep === 5) {
+                document.getElementById('game-task-title').innerText = `Этап 5: Финальный Экзамен 🎓`;
                 document.getElementById('game-instruction').innerText = "Соедини ВСЕ термины темы с их переводами (для закрепления):";
                 pairedCount = 0;
                 selectedITCard = null;
@@ -1172,7 +1273,7 @@
                     scoreBalance += 5;
                     updateHeader();
                     if (pairedCount === terms.length) {
-                        if (currentStep === 4) {
+                        if (currentStep === 5) {
                             fb.className = "feedback success-text";
                             fb.innerHTML = `🎉 ПОЗДРАВЛЯЮ! Ты прошел всю тему! 🎉`;
                             document.getElementById('hint-main-btn').style.display = 'none';
@@ -1294,7 +1395,7 @@
                     updateHeader();
                     fb.className = "feedback success-text";
                     fb.innerHTML = `🎉 Блок терминов сдан! Переходим к Финальному Экзамену! 🎓`;
-                    currentStep = 4;
+                    currentStep = 5;
                     setTimeout(loadStage, 2500);
                 }
             } else {
