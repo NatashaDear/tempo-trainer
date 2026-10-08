@@ -141,7 +141,6 @@
 
     /* ============ ЦВЕТА ПЛИТОК ============ */
 
-    /* Буквы — изумрудный акцент */
     .tile.letters {
         --accent: linear-gradient(90deg, #3aa374, #14402e);
         --glow: rgba(58,163,116,0.35);
@@ -151,37 +150,6 @@
         box-shadow: 0 10px 30px rgba(58,163,116,0.25);
     }
 
-    /* Темпы — синий акцент */
-    .tile.tempo {
-        --accent: linear-gradient(90deg, #4b6cb7, #182848);
-        --glow: rgba(75,108,183,0.35);
-    }
-    .tile.tempo:hover {
-        border-color: rgba(75,108,183,0.6);
-        box-shadow: 0 10px 30px rgba(75,108,183,0.25);
-    }
-
-    /* Характер — терракотовый акцент */
-    .tile.character {
-        --accent: linear-gradient(90deg, #b76c4b, #48281d);
-        --glow: rgba(183,108,75,0.35);
-    }
-    .tile.character:hover {
-        border-color: rgba(183,108,75,0.6);
-        box-shadow: 0 10px 30px rgba(183,108,75,0.25);
-    }
-
-    /* Штрихи — фиолетовый акцент */
-    .tile.strokes {
-        --accent: linear-gradient(90deg, #7d5f82, #2e1b4d);
-        --glow: rgba(125,95,178,0.35);
-    }
-    .tile.strokes:hover {
-        border-color: rgba(125,95,178,0.6);
-        box-shadow: 0 10px 30px rgba(125,95,178,0.25);
-    }
-
-    /* Динамика — красно-бордовый акцент */
     .tile.dynamics {
         --accent: linear-gradient(90deg, #b03a2e, #641e16);
         --glow: rgba(176,58,46,0.4);
@@ -191,15 +159,74 @@
         box-shadow: 0 10px 30px rgba(176,58,46,0.3);
     }
 
+    .tile.strokes {
+        --accent: linear-gradient(90deg, #7d5f82, #2e1b4d);
+        --glow: rgba(125,95,178,0.35);
+    }
+    .tile.strokes:hover {
+        border-color: rgba(125,95,178,0.6);
+        box-shadow: 0 10px 30px rgba(125,95,178,0.25);
+    }
+
+    .tile.tempo {
+        --accent: linear-gradient(90deg, #4b6cb7, #182848);
+        --glow: rgba(75,108,183,0.35);
+    }
+    .tile.tempo:hover {
+        border-color: rgba(75,108,183,0.6);
+        box-shadow: 0 10px 30px rgba(75,108,183,0.25);
+    }
+
+    .tile.character {
+        --accent: linear-gradient(90deg, #b76c4b, #48281d);
+        --glow: rgba(183,108,75,0.35);
+    }
+    .tile.character:hover {
+        border-color: rgba(183,108,75,0.6);
+        box-shadow: 0 10px 30px rgba(183,108,75,0.25);
+    }
+
+    /* ============ ФУТЕР ============ */
     .hub-footer {
-        margin-top: 32px;
+        margin-top: 36px;
         text-align: center;
+        color: #8a99b8;
+        font-size: 12px;
+        line-height: 1.7;
+        max-width: 460px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .hub-footer .hub-about {
+        color: #b8c7e0;
+        font-size: 13px;
+        line-height: 1.5;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(184, 199, 224, 0.15);
+    }
+    .hub-footer .hub-about b {
+        color: #d4e0f0;
+        font-weight: bold;
+    }
+    .hub-footer .hub-tip {
+        opacity: 0.85;
+    }
+    .hub-footer .hub-copyright {
         color: #556b90;
         font-size: 11px;
         line-height: 1.6;
-        max-width: 460px;
     }
-    .hub-footer span { opacity: 0.7; }
+    .hub-footer .hub-email a {
+        color: #7d94b8;
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(125, 148, 184, 0.5);
+        transition: color 0.15s, border-color 0.15s;
+    }
+    .hub-footer .hub-email a:hover {
+        color: #b8c7e0;
+        border-bottom-color: #b8c7e0;
+    }
 
     @media (min-width: 520px) {
         .hub-header h1 { font-size: 28px; }
@@ -278,7 +305,17 @@
     </div>
 
     <div class="hub-footer">
-        <span>Каждый раздел ведёт свой счёт ⭐ и свою коллекцию трофеев 🎒</span>
+        <div class="hub-about">
+            Создано для <b>ДМШ № 13 имени И. О. Дунаевского</b><br>
+            (Екатеринбург)
+        </div>
+        <div class="hub-tip">
+            Каждый раздел ведёт свой счёт ⭐ и свою коллекцию трофеев 🎒
+        </div>
+        <div class="hub-copyright">
+            © 2026 Пятина Наталья Владимировна<br>
+            <span class="hub-email">Техподдержка: <a href="mailto:2684621@mail.ru">2684621@mail.ru</a></span>
+        </div>
     </div>
 
 </body>
