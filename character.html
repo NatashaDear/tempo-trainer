@@ -41,21 +41,28 @@
         padding: 4px;
     }
     .btn-subsection {
-        flex: 1;
+        flex: 1 1 0;
         background: transparent;
         border: none;
         color: #6b3410;
-        padding: 10px 4px;
+        padding: 8px 3px;
         border-radius: 7px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: bold;
+        line-height: 1.15;
+        letter-spacing: -0.2px;
         transition: all 0.15s;
         font-family: inherit;
         min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-height: 44px;
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .btn-subsection:hover { background: rgba(255,255,255,0.6); }
     .btn-subsection.active {
