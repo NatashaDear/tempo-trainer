@@ -305,6 +305,7 @@
             <p>Сверху всегда видно <b>клавиатуру пианино</b> от ля малой до ре второй октавы. Когда нажимаешь кнопку со знаком — <b>базовая клавиша подсвечивается зелёным контуром</b>, а звучащая — <b>жёлтым</b>. Так ты видишь, куда сдвинулся звук.</p>
             <p>Например, нажми <b>Cis</b> — увидишь зелёный контур на «до» и жёлтую заливку на «до-диез». Значит, диез поднял ноту на полтона вверх.</p>
             <p>У знака <b>бекар</b> (♮) особое действие: он <b>отменяет</b> ранее поставленный диез или бемоль и возвращает ноту к её исходной высоте.</p>
+            <p>В разделе «Знаки и лады» есть кнопки <b>moll</b> и <b>dur</b> — они играют минорное и мажорное трезвучия. Когда играет трезвучие, все три клавиши подсвечиваются по очереди и остаются горящими, пока звучит последняя нота. Через 3 секунды после окончания подсветка снимается.</p>
         </div>
         <div class="howto-block test">
             <h3>🎯 Потом — проверь себя</h3>
@@ -443,7 +444,7 @@ function actuallyExit() {
     returnToTheory();
 }
 
-// ==================== ЗВУК ====================
+// ==================== ЗВУК (единый синтез) ====================
 let audioCtx = null;
 let activeOscillators = [];
 let activeTimeouts = [];
@@ -454,23 +455,36 @@ function ensureAudio() {
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
 }
-function playNote(freq, duration, delay, volume, waveType) {
+
+function playNote(freq, duration, delay, volume) {
     if (!audioCtx) return;
-    const when = audioCtx.currentTime + (delay || 0);
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = waveType || 'sine';
-    osc.frequency.value = freq;
-    const attack = 0.02;
-    const release = Math.max(0.06, duration * 0.4);
-    gain.gain.setValueAtTime(0.0001, when);
-    gain.gain.exponentialRampToValueAtTime(volume, when + attack);
-    gain.gain.setValueAtTime(volume, when + duration - release);
-    gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(when); osc.stop(when + duration + 0.05);
-    activeOscillators.push(osc);
+    const now = audioCtx.currentTime + (delay || 0);
+    const vol = volume != null ? volume : 0.28;
+    const attack = 0.005;
+    const release = Math.max(0.4, duration * 0.5);
+
+    const master = audioCtx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(vol, now + attack);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + duration + release);
+    master.connect(audioCtx.destination);
+
+    const harmonics = [1, 0.50, 0.28, 0.15, 0.08, 0.04];
+    harmonics.forEach((h, i) => {
+        if (h === 0) return;
+        const osc = audioCtx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = freq * (i + 1);
+        const g = audioCtx.createGain();
+        g.gain.value = h;
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now);
+        osc.stop(now + duration + release + 0.15);
+        activeOscillators.push(osc);
+    });
 }
+
 function stopAnySound() {
     activeOscillators.forEach(o => { try { o.stop(); } catch(e) {} });
     activeOscillators = [];
@@ -545,7 +559,6 @@ const KEY_MAP = {
     '14': { id: 'key-D5',   name: 'ре второй октавы' }
 };
 const LETTER_BASE = { 'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 10, 'H': 11 };
-function getAbsoluteSemitone(letter, semitone) { return LETTER_BASE[letter] + semitone; }
 
 function clearKeyboardHighlight() {
     document.querySelectorAll('.key-white').forEach(el => el.classList.remove('key-active-white', 'key-base-white'));
@@ -584,9 +597,12 @@ function highlightKeyWithBase(letter, semitone) {
     highlightKeyAbs(currentAbs, false);
 }
 
+// Штиль вверх — у всех нот ниже средней линии (y > 40): C, D, E, F, G, A.
+// Штиль вниз — только у H и B.
+// Дополнительная полоска — у ноты C (она ниже нотоносца).
 function renderStaff(letter, baseSignChar, needLedger) {
     const y = STAFF_Y[letter] || 50;
-    const stemUp = y >= 50;
+    const stemUp = y > 40;
     const stemX = stemUp ? 96 : 84;
     const stemY1 = y;
     const stemY2 = stemUp ? y - 34 : y + 34;
@@ -733,7 +749,7 @@ function renderLettersSection() {
             <div class="letter-row">
                 <div class="letter-head">
                     <div class="staff-wrap" id="staffwrap-${L.letter}">
-                        ${renderStaff(L.letter, baseSign, false)}
+                        ${renderStaff(L.letter, baseSign, L.letter === 'C')}
                         <div class="staff-label" id="label-${L.letter}">${L.ru}</div>
                     </div>
                     <div class="letter-title">
@@ -756,7 +772,7 @@ function playLetterVariant(letter, semitone, btnId) {
     window._lastSemitoneByLetter[letter] = semitone;
     ensureAudio();
     const freq = getFreq(letter, semitone);
-    playNote(freq, 0.9, 0, 0.28, 'sine');
+    playNote(freq, 0.9, 0, 0.28);
     const L = LETTERS.find(x => x.letter === letter);
     const base = L.alwaysFlat ? -1 : 0;
     const total = base + semitone;
@@ -815,9 +831,11 @@ function renderSignsSection() {
         </div>`;
     return html;
 }
+
 function playSignDemo(signId, btnId) {
     if (playingNoteIds.has(btnId)) { stopAnySound(); return; }
     stopAnySound();
+    clearKeyboardHighlight();  // сбрасываем все подсветки перед новым демо
     playingNoteIds.add(btnId);
     const btn = document.getElementById(btnId);
     if (btn) btn.classList.add('playing');
@@ -831,47 +849,55 @@ function playSignDemo(signId, btnId) {
     };
     let totalDur = 1800;
     if (signId === 'is') {
-        playNote(getFreq('C', 0), 0.9, 0,    0.28, 'sine');
-        playNote(getFreq('C', 1), 0.9, 0.65, 0.28, 'sine');
+        playNote(getFreq('C', 0), 0.9, 0,    0.28);
+        playNote(getFreq('C', 1), 0.9, 0.65, 0.28);
         highlightLater('C', 0, 50); highlightLater('C', 1, 700);
     } else if (signId === 'es') {
-        playNote(getFreq('C', 0),  0.9, 0,    0.28, 'sine');
-        playNote(getFreq('C', -1), 0.9, 0.65, 0.28, 'sine');
+        playNote(getFreq('C', 0),  0.9, 0,    0.28);
+        playNote(getFreq('C', -1), 0.9, 0.65, 0.28);
         highlightLater('C', 0, 50); highlightLater('C', -1, 700);
     } else if (signId === 'isis') {
-        playNote(getFreq('C', 0), 0.9, 0,    0.28, 'sine');
-        playNote(getFreq('C', 2), 0.9, 0.65, 0.28, 'sine');
+        playNote(getFreq('C', 0), 0.9, 0,    0.28);
+        playNote(getFreq('C', 2), 0.9, 0.65, 0.28);
         highlightLater('C', 0, 50); highlightLater('C', 2, 700);
     } else if (signId === 'eses') {
-        playNote(getFreq('C', 0),  0.9, 0,    0.28, 'sine');
-        playNote(getFreq('C', -2), 0.9, 0.65, 0.28, 'sine');
+        playNote(getFreq('C', 0),  0.9, 0,    0.28);
+        playNote(getFreq('C', -2), 0.9, 0.65, 0.28);
         highlightLater('C', 0, 50); highlightLater('C', -2, 700);
     } else if (signId === 'becar') {
-        // Сначала до-диез, затем бекар возвращает чистую ноту до
-        playNote(getFreq('C', 1), 0.9, 0,    0.28, 'sine');
-        playNote(getFreq('C', 0), 0.9, 0.65, 0.28, 'sine');
+        playNote(getFreq('C', 1), 0.9, 0,    0.28);
+        playNote(getFreq('C', 0), 0.9, 0.65, 0.28);
         highlightLater('C', 1, 50); highlightLater('C', 0, 700);
     } else if (signId === 'moll') {
-        playNote(220, 1.6, 0,    0.24, 'sine');
-        playNote(getFreq('C', 0), 1.6, 0.7,  0.24, 'sine');
-        playNote(getFreq('E', 0), 1.8, 1.4,  0.24, 'sine');
+        // Минорное трезвучие: ля малой — до — ми первой октавы.
+        // Подсветка идёт напрямую через highlightKeyAbs — все три клавиши горят одновременно.
+        playNote(220, 1.6, 0,    0.24);
+        playNote(getFreq('C', 0), 1.6, 0.7,  0.24);
+        playNote(getFreq('E', 0), 1.8, 1.4,  0.24);
         const t1 = setTimeout(() => { updateStaffAndLabel('A', ''); highlightKeyAbs(-3, false); }, 50);
         const t2 = setTimeout(() => { updateStaffAndLabel('C', ''); highlightKeyAbs(0, false);  }, 750);
         const t3 = setTimeout(() => { updateStaffAndLabel('E', ''); highlightKeyAbs(4, false);  }, 1450);
         activeTimeouts.push(t1, t2, t3);
         totalDur = 3400;
     } else if (signId === 'dur') {
-        playNote(getFreq('C', 0), 1.6, 0,    0.24, 'sine');
-        playNote(getFreq('E', 0), 1.6, 0.7,  0.24, 'sine');
-        playNote(getFreq('G', 0), 1.8, 1.4,  0.24, 'sine');
-        highlightLater('C', 0, 50); highlightLater('E', 0, 750); highlightLater('G', 0, 1450);
+        // Мажорное трезвучие: до — ми — соль.
+        // Здесь тоже напрямую через highlightKeyAbs, чтобы подсветки НЕ сбрасывали друг друга.
+        playNote(getFreq('C', 0), 1.6, 0,    0.24);
+        playNote(getFreq('E', 0), 1.6, 0.7,  0.24);
+        playNote(getFreq('G', 0), 1.8, 1.4,  0.24);
+        const t1 = setTimeout(() => { updateStaffAndLabel('C', ''); highlightKeyAbs(0, false); }, 50);
+        const t2 = setTimeout(() => { updateStaffAndLabel('E', ''); highlightKeyAbs(4, false); }, 750);
+        const t3 = setTimeout(() => { updateStaffAndLabel('G', ''); highlightKeyAbs(7, false); }, 1450);
+        activeTimeouts.push(t1, t2, t3);
         totalDur = 3400;
     }
+    // Снятие подсветки со всех клавиш через 3 секунды после окончания последней ноты
     const t = setTimeout(() => {
         playingNoteIds.delete(btnId);
         const b = document.getElementById(btnId);
         if (b) b.classList.remove('playing');
-    }, totalDur);
+        clearKeyboardHighlight();
+    }, totalDur + 3000);
     activeTimeouts.push(t);
 }
 
@@ -1181,6 +1207,7 @@ function normalizeForCheck(text) {
         .replace(/ё/g, 'е')
         .replace(/[—–\-]/g, ' ')
         .replace(/[.,!?;:()"'«»]/g, '')
+        .replace(/\u00A0/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 }
