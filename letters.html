@@ -22,11 +22,47 @@
     .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-    .subsections { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; justify-content: center; }
-    .btn-subsection { background: #fff; color: #6a9c4d; border: 2px solid #6a9c4d; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; flex: 1 1 auto; min-width: 100px; font-family: inherit; }
-    .btn-subsection.active { background: #6a9c4d; color: #fff; }
-    .btn-subsection.check { border-color: #9b59b6; color: #9b59b6; background: linear-gradient(135deg, #fff, #f8f0ff); }
-    .btn-subsection.check.active { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; border-color: #8e44ad; }
+    /* ===== МЕНЮ РАЗДЕЛА — ВАРИАНТ 1 (Segmented Control) ===== */
+    .subsection-label {
+        font-size: 11px;
+        font-weight: bold;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin: 16px 0 6px;
+        padding-left: 4px;
+    }
+    .subsections {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 16px;
+        background: #e8ede2;
+        border-radius: 10px;
+        padding: 4px;
+    }
+    .btn-subsection {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #556b3e;
+        padding: 10px 8px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+        transition: all 0.15s;
+        font-family: inherit;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .btn-subsection:hover { background: rgba(255,255,255,0.6); }
+    .btn-subsection.active {
+        background: linear-gradient(135deg, #6a9c4d, #2d4a1d);
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(106,156,77,0.4);
+    }
 
     .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
     .rule-block { background: #f3f8ee; border-left: 4px solid #6a9c4d; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
@@ -247,6 +283,7 @@
         </div>
 
         <h2 style="margin-top:0;">📚 Раздел «Буквенные обозначения»</h2>
+        <div class="subsection-label">📖 Раздел</div>
         <div class="subsections" id="subsection-buttons"></div>
         <div id="theory-list"></div>
         <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
@@ -597,9 +634,6 @@ function highlightKeyWithBase(letter, semitone) {
     highlightKeyAbs(currentAbs, false);
 }
 
-// Штиль вверх — у всех нот ниже средней линии (y > 40): C, D, E, F, G, A.
-// Штиль вниз — только у H и B.
-// Дополнительная полоска — у ноты C (она ниже нотоносца).
 function renderStaff(letter, baseSignChar, needLedger) {
     const y = STAFF_Y[letter] || 50;
     const stemUp = y > 40;
@@ -671,9 +705,9 @@ DATABASE.all = {
     terms: [...DATABASE.letters.terms, ...DATABASE.signs.terms]
 };
 const SUBSECTIONS = [
-    { id: 'letters', title: '🔤 Буквы' },
-    { id: 'signs',   title: '🎼 Знаки и лады' },
-    { id: 'all',     title: '🎯 Проверка', special: true }
+    { id: 'letters', title: 'Буквы' },
+    { id: 'signs',   title: 'Знаки и лады' },
+    { id: 'all',     title: 'Проверка' }
 ];
 const INVENTORY = {
     item_violin: { title: "Золотой Смычок", icon: "🎻", unlocked: false, text: "За точные пары!" },
@@ -712,7 +746,7 @@ function updateKeyboardVisibility() {
 }
 function renderSubsections() {
     document.getElementById('subsection-buttons').innerHTML = SUBSECTIONS.map(s => `
-        <button class="btn-subsection ${s.special ? 'check' : ''} ${currentTheme === s.id ? 'active' : ''}"
+        <button class="btn-subsection ${currentTheme === s.id ? 'active' : ''}"
                 onclick="switchSubsection('${s.id}')">${s.title}</button>
     `).join('');
 }
@@ -835,7 +869,7 @@ function renderSignsSection() {
 function playSignDemo(signId, btnId) {
     if (playingNoteIds.has(btnId)) { stopAnySound(); return; }
     stopAnySound();
-    clearKeyboardHighlight();  // сбрасываем все подсветки перед новым демо
+    clearKeyboardHighlight();
     playingNoteIds.add(btnId);
     const btn = document.getElementById(btnId);
     if (btn) btn.classList.add('playing');
@@ -869,8 +903,6 @@ function playSignDemo(signId, btnId) {
         playNote(getFreq('C', 0), 0.9, 0.65, 0.28);
         highlightLater('C', 1, 50); highlightLater('C', 0, 700);
     } else if (signId === 'moll') {
-        // Минорное трезвучие: ля малой — до — ми первой октавы.
-        // Подсветка идёт напрямую через highlightKeyAbs — все три клавиши горят одновременно.
         playNote(220, 1.6, 0,    0.24);
         playNote(getFreq('C', 0), 1.6, 0.7,  0.24);
         playNote(getFreq('E', 0), 1.8, 1.4,  0.24);
@@ -880,8 +912,6 @@ function playSignDemo(signId, btnId) {
         activeTimeouts.push(t1, t2, t3);
         totalDur = 3400;
     } else if (signId === 'dur') {
-        // Мажорное трезвучие: до — ми — соль.
-        // Здесь тоже напрямую через highlightKeyAbs, чтобы подсветки НЕ сбрасывали друг друга.
         playNote(getFreq('C', 0), 1.6, 0,    0.24);
         playNote(getFreq('E', 0), 1.6, 0.7,  0.24);
         playNote(getFreq('G', 0), 1.8, 1.4,  0.24);
@@ -891,7 +921,6 @@ function playSignDemo(signId, btnId) {
         activeTimeouts.push(t1, t2, t3);
         totalDur = 3400;
     }
-    // Снятие подсветки со всех клавиш через 3 секунды после окончания последней ноты
     const t = setTimeout(() => {
         playingNoteIds.delete(btnId);
         const b = document.getElementById(btnId);
