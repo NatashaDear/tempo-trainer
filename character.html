@@ -22,20 +22,11 @@
     .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-    /* ===== МЕНЮ РАЗДЕЛА — Segmented Control ===== */
-    .subsection-label {
-        font-size: 11px;
-        font-weight: bold;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        margin: 16px 0 6px;
-        padding-left: 4px;
-    }
+    /* ===== МЕНЮ РАЗДЕЛА ===== */
     .subsections {
         display: flex;
         gap: 4px;
-        margin-bottom: 16px;
+        margin: 0 0 16px 0;
         background: #f0d9c8;
         border-radius: 10px;
         padding: 4px;
@@ -70,6 +61,11 @@
         color: #fff;
         box-shadow: 0 2px 6px rgba(183,108,75,0.4);
     }
+    .btn-fullcheck {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        margin-top: 8px;
+        margin-bottom: 18px;
+    }
 
     .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
     .rule-block { background: #fdf6f3; border-left: 4px solid #b76c4b; padding: 10px; margin-bottom: 12px; border-radius: 4px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
@@ -101,36 +97,10 @@
     .btn-exit:active { transform: scale(0.96); }
     .progress-info { font-size: 13px; font-weight: bold; color: #b76c4b; background: #fdf2ec; padding: 8px 14px; border-radius: 20px; white-space: nowrap; border: 1px solid #f0d9c8; }
 
-    .chunk-card {
-        background: #fdf2ec;
-        border: 2px solid #e8b89a;
-        color: #6b3410;
-        padding: 10px 14px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: bold;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.15s;
-    }
-    .chunk-card.ru-card {
-        background: #ecf4fc;
-        border-color: #a3c5e8;
-        color: #1e4a7a;
-    }
-    .chunk-card.active-card {
-        border-color: #b76c4b;
-        background: #fce4d6;
-        color: #48281d;
-        box-shadow: 0 4px 10px rgba(183,108,75,0.3);
-    }
-    .chunk-card.ru-card.active-card {
-        border-color: #4b6cb7;
-        background: #d6e4f7;
-        color: #182848;
-        box-shadow: 0 4px 10px rgba(75,108,183,0.3);
-    }
+    .chunk-card { background: #fdf2ec; border: 2px solid #e8b89a; color: #6b3410; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.15s; }
+    .chunk-card.ru-card { background: #ecf4fc; border-color: #a3c5e8; color: #1e4a7a; }
+    .chunk-card.active-card { border-color: #b76c4b; background: #fce4d6; color: #48281d; box-shadow: 0 4px 10px rgba(183,108,75,0.3); }
+    .chunk-card.ru-card.active-card { border-color: #4b6cb7; background: #d6e4f7; color: #182848; box-shadow: 0 4px 10px rgba(75,108,183,0.3); }
 
     .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
     .variant-option.active-card { border-color: #b76c4b; background: #fdf2ec; color: #b76c4b; }
@@ -273,21 +243,7 @@
     .howto-footer { padding: 12px 14px; background: #fff; border-top: 1px solid #e1e8ed; }
     .howto-footer button { margin-top: 0; }
 
-    .confirm-modal {
-        display: none;
-        position: fixed;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 22px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        z-index: 1003;
-        width: 90%;
-        max-width: 380px;
-        box-sizing: border-box;
-        text-align: center;
-    }
+    .confirm-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 22px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 1003; width: 90%; max-width: 380px; box-sizing: border-box; text-align: center; }
     .confirm-modal.active { display: block; }
     .confirm-modal h3 { margin: 0 0 12px; color: #48281d; font-size: 19px; }
     .confirm-modal .warn { display: inline-block; background: #ffecea; color: #c0392b; padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 14px; line-height: 1.4; border: 1px solid #f5b7b1; }
@@ -336,10 +292,10 @@
 <div id="tab-learn-content">
     <div class="card-box" id="screen-theory">
         <h2 style="margin-top:0;">📚 Раздел «Характер»</h2>
-        <div class="subsection-label">📖 Раздел</div>
+        <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
+        <button class="btn-fullcheck" onclick="startFullCheck()">🎯 Полная проверка</button>
         <div class="subsections" id="subsection-buttons"></div>
         <div id="theory-list"></div>
-        <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
     </div>
 
     <div class="card-box" id="screen-game" style="display: none;">
@@ -410,7 +366,10 @@
         </div>
         <div class="howto-block test">
             <h3>🎯 Потом — проверь себя</h3>
-            <p>Когда готов, нажми <b>«Начать зачетное испытание!»</b>. Тебя ждут 5 этапов:</p>
+            <p>Внизу экрана две кнопки:</p>
+            <p style="padding-left:8px; margin:4px 0;"><b>Начать зачетное испытание!</b> — тренировка только по текущей вкладке (Настроение, Манера или Служебные).</p>
+            <p style="padding-left:8px; margin:4px 0;"><b>🎯 Полная проверка</b> — тренировка по всем 34 терминам раздела сразу.</p>
+            <p>В каждом испытании — 5 этапов:</p>
             <ol>
                 <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
                 <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
@@ -418,19 +377,17 @@
                 <li><b>Финальный диктант</b> — впиши перевод руками. Можно писать через дефис или пробел — оба варианта верные.</li>
                 <li><b>Финальный экзамен</b> — соедини сразу все термины темы.</li>
             </ol>
-            <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁. Собери всю коллекцию — и станешь настоящим знатоком характеров!</p>
+            <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁.</p>
         </div>
         <div class="howto-block hint">
             <h3>💡 Если забыл</h3>
-            <p>Нажимай <b>«💡 Подглядеть таблицу»</b> — но помни: если подсмотрел, трофей за этот этап не дадут. Учи заранее!</p>
+            <p>Нажимай <b>«💡 Подглядеть таблицу»</b> — но помни: если подсмотрел, трофей за этот этап не дадут.</p>
         </div>
         <div class="howto-block bag">
             <h3>🎒 Рюкзак</h3>
-            <p>Все заработанные трофеи хранятся в разделе <b>«Рюкзак 🎒»</b>. Заглядывай туда, чтобы посмотреть на свою коллекцию.</p>
+            <p>Все заработанные трофеи хранятся в разделе <b>«Рюкзак 🎒»</b>.</p>
         </div>
-        <div style="text-align: center; padding: 8px 0 4px; color: #b76c4b; font-weight: bold; font-size: 14px;">
-            Удачи! 🎼
-        </div>
+        <div style="text-align: center; padding: 8px 0 4px; color: #b76c4b; font-weight: bold; font-size: 14px;">Удачи! 🎼</div>
     </div>
     <div class="howto-footer">
         <button class="btn-check" onclick="closeAllModals()">Понятно, начинаем! 🚀</button>
@@ -678,7 +635,7 @@ const DATABASE = {
 };
 
 DATABASE.all = {
-    title: "Проверка по всей теме Характер",
+    title: "Полная проверка по теме Характер",
     skipPairs: true,
     hintText: "Все термины из 3 подразделов:\n\nНАСТРОЕНИЕ:\n" + DATABASE.mood.hintText +
         "\n\nМАНЕРА:\n" + DATABASE.manner.hintText +
@@ -734,10 +691,12 @@ function initApp() {
 
 function renderSubsections() {
     const container = document.getElementById('subsection-buttons');
-    container.innerHTML = SUBSECTIONS.map(s => `
-        <button class="btn-subsection ${currentTheme === s.id ? 'active' : ''}"
-                onclick="switchSubsection('${s.id}')">${s.title}</button>
-    `).join('');
+    container.innerHTML = SUBSECTIONS
+        .filter(s => s.id !== 'all')
+        .map(s => `
+            <button class="btn-subsection ${currentTheme === s.id ? 'active' : ''}"
+                    onclick="switchSubsection('${s.id}')">${s.title}</button>
+        `).join('');
 }
 function switchSubsection(id) {
     currentTheme = id;
@@ -767,7 +726,7 @@ function renderTheoryList() {
     const list = document.getElementById('theory-list');
     if (currentTheme === 'all') {
         let html = `<div class="rule-block" style="background:#f8f0ff; border-left-color:#9b59b6; color:#4a235a;">
-            🎯 <b>Проверка по всей теме «Характер»</b> — здесь собраны все 34 термина из 3 подразделов.
+            🎯 <b>Полная проверка по всей теме «Характер»</b> — здесь собраны все 34 термина из 3 подразделов.
         </div>`;
         let first = true;
         ['mood', 'manner', 'service'].forEach(key => {
@@ -1063,6 +1022,13 @@ function startTraining() {
     loadStage();
 }
 
+function startFullCheck() {
+    currentTheme = 'all';
+    renderSubsections();
+    renderTheoryList();
+    startTraining();
+}
+
 function returnToTheory() {
     document.getElementById('screen-game').style.display = 'none';
     document.getElementById('screen-theory').style.display = 'block';
@@ -1073,6 +1039,11 @@ function returnToTheory() {
     document.getElementById('game-workspace').innerHTML = '';
     document.getElementById('game-feedback').innerText = '';
     document.getElementById('action-buttons').style.display = 'none';
+    if (currentTheme === 'all') {
+        currentTheme = 'mood';
+        renderSubsections();
+        renderTheoryList();
+    }
 }
 
 function loadStage() {
