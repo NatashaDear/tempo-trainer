@@ -26,25 +26,16 @@
         .timer-box.warning { background: #e74c3c; animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        /* ===== МЕНЮ РАЗДЕЛА — Segmented Control ===== */
-        .subsection-label {
-            font-size: 11px;
-            font-weight: bold;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin: 16px 0 6px;
-            padding-left: 4px;
-        }
+        /* ===== МЕНЮ РАЗДЕЛА ===== */
         .subsections {
             display: flex;
             gap: 4px;
-            margin-bottom: 16px;
+            margin: 0 0 16px 0;
             background: #d6e4f7;
             border-radius: 10px;
             padding: 4px;
         }
-            .btn-subsection {
+        .btn-subsection {
             flex: 1 1 0;
             background: transparent;
             border: none;
@@ -73,6 +64,11 @@
             background: linear-gradient(135deg, #4b6cb7, #182848);
             color: #fff;
             box-shadow: 0 2px 6px rgba(75,108,183,0.4);
+        }
+        .btn-fullcheck {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            margin-top: 8px;
+            margin-bottom: 18px;
         }
 
         .card-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); box-sizing: border-box; }
@@ -106,10 +102,36 @@
         .btn-exit:active { transform: scale(0.96); }
         .progress-info { font-size: 13px; font-weight: bold; color: #4b6cb7; background: #eef5fc; padding: 8px 14px; border-radius: 20px; white-space: nowrap; border: 1px solid #d6e4f7; }
 
-        .chunk-card { background: #fdf2ec; border: 2px solid #e8b89a; color: #6b3410; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.15s; }
-        .chunk-card.ru-card { background: #ecf4fc; border-color: #a3c5e8; color: #1e4a7a; }
-        .chunk-card.active-card { border-color: #b76c4b; background: #fce4d6; color: #48281d; box-shadow: 0 4px 10px rgba(183,108,75,0.3); }
-        .chunk-card.ru-card.active-card { border-color: #4b6cb7; background: #d6e4f7; color: #182848; box-shadow: 0 4px 10px rgba(75,108,183,0.3); }
+        .chunk-card {
+            background: #fdf2ec;
+            border: 2px solid #e8b89a;
+            color: #6b3410;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.15s;
+        }
+        .chunk-card.ru-card {
+            background: #ecf4fc;
+            border-color: #a3c5e8;
+            color: #1e4a7a;
+        }
+        .chunk-card.active-card {
+            border-color: #b76c4b;
+            background: #fce4d6;
+            color: #48281d;
+            box-shadow: 0 4px 10px rgba(183,108,75,0.3);
+        }
+        .chunk-card.ru-card.active-card {
+            border-color: #4b6cb7;
+            background: #d6e4f7;
+            color: #182848;
+            box-shadow: 0 4px 10px rgba(75,108,183,0.3);
+        }
 
         .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
         .variant-option.active-card { border-color: #4b6cb7; background: #eef5fc; color: #4b6cb7; }
@@ -277,10 +299,10 @@
     <div id="tab-learn-content">
         <div class="card-box" id="screen-theory">
             <h2 style="margin-top:0;">📚 Раздел «Темпы»</h2>
-            <div class="subsection-label">📖 Раздел</div>
+            <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
+            <button class="btn-fullcheck" onclick="startFullCheck()">🎯 Полная проверка</button>
             <div class="subsections" id="subsection-buttons"></div>
             <div id="theory-list"></div>
-            <button onclick="startTraining()">Начать зачетное испытание! 🚀</button>
         </div>
 
         <div class="card-box" id="screen-game" style="display: none;">
@@ -385,7 +407,10 @@
             </div>
             <div class="howto-block test">
                 <h3>🎯 Потом — проверь себя</h3>
-                <p>Когда готов, нажми <b>«Начать зачетное испытание!»</b>. Тебя ждут 5 этапов:</p>
+                <p>Внизу экрана две кнопки:</p>
+                <p style="padding-left:8px; margin:4px 0;"><b>Начать зачетное испытание!</b> — тренировка только по текущей вкладке (Медленные, Средние, Быстрые или Изменения).</p>
+                <p style="padding-left:8px; margin:4px 0;"><b>🎯 Полная проверка</b> — тренировка по всем 25 темпам раздела сразу.</p>
+                <p>В каждом испытании — 5 этапов:</p>
                 <ol>
                     <li><b>Соедини пары</b> — сопоставь итальянский термин с русским переводом.</li>
                     <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
@@ -393,7 +418,7 @@
                     <li><b>Финальный диктант</b> — впиши перевод руками. Можно писать через дефис или пробел — оба варианта верные.</li>
                     <li><b>Финальный экзамен</b> — соедини сразу все термины темы.</li>
                 </ol>
-                <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁. Собери всю коллекцию — и станешь настоящим знатоком темпов!</p>
+                <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁.</p>
             </div>
             <div class="howto-block hint">
                 <h3>💡 Если забыл</h3>
@@ -584,7 +609,7 @@
         };
 
         DATABASE.all = {
-            title: "Проверка по всей теме Темпы",
+            title: "Полная проверка по всей теме Темпы",
             skipPairs: true,
             hintText: "Все термины из 4 подразделов:\n\nМЕДЛЕННЫЕ:\n" + DATABASE.slow.hintText +
                 "\n\nСРЕДНИЕ:\n" + DATABASE.medium.hintText +
@@ -719,10 +744,12 @@
 
         function renderSubsections() {
             const container = document.getElementById('subsection-buttons');
-            container.innerHTML = SUBSECTIONS.map(s => `
-                <button class="btn-subsection ${currentTheme === s.id ? 'active' : ''}"
-                        onclick="switchSubsection('${s.id}')">${s.title}</button>
-            `).join('');
+            container.innerHTML = SUBSECTIONS
+                .filter(s => s.id !== 'all')
+                .map(s => `
+                    <button class="btn-subsection ${currentTheme === s.id ? 'active' : ''}"
+                            onclick="switchSubsection('${s.id}')">${s.title}</button>
+                `).join('');
         }
         function switchSubsection(id) {
             currentTheme = id;
@@ -753,7 +780,7 @@
             const list = document.getElementById('theory-list');
             if (currentTheme === 'all') {
                 let html = `<div class="rule-block" style="background:#fdf5ff; border-left-color:#9b59b6; color:#4a235a;">
-                    🎯 <b>Проверка по всей теме «Темпы»</b> — здесь собраны все 25 терминов из 4 подразделов.
+                    🎯 <b>Полная проверка по всей теме «Темпы»</b> — здесь собраны все 25 терминов из 4 подразделов.
                 </div>`;
                 let firstTerm = true;
                 ['slow', 'medium', 'fast', 'change'].forEach(key => {
@@ -1370,6 +1397,13 @@
             loadStage();
         }
 
+        function startFullCheck() {
+            currentTheme = 'all';
+            renderSubsections();
+            renderTheoryList();
+            startTraining();
+        }
+
         function returnToTheory() {
             document.getElementById('screen-game').style.display = 'none';
             document.getElementById('screen-theory').style.display = 'block';
@@ -1380,6 +1414,11 @@
             document.getElementById('game-workspace').innerHTML = '';
             document.getElementById('game-feedback').innerText = '';
             document.getElementById('action-buttons').style.display = 'none';
+            if (currentTheme === 'all') {
+                currentTheme = 'slow';
+                renderSubsections();
+                renderTheoryList();
+            }
         }
 
         function loadStage() {
