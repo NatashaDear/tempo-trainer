@@ -1229,7 +1229,7 @@ function selectCard(card, type, text) {
                     fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
                     currentStep = 2;
                     activeTermIndex = 0;
-                    setTimeout(loadStage, 2500);
+                    setTimeout(loadStage, 1000);
                 }
             }
         } else {
@@ -1274,7 +1274,7 @@ function checkVariant() {
         fb.className = "feedback success-text";
         fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
         currentStep = 3;
-        setTimeout(loadStage, 2500);
+        setTimeout(loadStage, 1000);
     } else {
         fb.className = "feedback error-text";
         fb.innerText = "❌ Неправильно! Вспомни точный перевод и попробуй снова.";
@@ -1325,7 +1325,7 @@ function checkDictation() {
         activeTermIndex++;
         if (activeTermIndex < DATABASE[currentTheme].terms.length) {
             currentStep = 2;
-            setTimeout(loadStage, 2500);
+            setTimeout(loadStage, 1000);
         } else {
             INVENTORY.item_cup.unlocked = true;
             updateHeader();
