@@ -1343,7 +1343,7 @@
                 fb.className = "feedback success-text";
                 fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE[currentTheme].terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
                 currentStep = 4;
-                setTimeout(loadStage, 2500);
+                setTimeout(loadStage, 1000);
             } else {
                 fb.className = "feedback error-text";
                 if (userAnswer.length < correct.length) fb.innerText = "❌ Ещё не все буквы использованы! Собери термин целиком.";
@@ -1604,7 +1604,7 @@
                             fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
                             currentStep = 2;
                             activeTermIndex = 0;
-                            setTimeout(loadStage, 2500);
+                            setTimeout(loadStage, 800);
                         }
                     }
                 } else {
@@ -1649,7 +1649,7 @@
                 fb.className = "feedback success-text";
                 fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
                 currentStep = 3;
-                setTimeout(loadStage, 2500);
+                setTimeout(loadStage, 1000);
             } else {
                 fb.className = "feedback error-text";
                 fb.innerText = "❌ Неправильно! Вспомни точный перевод и попробуй снова.";
