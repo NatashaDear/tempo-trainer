@@ -968,7 +968,7 @@ function checkAssemble() {
         fb.className = "feedback success-text";
         fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE[currentTheme].terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
         currentStep = 4;
-        setTimeout(loadStage, 2500);
+        setTimeout(loadStage, 1000);
     } else {
         fb.className = "feedback error-text";
         if (userAnswer.length < correct.length) fb.innerText = "❌ Ещё не все буквы использованы! Собери термин целиком.";
