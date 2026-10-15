@@ -1202,7 +1202,7 @@ function selectCard(card, type, text) {
                     fb.className = "feedback success-text";
                     fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
                     currentStep = 2; activeTermIndex = 0;
-                    setTimeout(loadStage, 2500);
+                    setTimeout(loadStage, 1000);
                 }
             }
         } else {
@@ -1245,7 +1245,7 @@ function checkVariant() {
         fb.innerHTML = `🎉 Верно! <b>${mod.terms[activeTermIndex].it}</b> — это «${mod.terms[activeTermIndex].ru}». +15 ⭐ ${lootText}`;
         if (currentStep === 2) currentStep = 3;
         else currentStep = 4;
-        setTimeout(loadStage, 2500);
+        setTimeout(loadStage, 800);
     } else {
         fb.className = "feedback error-text";
         fb.innerText = "❌ Неправильно! Вспомни правильный ответ и попробуй снова.";
@@ -1289,7 +1289,7 @@ function checkDictation() {
         fb.innerHTML = `🏆 Блестяще! +20 ⭐ ${lootText}`;
         activeTermIndex++;
         if (activeTermIndex < DATABASE[currentTheme].terms.length) {
-            currentStep = 2; setTimeout(loadStage, 2500);
+            currentStep = 2; setTimeout(loadStage, 1000);
         } else {
             INVENTORY.item_cup.unlocked = true;
             updateHeader();
