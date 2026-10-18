@@ -60,7 +60,8 @@
 
     .variant-option { display: block; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; font-size: 16px; background: #fff; text-align: center; font-weight: bold; transition: all 0.2s; }
     .variant-option.active-card { border-color: #b03a2e; background: #fdf2f1; color: #b03a2e; }
-    .cloze-input { font-size: 15px; padding: 6px; border: 2px solid #ccc; border-radius: 6px; width: 100%; max-width: 240px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 8px auto 0 auto; }
+    .cloze-input { font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 8px; width: 100%; max-width: 320px; font-weight: bold; text-align: center; box-sizing: border-box; display: block; margin: 0 auto; font-family: inherit; }
+    .cloze-input:focus { outline: none; border-color: #b03a2e; box-shadow: 0 0 0 3px rgba(176,58,46,0.15); }
 
     .assemble-answer { background: #fff; border: 2px dashed #b03a2e; border-radius: 10px; padding: 16px; margin: 12px 0; text-align: center; font-size: 22px; font-weight: bold; color: #641e16; letter-spacing: 4px; min-height: 60px; display: flex; align-items: center; justify-content: center; font-family: 'Courier New', monospace; word-break: break-all; }
     .assemble-letters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
@@ -85,7 +86,6 @@
     .success-text { color: #2ecc71; }
     .error-text { color: #e74c3c; }
 
-    /* ===== МОДАЛКА ДИНАМИКИ ===== */
     .dyn-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 1001; width: 92%; max-width: 460px; box-sizing: border-box; text-align: center; }
     .dyn-modal h3 { margin: 0 0 4px 0; color: #641e16; font-size: 22px; }
     .dyn-modal .dyn-translation { color: #7f8c8d; font-size: 14px; font-style: italic; margin-bottom: 8px; }
@@ -94,7 +94,6 @@
     .dyn-stage { position: relative; background: linear-gradient(180deg, #fef9f9, #f7e6e4); border-radius: 14px; padding: 12px 6px 6px; margin-bottom: 12px; box-shadow: inset 0 2px 6px rgba(176,58,46,0.1); }
     .dyn-stage svg { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
 
-    /* ===== ИНДИКАТОР ГРОМКОСТИ ===== */
     .volume-meter { position: relative; height: 16px; background: #e8d5d2; border-radius: 8px; margin: 12px 6px 4px; overflow: hidden; }
     .volume-meter-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0%; background: linear-gradient(90deg, #f39c12, #e74c3c, #b03a2e); border-radius: 8px; transition: width 0.08s linear; }
     .volume-label { text-align: center; font-size: 11px; color: #7f8c8d; margin-bottom: 10px; font-weight: bold; }
@@ -217,18 +216,16 @@
 
 <div class="dyn-modal" id="dyn-modal">
     <h3 id="dyn-title">f</h3>
-    <div class="dyn-translation" id="dyn-translation">громко, сильно</div>
-    <div class="dyn-desc" id="dyn-desc">Играть громко, с полной силой звука.</div>
+    <div class="dyn-translation" id="dyn-translation">форте (громко, сильно)</div>
+    <div class="dyn-desc" id="dyn-desc">Играть громко, с силой.</div>
 
     <div class="dyn-stage" id="dyn-stage"></div>
 
-    <!-- Индикатор текущей громкости -->
     <div class="volume-meter" id="volume-meter">
         <div class="volume-meter-fill" id="volume-meter-fill"></div>
     </div>
     <div class="volume-label" id="volume-label">Громкость: 0%</div>
 
-    <!-- Прогресс мелодии -->
     <div class="melody-progress" id="melody-progress">
         <div class="melody-progress-fill" id="melody-progress-fill"></div>
         <div class="melody-marker" id="melody-marker" style="left: 0%;"></div>
@@ -271,7 +268,7 @@
                 <li><b>Соедини пары</b> — сопоставь обозначение с переводом.</li>
                 <li><b>Выбери верный перевод</b> — из двух вариантов выбери правильный.</li>
                 <li><b>Собери термин</b> — из перемешанных букв собери слово по его значению.</li>
-                <li><b>Финальный диктант</b> — впиши перевод руками.</li>
+                <li><b>Финальный диктант</b> — два окошка: в первое впиши <b>название термина</b> (можно по-русски или по-итальянски), во второе — <b>значение</b>. Скобки, запятые, дефисы можно не ставить — они не влияют на проверку.</li>
                 <li><b>Финальный экзамен</b> — соедини сразу все 8 терминов.</li>
             </ol>
             <p>За каждый этап ты получаешь звёздочки ⭐ и трофеи 🎁.</p>
@@ -422,7 +419,7 @@ function stopAnySound() {
     document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
 }
 
-// ==================== SVG-СИМВОЛЫ ====================
+// ==================== SVG ====================
 function staffLines() {
     return `
         <line x1="34" y1="40" x2="300" y2="40" stroke="#333" stroke-width="1"/>
@@ -440,59 +437,27 @@ function noteHead(cx, cy) {
     `;
 }
 function dynLetter(letter, x, y, size) {
-    // Жирный курсивный знак динамики под нотоносцем
     return `<text x="${x}" y="${y}" font-size="${size}" fill="#b03a2e" font-weight="bold" font-style="italic" font-family="Georgia, serif">${letter}</text>`;
 }
 function svgF() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('f', 158, 108, 26)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('f', 158, 108, 26)}</svg>`;
 }
 function svgP() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('p', 158, 108, 26)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('p', 158, 108, 26)}</svg>`;
 }
 function svgMf() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('mf', 152, 108, 22)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('mf', 152, 108, 22)}</svg>`;
 }
 function svgMp() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('mp', 152, 108, 22)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('mp', 152, 108, 22)}</svg>`;
 }
 function svgFf() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('ff', 152, 108, 24)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('ff', 152, 108, 24)}</svg>`;
 }
 function svgPp() {
-    return `<svg viewBox="0 0 340 120">
-        ${staffLines()}
-        ${noteHead(140, 76)}
-        ${noteHead(200, 76)}
-        ${dynLetter('pp', 152, 108, 24)}
-    </svg>`;
+    return `<svg viewBox="0 0 340 120">${staffLines()}${noteHead(140, 76)}${noteHead(200, 76)}${dynLetter('pp', 152, 108, 24)}</svg>`;
 }
 function svgCrescendo() {
-    // «Вилка» расширяется слева направо — crescendo
     return `<svg viewBox="0 0 340 120">
         ${staffLines()}
         ${noteHead(100, 76)}
@@ -503,7 +468,6 @@ function svgCrescendo() {
     </svg>`;
 }
 function svgDiminuendo() {
-    // «Вилка» сужается слева направо — diminuendo
     return `<svg viewBox="0 0 340 120">
         ${staffLines()}
         ${noteHead(100, 76)}
@@ -519,39 +483,42 @@ const SVG_BUILDERS = {
 };
 
 // ==================== ДАННЫЕ ====================
-// Уровни громкости (от 0 до 1, но практически до 0.42 — чтобы не было клиппинга):
-// pp — пианиссимо (очень тихо)
-// p  — пиано (тихо)
-// mp — меццо-пиано (не очень тихо)
-// mf — меццо-форте (не очень громко)
-// f  — форте (громко)
-// ff — фортиссимо (очень громко)
-// crescendo — от pp к ff
-// diminuendo — от ff к pp
+// it — итальянское обозначение (для проверки названия)
+// name — русское название (для проверки названия)
+// translation — значение (для проверки второго поля)
+// ru — общая строка «название (значение)» для пар, подсказок и т.п.
 const DYNAMICS_DATA = [
-    { it: "pp", ru: "пианиссимо (очень тихо)", fake: "очень громко", symbol: "pp",
-      short: "очень тихо", desc: "Играть как можно тише, еле слышно.",
+    { it: "pp", name: "пианиссимо", translation: "очень тихо",
+      ru: "пианиссимо (очень тихо)", fake: "очень громко", symbol: "pp",
+      desc: "Играть как можно тише, еле слышно.",
       volume: 0.05, mode: "constant" },
-    { it: "p",  ru: "пиано (тихо)", fake: "громко", symbol: "p",
-      short: "тихо", desc: "Играть тихо, но не шёпотом.",
+    { it: "p", name: "пиано", translation: "тихо",
+      ru: "пиано (тихо)", fake: "громко", symbol: "p",
+      desc: "Играть тихо, но не шёпотом.",
       volume: 0.10, mode: "constant" },
-    { it: "mp", ru: "меццо-пиано (не очень тихо)", fake: "очень громко", symbol: "mp",
-      short: "не очень тихо", desc: "Умеренно тихо — средняя громкость, ближе к тихой.",
+    { it: "mp", name: "меццо-пиано", translation: "не очень тихо",
+      ru: "меццо-пиано (не очень тихо)", fake: "очень громко", symbol: "mp",
+      desc: "Умеренно тихо — средняя громкость, ближе к тихой.",
       volume: 0.16, mode: "constant" },
-    { it: "mf", ru: "меццо-форте (не очень громко)", fake: "очень тихо", symbol: "mf",
-      short: "не очень громко", desc: "Умеренно громко — средняя громкость, ближе к громкой.",
+    { it: "mf", name: "меццо-форте", translation: "не очень громко",
+      ru: "меццо-форте (не очень громко)", fake: "очень тихо", symbol: "mf",
+      desc: "Умеренно громко — средняя громкость, ближе к громкой.",
       volume: 0.22, mode: "constant" },
-    { it: "f",  ru: "форте (громко, сильно)", fake: "тихо, слабо", symbol: "f",
-      short: "громко", desc: "Играть громко, с силой.",
+    { it: "f", name: "форте", translation: "громко, сильно",
+      ru: "форте (громко, сильно)", fake: "тихо, слабо", symbol: "f",
+      desc: "Играть громко, с силой.",
       volume: 0.30, mode: "constant" },
-    { it: "ff", ru: "фортиссимо (очень громко, очень сильно)", fake: "очень тихо, слабо", symbol: "ff",
-      short: "очень громко", desc: "Играть очень громко, с максимальной силой.",
+    { it: "ff", name: "фортиссимо", translation: "очень громко, очень сильно",
+      ru: "фортиссимо (очень громко, очень сильно)", fake: "очень тихо, слабо", symbol: "ff",
+      desc: "Играть очень громко, с максимальной силой.",
       volume: 0.40, mode: "constant" },
-    { it: "crescendo", ru: "постепенно усиливая звучность", fake: "постепенно уменьшая", symbol: "crescendo",
-      short: "постепенно усиливая", desc: "Постепенно переходить от тихого звука к громкому. В нотах обозначается расширяющейся «вилкой».",
+    { it: "crescendo", name: "крещендо", translation: "постепенно усиливая звучность",
+      ru: "крещендо (постепенно усиливая звучность)", fake: "постепенно уменьшая", symbol: "crescendo",
+      desc: "Постепенно переходить от тихого звука к громкому. В нотах обозначается расширяющейся «вилкой».",
       volume: 0.05, mode: "crescendo" },
-    { it: "diminuendo", ru: "постепенно уменьшая звучность", fake: "постепенно усиливая", symbol: "diminuendo",
-      short: "постепенно уменьшая", desc: "Постепенно переходить от громкого звука к тихому. В нотах обозначается сужающейся «вилкой».",
+    { it: "diminuendo", name: "диминуэндо", translation: "постепенно уменьшая звучность",
+      ru: "диминуэндо (постепенно уменьшая звучность)", fake: "постепенно усиливая", symbol: "diminuendo",
+      desc: "Постепенно переходить от громкого звука к тихому. В нотах обозначается сужающейся «вилкой».",
       volume: 0.40, mode: "diminuendo" }
 ];
 
@@ -561,7 +528,6 @@ const DATABASE = {
     terms: DYNAMICS_DATA
 };
 
-// Мелодия для прослушивания
 const DYN_MELODY = [
     { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 392.00, d: 1 },
     { f: 329.63, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 1 },
@@ -729,7 +695,6 @@ function startDynMelody() {
     dynState.masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
     dynState.masterGain.connect(audioCtx.destination);
 
-    // Проигрываем мелодию дважды для постоянных громкостей, один раз — для cresc/dim
     const repeats = term.mode === 'constant' ? 2 : 1;
     const fullMelody = [];
     for (let r = 0; r < repeats; r++) fullMelody.push(...DYN_MELODY);
@@ -746,11 +711,10 @@ function startDynMelody() {
         if (term.mode === 'constant') {
             vol = term.volume;
         } else {
-            // Плавное изменение громкости по всей мелодии
             const progress = idx / Math.max(1, totalNotes - 1);
             if (term.mode === 'crescendo') {
                 vol = 0.05 + (0.40 - 0.05) * progress;
-            } else { // diminuendo
+            } else {
                 vol = 0.40 - (0.40 - 0.05) * progress;
             }
         }
@@ -760,10 +724,8 @@ function startDynMelody() {
         totalDur += noteDur;
     });
 
-    // Сброс шкал
     resetDynProgress();
 
-    // Прогресс мелодии
     dynState.totalDuration = totalDur;
     dynState.startTime = performance.now();
     const rafProgress = () => {
@@ -774,11 +736,9 @@ function startDynMelody() {
     };
     dynState.progressRaf = requestAnimationFrame(rafProgress);
 
-    // Анимация индикатора громкости
     dynState.volumeStart = term.volume;
     dynState.volumeStartTime = performance.now();
     if (term.mode === 'constant') {
-        // Для f/p/mf/... просто показываем постоянный уровень
         updateVolumeMeter(term.volume);
     } else {
         const volStart = term.mode === 'crescendo' ? 0.05 : 0.40;
@@ -892,7 +852,7 @@ function checkAssemble() {
         fb.className = "feedback success-text";
         fb.innerHTML = `🎉 Верно! ${correct} — это "${DATABASE.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
         currentStep = 4;
-        setTimeout(loadStage, 2500);
+        setTimeout(loadStage, 1200);
     } else {
         fb.className = "feedback error-text";
         if (userAnswer.length < correct.length) fb.innerText = "❌ Ещё не все буквы использованы!";
@@ -991,7 +951,7 @@ function loadStage() {
         document.getElementById('game-instruction').innerText = `Термин ${activeTermIndex + 1} из ${mod.terms.length}. Выбери правильный перевод:`;
         const term = mod.terms[activeTermIndex];
         const options = [{ text: term.ru, correct: true }, { text: term.fake, correct: false }].sort(() => Math.random() - 0.5);
-        let html = `<div class="rule-block" style="background:#fff; text-align:center; font-size:22px; padding: 20px; color: #641e16; font-style:italic; font-weight:bold;">${term.it}</div>
+        let html = `<div class="rule-block" style="background:#fff; text-align:center; font-size:20px; padding: 20px; color: #641e16; font-style:italic; font-weight:bold;">${term.it}</div>
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">`;
         options.forEach((opt, index) => { html += `<div class="variant-option" onclick="selectVariant(this, ${opt.correct})">${opt.text}</div>`; });
         html += `</div>`;
@@ -1007,15 +967,44 @@ function loadStage() {
         actionBtns.innerHTML = `<button class="btn-check" onclick="checkAssemble()">Проверить ✅</button>`;
     } else if (currentStep === 4) {
         document.getElementById('game-task-title').innerText = `Этап 4: Финальный Диктант ✍️`;
-        document.getElementById('game-instruction').innerHTML = `Термин ${activeTermIndex + 1} из ${mod.terms.length}.<br>• Можно писать через дефис или пробел.`;
+        document.getElementById('game-instruction').innerHTML = `
+            Термин ${activeTermIndex + 1} из ${mod.terms.length}.<br>
+            • Первое окошко — <b>название</b> (можно по-русски или по-итальянски).<br>
+            • Второе — <b>значение</b>.<br>
+            • Запятые, скобки и дефисы не важны — программа их не учитывает.
+        `;
         document.getElementById('game-instruction').style.fontStyle = 'normal';
         document.getElementById('game-instruction').style.color = '#555';
         const term = mod.terms[activeTermIndex];
-        workspace.innerHTML = `<div class="rule-block" style="background:#fff; text-align:center;">
-            <span style="font-size:22px; font-weight:bold; color:#641e16; font-style:italic;">${term.it}</span>
-            <input type="text" class="cloze-input" id="dictation-input" placeholder="Перевод...">
-            <div style="font-size:12px; color:#999; margin-top:10px;">Запятые обязательно.</div>
-        </div>`;
+        workspace.innerHTML = `
+            <div class="rule-block" style="background:#fff; text-align:center;">
+                <div style="font-size:32px; font-weight:bold; color:#641e16; font-style:italic; margin-bottom:2px;">${term.it}</div>
+                <div style="font-size:12px; color:#999; margin-bottom:18px;">Обозначение в нотах</div>
+
+                <label style="display:block; text-align:left; font-size:13px; color:#641e16; font-weight:bold; margin-bottom:6px;">Название (по-русски или по-итальянски):</label>
+                <input type="text" class="cloze-input" id="dictation-name" placeholder="Например: пиано или p" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+                <label style="display:block; text-align:left; font-size:13px; color:#641e16; font-weight:bold; margin:18px 0 6px;">Значение:</label>
+                <input type="text" class="cloze-input" id="dictation-desc" placeholder="Например: тихо" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+        `;
+        // Enter в первом поле → во второе; Enter во втором → сдать ответ
+        setTimeout(() => {
+            const nameEl = document.getElementById('dictation-name');
+            const descEl = document.getElementById('dictation-desc');
+            if (nameEl) {
+                nameEl.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault(); descEl && descEl.focus(); }
+                });
+            }
+            if (descEl) {
+                descEl.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault(); checkDictation(); }
+                });
+            }
+            if (nameEl) nameEl.focus();
+        }, 100);
+
         actionBtns.style.display = 'flex';
         actionBtns.innerHTML = `<button class="btn-check" onclick="checkDictation()">Сдать зачетную строчку 🏆</button>`;
     } else if (currentStep === 5) {
@@ -1080,7 +1069,7 @@ function selectCard(card, type, text) {
                         `;
                         document.getElementById('action-buttons').style.display = 'none';
                         document.getElementById('game-feedback').innerText = '';
-                    }, 1500);
+                    }, 1000);
                 } else {
                     let lootText = "";
                     if (eligibleForLoot && !INVENTORY.item_violin.unlocked) {
@@ -1090,7 +1079,7 @@ function selectCard(card, type, text) {
                     fb.className = "feedback success-text";
                     fb.innerHTML = `🎉 Все пары соединены верно! +${terms.length * 5} ⭐ ${lootText}`;
                     currentStep = 2; activeTermIndex = 0;
-                    setTimeout(loadStage, 2500);
+                    setTimeout(loadStage, 1200);
                 }
             }
         } else {
@@ -1124,18 +1113,25 @@ function checkVariant() {
         updateHeader(); addStat();
         fb.className = "feedback success-text";
         fb.innerHTML = `🎉 Верно! ${mod.terms[activeTermIndex].it} — это "${mod.terms[activeTermIndex].ru}". +15 ⭐ ${lootText}`;
-        currentStep = 3; setTimeout(loadStage, 2500);
+        currentStep = 3; setTimeout(loadStage, 1000);
     } else {
         fb.className = "feedback error-text";
         fb.innerText = "❌ Неправильно! Попробуй снова.";
         selectedVariant.classList.remove('active-card'); selectedVariant = null;
     }
 }
+
+// ==================== ПРОВЕРКА ДИКТАНТА ====================
+// Нормализация: нижний регистр, ё→е, дефисы/тире → пробел,
+// удаление знаков . , ! ? ; : ( ) " ' « » , удаление неразрывных пробелов,
+// схлопывание нескольких пробелов в один, обрезка.
+// Запятые, скобки, дефисы и точки НЕ учитываются.
 function normalizeForCheck(text) {
     return String(text || '').toLowerCase()
         .replace(/ё/g, 'е')
         .replace(/[—–\-]/g, ' ')
         .replace(/[.,!?;:()"'«»]/g, '')
+        .replace(/\u00A0/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 }
@@ -1151,10 +1147,21 @@ function isAnswerCorrect(userRaw, realRaw) {
 }
 function checkDictation() {
     if (stageHandled) return;
-    const userRaw = document.getElementById('dictation-input').value;
-    const realRaw = DATABASE.terms[activeTermIndex].ru;
+    const term = DATABASE.terms[activeTermIndex];
+    const nameInput = document.getElementById('dictation-name');
+    const descInput = document.getElementById('dictation-desc');
+    const nameRaw = nameInput.value;
+    const descRaw = descInput.value;
     const fb = document.getElementById('game-feedback');
-    if (isAnswerCorrect(userRaw, realRaw)) {
+
+    nameInput.style.borderColor = '#ccc';
+    descInput.style.borderColor = '#ccc';
+
+    // Название принимается на ЛЮБОМ языке — итальянский термин (it) ИЛИ русское название (name)
+    const nameOk = isAnswerCorrect(nameRaw, term.name) || isAnswerCorrect(nameRaw, term.it);
+    const descOk = isAnswerCorrect(descRaw, term.translation);
+
+    if (nameOk && descOk) {
         stageHandled = true; scoreBalance += 20;
         let lootText = "";
         if (eligibleForLoot && !INVENTORY.item_harp.unlocked) {
@@ -1166,17 +1173,26 @@ function checkDictation() {
         fb.innerHTML = `🏆 Блестяще! +20 ⭐ ${lootText}`;
         activeTermIndex++;
         if (activeTermIndex < DATABASE.terms.length) {
-            currentStep = 2; setTimeout(loadStage, 2500);
+            currentStep = 2; setTimeout(loadStage, 1200);
         } else {
             INVENTORY.item_cup.unlocked = true; updateHeader();
             fb.className = "feedback success-text";
             fb.innerHTML = `🎉 Блок терминов сдан! Переходим к Финальному Экзамену! 🎓`;
-            currentStep = 5; setTimeout(loadStage, 2500);
+            currentStep = 5; setTimeout(loadStage, 1200);
         }
     } else {
         fb.className = "feedback error-text";
-        fb.innerText = "❌ Не до конца точно! Исправь буквы.";
-        document.getElementById('dictation-input').style.borderColor = '#e74c3c';
+        if (!nameOk && !descOk) {
+            fb.innerText = "❌ И название, и значение — с ошибками. Проверь оба поля!";
+            nameInput.style.borderColor = '#e74c3c';
+            descInput.style.borderColor = '#e74c3c';
+        } else if (!nameOk) {
+            fb.innerText = `❌ Значение верное, но название — не «${nameRaw || '—'}». Попробуй написать итальянское обозначение или русское название.`;
+            nameInput.style.borderColor = '#e74c3c';
+        } else {
+            fb.innerText = `❌ Название верное, но значение — не «${descRaw || '—'}». Проверь перевод.`;
+            descInput.style.borderColor = '#e74c3c';
+        }
     }
 }
 function showHint() {
