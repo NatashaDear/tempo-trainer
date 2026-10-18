@@ -483,10 +483,6 @@ const SVG_BUILDERS = {
 };
 
 // ==================== ДАННЫЕ ====================
-// it — итальянское обозначение (для проверки названия)
-// name — русское название (для проверки названия)
-// translation — значение (для проверки второго поля)
-// ru — общая строка «название (значение)» для пар, подсказок и т.п.
 const DYNAMICS_DATA = [
     { it: "pp", name: "пианиссимо", translation: "очень тихо",
       ru: "пианиссимо (очень тихо)", fake: "очень громко", symbol: "pp",
@@ -988,7 +984,6 @@ function loadStage() {
                 <input type="text" class="cloze-input" id="dictation-desc" placeholder="Например: тихо" autocomplete="off" autocapitalize="off" spellcheck="false">
             </div>
         `;
-        // Enter в первом поле → во второе; Enter во втором → сдать ответ
         setTimeout(() => {
             const nameEl = document.getElementById('dictation-name');
             const descEl = document.getElementById('dictation-desc');
@@ -1122,10 +1117,6 @@ function checkVariant() {
 }
 
 // ==================== ПРОВЕРКА ДИКТАНТА ====================
-// Нормализация: нижний регистр, ё→е, дефисы/тире → пробел,
-// удаление знаков . , ! ? ; : ( ) " ' « » , удаление неразрывных пробелов,
-// схлопывание нескольких пробелов в один, обрезка.
-// Запятые, скобки, дефисы и точки НЕ учитываются.
 function normalizeForCheck(text) {
     return String(text || '').toLowerCase()
         .replace(/ё/g, 'е')
@@ -1159,7 +1150,13 @@ function checkDictation() {
 
     // Название принимается на ЛЮБОМ языке — итальянский термин (it) ИЛИ русское название (name)
     const nameOk = isAnswerCorrect(nameRaw, term.name) || isAnswerCorrect(nameRaw, term.it);
-    const descOk = isAnswerCorrect(descRaw, term.translation);
+    let descOk = isAnswerCorrect(descRaw, term.translation);
+
+    // Разрешаем вариант "звучание" вместо "звучность" для крещендо и диминуэндо
+    if (!descOk) {
+        const altTranslation = term.translation.replace('звучность', 'звучание');
+        descOk = isAnswerCorrect(descRaw, altTranslation);
+    }
 
     if (nameOk && descOk) {
         stageHandled = true; scoreBalance += 20;
